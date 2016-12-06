@@ -10,113 +10,73 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface myGrammarListener extends ParseTreeListener {
 	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#equation}.
+	 * Enter a parse tree produced by {@link myGrammarParser#compileUnit}.
 	 * @param ctx the parse tree
 	 */
-	void enterEquation(myGrammarParser.EquationContext ctx);
+	void enterCompileUnit(myGrammarParser.CompileUnitContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#equation}.
+	 * Exit a parse tree produced by {@link myGrammarParser#compileUnit}.
 	 * @param ctx the parse tree
 	 */
-	void exitEquation(myGrammarParser.EquationContext ctx);
+	void exitCompileUnit(myGrammarParser.CompileUnitContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#expression}.
+	 * Enter a parse tree produced by the {@code infixExpr}
+	 * labeled alternative in {@link myGrammarParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpression(myGrammarParser.ExpressionContext ctx);
+	void enterInfixExpr(myGrammarParser.InfixExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#expression}.
+	 * Exit a parse tree produced by the {@code infixExpr}
+	 * labeled alternative in {@link myGrammarParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpression(myGrammarParser.ExpressionContext ctx);
+	void exitInfixExpr(myGrammarParser.InfixExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#multiplyingExpression}.
+	 * Enter a parse tree produced by the {@code unaryExpr}
+	 * labeled alternative in {@link myGrammarParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterMultiplyingExpression(myGrammarParser.MultiplyingExpressionContext ctx);
+	void enterUnaryExpr(myGrammarParser.UnaryExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#multiplyingExpression}.
+	 * Exit a parse tree produced by the {@code unaryExpr}
+	 * labeled alternative in {@link myGrammarParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitMultiplyingExpression(myGrammarParser.MultiplyingExpressionContext ctx);
+	void exitUnaryExpr(myGrammarParser.UnaryExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#powExpression}.
+	 * Enter a parse tree produced by the {@code funcExpr}
+	 * labeled alternative in {@link myGrammarParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterPowExpression(myGrammarParser.PowExpressionContext ctx);
+	void enterFuncExpr(myGrammarParser.FuncExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#powExpression}.
+	 * Exit a parse tree produced by the {@code funcExpr}
+	 * labeled alternative in {@link myGrammarParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitPowExpression(myGrammarParser.PowExpressionContext ctx);
+	void exitFuncExpr(myGrammarParser.FuncExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#atom}.
+	 * Enter a parse tree produced by the {@code numberExpr}
+	 * labeled alternative in {@link myGrammarParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterAtom(myGrammarParser.AtomContext ctx);
+	void enterNumberExpr(myGrammarParser.NumberExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#atom}.
+	 * Exit a parse tree produced by the {@code numberExpr}
+	 * labeled alternative in {@link myGrammarParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitAtom(myGrammarParser.AtomContext ctx);
+	void exitNumberExpr(myGrammarParser.NumberExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#scientific}.
+	 * Enter a parse tree produced by the {@code parensExpr}
+	 * labeled alternative in {@link myGrammarParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterScientific(myGrammarParser.ScientificContext ctx);
+	void enterParensExpr(myGrammarParser.ParensExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#scientific}.
+	 * Exit a parse tree produced by the {@code parensExpr}
+	 * labeled alternative in {@link myGrammarParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitScientific(myGrammarParser.ScientificContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#func}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunc(myGrammarParser.FuncContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#func}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunc(myGrammarParser.FuncContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#funcname}.
-	 * @param ctx the parse tree
-	 */
-	void enterFuncname(myGrammarParser.FuncnameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#funcname}.
-	 * @param ctx the parse tree
-	 */
-	void exitFuncname(myGrammarParser.FuncnameContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#relop}.
-	 * @param ctx the parse tree
-	 */
-	void enterRelop(myGrammarParser.RelopContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#relop}.
-	 * @param ctx the parse tree
-	 */
-	void exitRelop(myGrammarParser.RelopContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#number}.
-	 * @param ctx the parse tree
-	 */
-	void enterNumber(myGrammarParser.NumberContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#number}.
-	 * @param ctx the parse tree
-	 */
-	void exitNumber(myGrammarParser.NumberContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link myGrammarParser#variable}.
-	 * @param ctx the parse tree
-	 */
-	void enterVariable(myGrammarParser.VariableContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link myGrammarParser#variable}.
-	 * @param ctx the parse tree
-	 */
-	void exitVariable(myGrammarParser.VariableContext ctx);
+	void exitParensExpr(myGrammarParser.ParensExprContext ctx);
 }

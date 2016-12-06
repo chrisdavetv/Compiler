@@ -5,14 +5,13 @@
  */
 package compile.compilersource;
 
-import compile.compilersource.myGrammarParser.ExpressionContext;
-import java.text.MessageFormat;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 /**
  *
@@ -27,29 +26,46 @@ public class CompilerHelper {
 			CommonTokenStream tokens = new CommonTokenStream(new myGrammarLexer(input));
 			//parser generates abstract syntax tree
 			myGrammarParser parser = new myGrammarParser(tokens);
-			//myGrammarParser.expression_return ret = parser.expression();
-			//ExpressionContext parserExpression = parser.expression();
-			//acquire parse result
-			//CommonTree ast = (CommonTree) parserExpression.tree;
-			//printTree(ast);
-			///return ast;
-                        System.out.println("ruleContext nullcheck: "+parser.getRuleContext() == null);
-                        output = GetASTTextOutput(parser.expression().getRuleContext());
+                        parser.removeErrorListeners();
+                        
+                        AntlrErrorListener errorListener = new AntlrErrorListener();
+                        //BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();
+                        parser.addErrorListener(errorListener);
+                        //output = GetASTTextOutput(parser.expression().getRuleContext());
+                        
+                        //parse input text
+                        ParseTreeWalker walker = new ParseTreeWalker();
+                        GrammarListener listener = new GrammarListener();
+                        walker.walk(listener, parser.compileUnit());
+                        output = errorListener.GetAllErrorMessages();
+                        
+                        //if no errors, then print value of expression
+                        if(isStringNullOrWhiteSpace(output)){
+                            
+                        }
 		} catch (RecognitionException e) {
 			throw new IllegalStateException("Recognition exception is never thrown, only declared.");
 		}
                 return output;
 	}
-    
+    public static boolean isStringNullOrWhiteSpace(String value) {
+        if (value == null) {
+            return true;
+        }
+
+        for (int i = 0; i < value.length(); i++) {
+            if (!Character.isWhitespace(value.charAt(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
     public static String GetASTTextOutput(RuleContext context){
         return explore(context, 1);
     }
     
     public static String explore(RuleContext context, int indentation) {
-        System.out.println(
-                MessageFormat.format("explore context nullcheck: {0}", context == null)
-        );
-        
         String output = "";
         String RuleName = myGrammarParser.ruleNames[context.getRuleIndex()];
         for(int c = 0;c < indentation;c++){
@@ -57,7 +73,7 @@ public class CompilerHelper {
             output += "  ";
         }
         System.out.println(RuleName);
-        output += RuleName;
+        output += RuleName+"\n";
         for(int c = 0;c < context.getChildCount();c++){
             ParseTree element = context.getChild(c);
             if(element instanceof RuleContext){

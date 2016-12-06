@@ -20,173 +20,27 @@ package compile.compilersource;
 package compile.compilersource;
 }
 
-equation
-   : expression relop expression
-   ;
+compileUnit
+    :   expr EOF
+    ;
 
-expression
-   : multiplyingExpression ((PLUS | MINUS) multiplyingExpression)*
-   ;
+expr
+    :   '(' expr ')'                         # parensExpr
+    |   op=('+'|'-') expr                    # unaryExpr
+    |   left=expr op=('*'|'/') right=expr    # infixExpr
+    |   left=expr op=('+'|'-') right=expr    # infixExpr
+    |   func=ID '(' expr ')'                 # funcExpr
+    |   value=NUM                            # numberExpr
+    ;
 
-multiplyingExpression
-   : powExpression ((TIMES | DIV) powExpression)*
-   ;
+OP_ADD: '+';
+OP_SUB: '-';
+OP_MUL: '*';
+OP_DIV: '/';
 
-powExpression
-   : atom (POW atom)*
-   ;
+NUM :   [0-9]+ ('.' [0-9]+)? ([eE] [+-]? [0-9]+)?;
+ID  :   [a-zA-Z]+;
+WS  :   [ \t\r\n] -> channel(HIDDEN);
 
-atom
-   : scientific
-   | variable
-   | LPAREN expression RPAREN
-   | func
-   ;
-
-scientific
-   : number (E number)?
-   ;
-
-func
-   : funcname LPAREN expression RPAREN
-   ;
-
-funcname
-   : COS
-   | TAN
-   | SIN
-   | ACOS
-   | ATAN
-   | ASIN
-   | LOG
-   | LN
-   ;
-
-relop
-   : EQ
-   | GT
-   | LT
-   ;
-
-number
-   : MINUS? DIGIT + (POINT DIGIT +)?
-   ;
-
-variable
-   : MINUS? LETTER (LETTER | DIGIT)*
-   ;
-
-
-COS
-   : 'cos'
-   ;
-
-
-SIN
-   : 'sin'
-   ;
-
-
-TAN
-   : 'tan'
-   ;
-
-
-ACOS
-   : 'acos'
-   ;
-
-
-ASIN
-   : 'asin'
-   ;
-
-
-ATAN
-   : 'atan'
-   ;
-
-
-LN
-   : 'ln'
-   ;
-
-
-LOG
-   : 'log'
-   ;
-
-
-LPAREN
-   : '('
-   ;
-
-
-RPAREN
-   : ')'
-   ;
-
-
-PLUS
-   : '+'
-   ;
-
-
-MINUS
-   : '-'
-   ;
-
-
-TIMES
-   : '*'
-   ;
-
-
-DIV
-   : '/'
-   ;
-
-
-GT
-   : '>'
-   ;
-
-
-LT
-   : '<'
-   ;
-
-
-EQ
-   : '='
-   ;
-
-
-POINT
-   : '.'
-   ;
-
-
-E
-   : 'e' | 'E'
-   ;
-
-
-POW
-   : '^'
-   ;
-
-
-LETTER
-   : ('a' .. 'z') | ('A' .. 'Z')
-   ;
-
-
-DIGIT
-   : ('0' .. '9')
-   ;
-
-
-WS
-   : [ \r\n\t] + -> channel (HIDDEN)
-   ;
+UNKNOWN_CHAR 
+    : . ;
