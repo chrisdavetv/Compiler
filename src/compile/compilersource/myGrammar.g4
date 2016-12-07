@@ -83,8 +83,7 @@ exprList
  ;
 
 expression
- :  expression                           #MinusExpression
- | Exclamation expression                           #notExpression
+ : Exclamation expression                           #notExpression
  | expression Pow expression                #powerExpression
  | expression '*' expression                #multiplyExpression
  | expression '/' expression                #divideExpression

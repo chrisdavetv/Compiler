@@ -5,7 +5,6 @@
  */
 package compile.compilersource;
 
-import compile.compilersource.myGrammarParser.ProgContext;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -28,7 +27,7 @@ public class CompilerHelper {
 			//parser generates abstract syntax tree
 			myGrammarParser parser = new myGrammarParser(tokens);
                         
-                        EvalVisitor eval = new EvalVisitor();   
+                        EvalVisitor<String> eval = new EvalVisitor<String>();   
                         
                         parser.removeErrorListeners();
                         AntlrErrorListener errorListener = new AntlrErrorListener();//BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();
@@ -37,14 +36,15 @@ public class CompilerHelper {
                         //parse input text
                         ParseTreeWalker walker = new ParseTreeWalker();
                         GrammarListener listener = new GrammarListener();
-                        walker.walk(listener, parser.prog());
+                        walker.walk(listener, parser.parse());
                         output = errorListener.GetAllErrorMessages();
                         
                         //if no errors, then print value of expression
                         if(isStringNullOrWhiteSpace(output)){
-                            Double result = eval.visit(parser.prog());
+                            String result = eval.visit(parser.parse());
                             System.out.println("result: "+result);
                             output = result.toString();
+                            //output = GetASTTextOutput(parser.parse().getRuleContext());
                         }
 		} catch (RecognitionException e) {
 			throw new IllegalStateException("Recognition exception is never thrown, only declared.");

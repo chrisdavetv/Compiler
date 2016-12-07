@@ -16,107 +16,444 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class GrammarListener implements myGrammarListener{
 
     @Override
-    public void enterProg(myGrammarParser.ProgContext ctx) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void enterParse(myGrammarParser.ParseContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitProg(myGrammarParser.ProgContext ctx) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void exitParse(myGrammarParser.ParseContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void enterPrintExpr(myGrammarParser.PrintExprContext ctx) {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void enterBlock(myGrammarParser.BlockContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitPrintExpr(myGrammarParser.PrintExprContext ctx) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void exitBlock(myGrammarParser.BlockContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void enterAssign(myGrammarParser.AssignContext ctx) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void enterStatement(myGrammarParser.StatementContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitAssign(myGrammarParser.AssignContext ctx) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void exitStatement(myGrammarParser.StatementContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void enterBlank(myGrammarParser.BlankContext ctx) {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    @Override
-    public void exitBlank(myGrammarParser.BlankContext ctx){
+    public void enterAssignment(myGrammarParser.AssignmentContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void enterParens(myGrammarParser.ParensContext ctx) {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void exitAssignment(myGrammarParser.AssignmentContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitParens(myGrammarParser.ParensContext ctx) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void enterIdentifierFunctionCall(myGrammarParser.IdentifierFunctionCallContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void enterMulDiv(myGrammarParser.MulDivContext ctx) {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void exitIdentifierFunctionCall(myGrammarParser.IdentifierFunctionCallContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitMulDiv(myGrammarParser.MulDivContext ctx) {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void enterPrintlnFunctionCall(myGrammarParser.PrintlnFunctionCallContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void enterAddSub(myGrammarParser.AddSubContext ctx) {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void exitPrintlnFunctionCall(myGrammarParser.PrintlnFunctionCallContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public void exitAddSub(myGrammarParser.AddSubContext ctx){
+    public void enterPrintFunctionCall(myGrammarParser.PrintFunctionCallContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public void enterId(myGrammarParser.IdContext ctx){
+    public void exitPrintFunctionCall(myGrammarParser.PrintFunctionCallContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public void exitId(myGrammarParser.IdContext ctx){
+    public void enterIfStatement(myGrammarParser.IfStatementContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public void enterInt(myGrammarParser.IntContext ctx){
+    public void exitIfStatement(myGrammarParser.IfStatementContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public void exitInt(myGrammarParser.IntContext ctx){
+    public void enterIfStat(myGrammarParser.IfStatContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitIfStat(myGrammarParser.IfStatContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterElseIfStat(myGrammarParser.ElseIfStatContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitElseIfStat(myGrammarParser.ElseIfStatContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterElseStat(myGrammarParser.ElseStatContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitElseStat(myGrammarParser.ElseStatContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterFunctionDecl(myGrammarParser.FunctionDeclContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitFunctionDecl(myGrammarParser.FunctionDeclContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterForStatement(myGrammarParser.ForStatementContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitForStatement(myGrammarParser.ForStatementContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterWhileStatement(myGrammarParser.WhileStatementContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitWhileStatement(myGrammarParser.WhileStatementContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterIdList(myGrammarParser.IdListContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitIdList(myGrammarParser.IdListContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterExprList(myGrammarParser.ExprListContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitExprList(myGrammarParser.ExprListContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterLtExpression(myGrammarParser.LtExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitLtExpression(myGrammarParser.LtExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterGtExpression(myGrammarParser.GtExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitGtExpression(myGrammarParser.GtExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterBoolExpression(myGrammarParser.BoolExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitBoolExpression(myGrammarParser.BoolExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterNotEqExpression(myGrammarParser.NotEqExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitNotEqExpression(myGrammarParser.NotEqExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterNumberExpression(myGrammarParser.NumberExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitNumberExpression(myGrammarParser.NumberExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterIdentifierExpression(myGrammarParser.IdentifierExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitIdentifierExpression(myGrammarParser.IdentifierExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterModulusExpression(myGrammarParser.ModulusExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitModulusExpression(myGrammarParser.ModulusExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterNotExpression(myGrammarParser.NotExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitNotExpression(myGrammarParser.NotExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterMultiplyExpression(myGrammarParser.MultiplyExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitMultiplyExpression(myGrammarParser.MultiplyExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterGtEqExpression(myGrammarParser.GtEqExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitGtEqExpression(myGrammarParser.GtEqExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterDivideExpression(myGrammarParser.DivideExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitDivideExpression(myGrammarParser.DivideExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterOrExpression(myGrammarParser.OrExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitOrExpression(myGrammarParser.OrExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterPowerExpression(myGrammarParser.PowerExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitPowerExpression(myGrammarParser.PowerExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterEqExpression(myGrammarParser.EqExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitEqExpression(myGrammarParser.EqExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterAndExpression(myGrammarParser.AndExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitAndExpression(myGrammarParser.AndExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterStringExpression(myGrammarParser.StringExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitStringExpression(myGrammarParser.StringExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterExpressionExpression(myGrammarParser.ExpressionExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitExpressionExpression(myGrammarParser.ExpressionExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterAddExpression(myGrammarParser.AddExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitAddExpression(myGrammarParser.AddExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterSubtractExpression(myGrammarParser.SubtractExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitSubtractExpression(myGrammarParser.SubtractExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterNullExpression(myGrammarParser.NullExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitNullExpression(myGrammarParser.NullExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterFunctionCallExpression(myGrammarParser.FunctionCallExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitFunctionCallExpression(myGrammarParser.FunctionCallExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterListExpression(myGrammarParser.ListExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitListExpression(myGrammarParser.ListExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterLtEqExpression(myGrammarParser.LtEqExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitLtEqExpression(myGrammarParser.LtEqExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterTernaryExpression(myGrammarParser.TernaryExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitTernaryExpression(myGrammarParser.TernaryExpressionContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterList(myGrammarParser.ListContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitList(myGrammarParser.ListContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void enterIndexes(myGrammarParser.IndexesContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitIndexes(myGrammarParser.IndexesContext ctx) {
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void visitTerminal(TerminalNode tn) {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void visitErrorNode(ErrorNode en) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void enterEveryRule(ParserRuleContext prc) {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void exitEveryRule(ParserRuleContext prc) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
+
     
 }
