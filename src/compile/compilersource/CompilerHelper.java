@@ -5,6 +5,7 @@
  */
 package compile.compilersource;
 
+import compile.compilersource.myGrammarParser.ProgContext;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -26,28 +27,31 @@ public class CompilerHelper {
 			CommonTokenStream tokens = new CommonTokenStream(new myGrammarLexer(input));
 			//parser generates abstract syntax tree
 			myGrammarParser parser = new myGrammarParser(tokens);
-                        parser.removeErrorListeners();
                         
-                        AntlrErrorListener errorListener = new AntlrErrorListener();
-                        //BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();
+                        EvalVisitor eval = new EvalVisitor();   
+                        
+                        parser.removeErrorListeners();
+                        AntlrErrorListener errorListener = new AntlrErrorListener();//BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();
                         parser.addErrorListener(errorListener);
-                        //output = GetASTTextOutput(parser.expression().getRuleContext());
                         
                         //parse input text
                         ParseTreeWalker walker = new ParseTreeWalker();
                         GrammarListener listener = new GrammarListener();
-                        walker.walk(listener, parser.compileUnit());
+                        walker.walk(listener, parser.prog());
                         output = errorListener.GetAllErrorMessages();
                         
                         //if no errors, then print value of expression
                         if(isStringNullOrWhiteSpace(output)){
-                            
+                            Double result = eval.visit(parser.prog());
+                            System.out.println("result: "+result);
+                            output = result.toString();
                         }
 		} catch (RecognitionException e) {
 			throw new IllegalStateException("Recognition exception is never thrown, only declared.");
 		}
                 return output;
 	}
+    
     public static boolean isStringNullOrWhiteSpace(String value) {
         if (value == null) {
             return true;
@@ -61,6 +65,7 @@ public class CompilerHelper {
 
         return true;
     }
+    //sample usage: output = GetASTTextOutput(parser.expression().getRuleContext());
     public static String GetASTTextOutput(RuleContext context){
         return explore(context, 1);
     }

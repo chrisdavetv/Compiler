@@ -84,7 +84,9 @@
         <!-- Compiling grammar -->
         <java classname="org.antlr.v4.Tool"  fork="true">
             <arg value="${antlr.grammar}"/>
+            <arg value="-visitor"/>
             <classpath path="${antlr.jar}"/>
         </java>        
     </target>
+
 </project>

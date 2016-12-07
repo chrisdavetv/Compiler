@@ -20,27 +20,29 @@ package compile.compilersource;
 package compile.compilersource;
 }
 
-compileUnit
-    :   expr EOF
+prog: stat+;
+
+stat:   expr NEWLINE            # printExpr
+    |   ID '=' expr NEWLINE     # assign
+    |   NEWLINE                 # blank
     ;
-
-expr
-    :   '(' expr ')'                         # parensExpr
-    |   op=('+'|'-') expr                    # unaryExpr
-    |   left=expr op=('*'|'/') right=expr    # infixExpr
-    |   left=expr op=('+'|'-') right=expr    # infixExpr
-    |   func=ID '(' expr ')'                 # funcExpr
-    |   value=NUM                            # numberExpr
+    
+expr:   expr op=('*'|'/') expr     # MulDiv
+    |   expr op=('+'|'-') expr     # AddSub
+    |   INT                     # int 
+    |   ID                      # id
+    |   '(' expr ')'            # parens
     ;
+    
+MUL:    '*';
+DIV:    '/';
+ADD:    '+';
+SUB:    '-';
 
-OP_ADD: '+';
-OP_SUB: '-';
-OP_MUL: '*';
-OP_DIV: '/';
-
-NUM :   [0-9]+ ('.' [0-9]+)? ([eE] [+-]? [0-9]+)?;
-ID  :   [a-zA-Z]+;
-WS  :   [ \t\r\n] -> channel(HIDDEN);
+ID:         [a-zA-Z]+;
+INT:        [0-9]+;
+NEWLINE:    '\r'? '\n';
+WS:         [ \t]+ -> skip;
 
 UNKNOWN_CHAR 
     : . ;

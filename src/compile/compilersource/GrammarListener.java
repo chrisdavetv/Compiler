@@ -16,63 +16,87 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class GrammarListener implements myGrammarListener{
 
     @Override
-    public void enterCompileUnit(myGrammarParser.CompileUnitContext ctx) {
+    public void enterProg(myGrammarParser.ProgContext ctx) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitCompileUnit(myGrammarParser.CompileUnitContext ctx) {
+    public void exitProg(myGrammarParser.ProgContext ctx) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void enterInfixExpr(myGrammarParser.InfixExprContext ctx) {
+    public void enterPrintExpr(myGrammarParser.PrintExprContext ctx) {
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitInfixExpr(myGrammarParser.InfixExprContext ctx) {
+    public void exitPrintExpr(myGrammarParser.PrintExprContext ctx) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void enterUnaryExpr(myGrammarParser.UnaryExprContext ctx) {
+    public void enterAssign(myGrammarParser.AssignContext ctx) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitUnaryExpr(myGrammarParser.UnaryExprContext ctx) {
+    public void exitAssign(myGrammarParser.AssignContext ctx) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void enterFuncExpr(myGrammarParser.FuncExprContext ctx) {
+    public void enterBlank(myGrammarParser.BlankContext ctx) {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public void exitBlank(myGrammarParser.BlankContext ctx){
+    }
+
+    @Override
+    public void enterParens(myGrammarParser.ParensContext ctx) {
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitFuncExpr(myGrammarParser.FuncExprContext ctx) {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void enterNumberExpr(myGrammarParser.NumberExprContext ctx) {
+    public void exitParens(myGrammarParser.ParensContext ctx) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitNumberExpr(myGrammarParser.NumberExprContext ctx) {
+    public void enterMulDiv(myGrammarParser.MulDivContext ctx) {
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void enterParensExpr(myGrammarParser.ParensExprContext ctx) {
+    public void exitMulDiv(myGrammarParser.MulDivContext ctx) {
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void exitParensExpr(myGrammarParser.ParensExprContext ctx) {
+    public void enterAddSub(myGrammarParser.AddSubContext ctx) {
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public void exitAddSub(myGrammarParser.AddSubContext ctx){
+    }
+    
+    @Override
+    public void enterId(myGrammarParser.IdContext ctx){
+    }
+    
+    @Override
+    public void exitId(myGrammarParser.IdContext ctx){
+    }
+    
+    @Override
+    public void enterInt(myGrammarParser.IntContext ctx){
+    }
+    
+    @Override
+    public void exitInt(myGrammarParser.IntContext ctx){
     }
 
     @Override
