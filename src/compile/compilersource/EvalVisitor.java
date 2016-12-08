@@ -6,17 +6,61 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JTextArea;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 //mismatched input errors still dont get caught 
     
-    Map<String, T> identifierMemory = new HashMap<String, T>();
-    Map<String, T> functionMemory = new HashMap<String, T>();
+    class FunctionData{
+        public Map<String, T> identifierMemory = new HashMap<String, T>();
+        public myGrammarParser.BlockContext blockCtx;
+        
+        public Boolean identifierExists(String idName){
+            return identifierMemory.get(idName) != null;
+        }
+
+        public void GenerateErrorIfIdentifierExistsElseAddToMemory(String identifierName, String value, ParserRuleContext ctx){
+            if(identifierExists(identifierName)){
+                VisitorErrorReporter.CreateErrorMessage(
+                    "identifier "+identifierName+" already exists", 
+                    ctx.getAltNumber());
+            }else{
+                identifierMemory.put(identifierName, (T)value);
+            }
+        }
+
+       public void GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(String idName, String value, ParserRuleContext ctx){
+            if(!identifierExists(idName)){
+                VisitorErrorReporter.CreateErrorMessage("identifier already exists: "+idName, 
+                        ctx.getAltNumber());
+            }else{
+                identifierMemory.put(idName, (T)value);
+            }
+        }
+        public T GenerateErrorIfIdentifierDoesNotExistElseReturnValue(String idName, ParserRuleContext ctx){
+            if(!identifierExists(idName)){
+                VisitorErrorReporter.CreateErrorMessage("identifier does not exist: "+idName, 
+                        ctx.getAltNumber());
+                return (T)"";
+            }else{
+                return identifierMemory.get(idName);
+            }
+        }
+
+        public void RemoveIdentifierFromMemory(String idName){
+            identifierMemory.remove(idName);
+        }
+    }
     
+    Map<String, T> identifierMemory = new HashMap<String, T>();
+    Map<String, FunctionData> functionMemory = new HashMap<String, FunctionData>();
+        
     ErrorReporter VisitorErrorReporter;
     JTextArea outputArea;
+    
+    final String functionParamSeparator = ",";
     
     public EvalVisitor(ErrorReporter errorReporter, JTextArea outputTextArea){
         super();
@@ -215,10 +259,28 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         return (T)"";
     }
 
+    public FunctionData GenerateErrorIfFuncDoesNotExistElseReturnValue(String idName, ParserRuleContext ctx){
+        if(!functionExists(idName)){
+            VisitorErrorReporter.CreateErrorMessage("function does not exist: "+idName, 
+                    ctx.getAltNumber());
+            return null;
+        }else{
+            return functionMemory.get(idName);
+        }
+    }
+    
     @Override
     public T visitIdentifierFunctionCall(myGrammarParser.IdentifierFunctionCallContext ctx) {
         System.out.println("In visitIdentifierFunctionCall");
-        return visitChildren(ctx);
+        T result = (T)"";
+        
+        String funcName = ctx.Identifier().getText();
+        FunctionData functionData = GenerateErrorIfFuncDoesNotExistElseReturnValue(funcName, ctx);
+        if(functionData != null){
+            result = EvaluatelBlockWithErrorGeneration(functionData.blockCtx);//what about function identifiers???
+        }
+        
+        return result;
     }
 
     @Override
@@ -236,7 +298,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         return result;
     }
     
-    T EvaluateConditionalBlock(myGrammarParser.BlockContext ctx){
+    T EvaluatelBlockWithErrorGeneration(myGrammarParser.BlockContext ctx){
         T result = (T)"";
         try{
             result = (T)visitBlock(ctx).toString();
@@ -259,7 +321,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             Boolean ifConditional = Boolean.parseBoolean(visitIfStat(ctx.ifStat()).toString());
             //if first condition is satisfied, then don't move to succeeding else-if code blocks
             if(ifConditional){
-                result = EvaluateConditionalBlock(ctx.ifStat().block());
+                result = EvaluatelBlockWithErrorGeneration(ctx.ifStat().block());
             }else{
                 //check else if statements
                 int elseIfStatmentCount = ctx.getChildCount() - 3;
@@ -268,13 +330,13 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                     System.out.println("if statement not statisfied, checking ifelse statements");
                     ifElseConditional = Boolean.parseBoolean(visitElseIfStat(ctx.elseIfStat(c)).toString());
                     if(ifElseConditional){
-                        result = EvaluateConditionalBlock(ctx.elseIfStat(c).block());
+                        result = EvaluatelBlockWithErrorGeneration(ctx.elseIfStat(c).block());
                     }
                 }
                 //if no ifelse conditions were satisfied, then check if else statement exists
                 if(!ifElseConditional && ctx.elseStat() != null){
                     System.out.println("ifelse statements not statisfied, checking else statements");
-                    result = EvaluateConditionalBlock(ctx.elseStat().block());
+                    result = EvaluatelBlockWithErrorGeneration(ctx.elseStat().block());
                 }
             }
         }catch(Exception e){
@@ -306,19 +368,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                     " - Could not resolve if statement condition", 
                     ctx.getAltNumber());
         }
-        
-        /*if(condition){//implement error recovery?
-            try{
-                result = (T)visit(blockChild).toString();
-            }catch(NullPointerException ne){
-                VisitorErrorReporter.CreateErrorMessage(
-                    ne.getMessage()+
-                    " - Could not resolve if statement body code block", 
-                    ctx.getAltNumber());
-            }
-        }
-        
-        return result;*/
+       
         return (T)String.valueOf(condition);
     }
     
@@ -376,9 +426,49 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         return result;
     }
 
+    Boolean functionExists(String funcName){
+        return functionMemory.get(funcName) != null;
+    }
+    
+    void saveFunctionToMemory(String funcName, FunctionData value){
+        functionMemory.put(funcName, value);
+    }
+    
+    void RemoveFuncFromMemory(String idName){
+        functionMemory.remove(idName);
+    }
+    
+    String[] ExtractParamsFromFunctionValue(String paramString){
+        return paramString.split(functionParamSeparator);
+    }
+    
+    public void GenerateErrorIfFuncExistsElseAddToMemory(String identifierName, FunctionData value, 
+            ParserRuleContext ctx){
+        if(identifierExists(identifierName)){
+            VisitorErrorReporter.CreateErrorMessage(
+                "function "+identifierName+" already exists", 
+                ctx.getAltNumber());
+        }else{
+            functionMemory.put(identifierName, value);
+        }
+    }
+    
     @Override
-    public T visitFunctionDecl(myGrammarParser.FunctionDeclContext ctx) {
+    public T visitFunctionDecl(myGrammarParser.FunctionDeclContext ctx) {//prints twice
         System.out.println("In visitFunctionDecl");
+        
+        String funcName = ctx.Identifier().getText();
+        HashMap<String, T> funcIdentifiers = new HashMap<String, T>();
+        FunctionData funcData = new FunctionData();
+        if(ctx.idList() != null){
+            for(int c = 0;c < ctx.idList().Identifier().size();c++){
+                funcIdentifiers.put(ctx.idList().Identifier(c).getText(), (T)"");
+            }
+            funcData.identifierMemory = funcIdentifiers;
+        }
+        funcData.blockCtx = ctx.block();
+        GenerateErrorIfFuncExistsElseAddToMemory(funcName, funcData, ctx);
+        
         return visitChildren(ctx);
     }
 
@@ -411,7 +501,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             GenerateErrorIfIdentifierExistsElseAddToMemory(
                 ctx.Identifier().getText(), lowerLimit.toString(), ctx);
             while(lowerLimit < upperLimit){
-                temp = EvaluateConditionalBlock(ctx.block()).toString();
+                temp = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
                 result += temp;
                 lowerLimit++;
             }
@@ -436,7 +526,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 ctx.getAltNumber());
         }
         while(whileConditional){
-          String iterationOutput = EvaluateConditionalBlock(ctx.block()).toString();
+          String iterationOutput = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
           result += iterationOutput;
           //outputArea.setText(outputArea.getText() + iterationOutput);
         }
