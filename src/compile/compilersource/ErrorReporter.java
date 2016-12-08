@@ -21,6 +21,7 @@ public class ErrorReporter {
         String totalErrors = "";
         String[] arr = errorList.toArray(new String[0]);
         for(int c = 0;c < arr.length;c++){
+            System.out.println("Adding error "+arr[c]+" to printout string");
             totalErrors += arr[c]+"\n";
         }
         return totalErrors;

@@ -5,20 +5,20 @@
  */
 package compile.compilersource;
 
+import javax.swing.JTextArea;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 /**
  *
  * @author chris
  */
 public class CompilerHelper {
-    public /*CommonTree*/ static String compile(String expression) {
+    public /*CommonTree*/ static String compile(String expression, JTextArea outputTextArea) {
         String output = "";
 		try {
 			//lexer splits input into tokens
@@ -28,7 +28,7 @@ public class CompilerHelper {
 			myGrammarParser parser = new myGrammarParser(tokens);
                         
                         ErrorReporter errorReporter = new ErrorReporter();
-                        EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter);   
+                        EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter, outputTextArea);   
                         
                         /*parser.removeErrorListeners();
                         AntlrErrorListener errorListener = new AntlrErrorListener();//BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();

@@ -1,27 +1,30 @@
 package compile.compilersource;
 
 import compile.compilersource.myGrammarParser.ExpressionContext;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JTextArea;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
-
+//mismatched input errors still dont get caught 
+    
     Map<String, T> memory = new HashMap<String, T>();
     
     ErrorReporter VisitorErrorReporter;
+    JTextArea outputArea;
     
-    public EvalVisitor(ErrorReporter errorReporter){
+    public EvalVisitor(ErrorReporter errorReporter, JTextArea outputTextArea){
         super();
         VisitorErrorReporter = errorReporter;
+        outputArea = outputTextArea;
     }
     
     enum MathOpType {
         ADD, SUB, MULT, DIV, POW, MOD
     }
-    enum NumberComparisonType{
-        GREATEREQUAL, GREATER, LESSEQUAL, LESS, EQUAL, NOTEQUAL
+    enum ComparisonOpType{
+        GREATEREQUAL, GREATER, LESSEQUAL, LESS, EQUAL, NOTEQUAL, AND, OR
     }
 
     String decideOperator(MathOpType type) {
@@ -30,6 +33,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 : type.equals(MathOpType.DIV) ? "/"
                 : type.equals(MathOpType.POW) ? "^"
                 : type.equals(MathOpType.MOD) ? "%"
+                : type.equals(MathOpType.MULT) ? "*"
                 : "";
     }
 
@@ -37,8 +41,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         return type.equals(MathOpType.ADD) ? aggregateValue += Double.parseDouble(visit(child).toString())
                 : type.equals(MathOpType.SUB) ? aggregateValue -= Double.parseDouble(visit(child).toString())
                 : type.equals(MathOpType.DIV) ? aggregateValue /= Double.parseDouble(visit(child).toString())
-                : type.equals(MathOpType.POW) ? aggregateValue = Math.pow(aggregateValue, Double.parseDouble(visit(child).toString())) :
-                type.equals(MathOpType.MOD) ? aggregateValue %= Double.parseDouble(visit(child).toString())
+                : type.equals(MathOpType.POW) ? aggregateValue = Math.pow(aggregateValue, Double.parseDouble(visit(child).toString())) 
+                : type.equals(MathOpType.MOD) ? aggregateValue %= Double.parseDouble(visit(child).toString())
+                : type.equals(MathOpType.MULT) ? aggregateValue *= Double.parseDouble(visit(child).toString())
                 : null;
     }
     
@@ -57,7 +62,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                         result = CalculateValue(result, child, type);///= Double.parseDouble(visit(child).toString());
                     }
                 }
-                System.out.println("found a " + operatorString + " sign at position" + c);
+                else System.out.println("found a " + operatorString + " sign at position" + c);
             }
             System.out.println("Expression returning: " + (T) result.toString());
         } catch (NullPointerException ne) {
@@ -68,42 +73,47 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         return (T) result.toString();
     }
     
-    String decideComparison(ExpressionContext ctx, NumberComparisonType type){
-        return type.equals(NumberComparisonType.EQUAL) ? 
+    String decideComparison(ExpressionContext ctx, ComparisonOpType type){
+        return type.equals(ComparisonOpType.EQUAL) ? 
                 String.valueOf(Double.parseDouble(visit(ctx.getChild(0)).toString()) == 
                     Double.parseDouble(visit(ctx.getChild(2)).toString())) :
                 
-               type.equals(NumberComparisonType.GREATER) ?
+               type.equals(ComparisonOpType.GREATER) ?
                 String.valueOf(Double.parseDouble(visit(ctx.getChild(0)).toString()) > 
                     Double.parseDouble(visit(ctx.getChild(2)).toString())) :
                 
-               type.equals(NumberComparisonType.GREATEREQUAL) ?
+               type.equals(ComparisonOpType.GREATEREQUAL) ?
                 String.valueOf(Double.parseDouble(visit(ctx.getChild(0)).toString()) >= 
                     Double.parseDouble(visit(ctx.getChild(2)).toString())) :
                 
-               type.equals(NumberComparisonType.LESS) ?
+               type.equals(ComparisonOpType.LESS) ?
                 String.valueOf(Double.parseDouble(visit(ctx.getChild(0)).toString()) < 
                     Double.parseDouble(visit(ctx.getChild(2)).toString())) :
                 
-               type.equals(NumberComparisonType.LESSEQUAL) ?
+               type.equals(ComparisonOpType.LESSEQUAL) ?
                 String.valueOf(Double.parseDouble(visit(ctx.getChild(0)).toString()) <= 
                     Double.parseDouble(visit(ctx.getChild(2)).toString())) :
                 
-               type.equals(NumberComparisonType.NOTEQUAL) ?
+               type.equals(ComparisonOpType.NOTEQUAL) ?
                 String.valueOf(Double.parseDouble(visit(ctx.getChild(0)).toString()) != 
                     Double.parseDouble(visit(ctx.getChild(2)).toString())) :
+                
+                type.equals(ComparisonOpType.AND) ?
+                String.valueOf(Boolean.parseBoolean(visit(ctx.getChild(0)).toString()) && 
+                    Boolean.parseBoolean(visit(ctx.getChild(2)).toString())) :
+                
+                type.equals(ComparisonOpType.OR) ?
+                String.valueOf(Boolean.parseBoolean(visit(ctx.getChild(0)).toString()) || 
+                    Boolean.parseBoolean(visit(ctx.getChild(2)).toString())) :
                 
                 String.valueOf(Boolean.parseBoolean(""))//will cause exception
                 ;
     }
     
-    T CompareNumbers(ExpressionContext ctx, NumberComparisonType type){
+    T CompareExp(ExpressionContext ctx, ComparisonOpType type){
         int numberOfChildren = ctx.getChildCount();
         String result = "";
         System.out.println(numberOfChildren + " children in Expression");
-        /*for(int c = 0;c < numberOfChildren;c++){
-            System.out.println("child at "+c+" has text "+ctx.getChild(c).getText());
-        }*/
         try{
             result = decideComparison(ctx, type);
         }catch(Exception e){
@@ -134,7 +144,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitParse(myGrammarParser.ParseContext ctx) {
         //in here goes error checking, etc - in antlr3, all the code previously mixed in the grammar goes here
-        T result = (T) visitChildren(ctx);
+        T result = (T) visitChildren(ctx.block());
         System.out.println("visitParse result: " + result);
         return result;
     }
@@ -176,31 +186,148 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitPrintFunctionCall(myGrammarParser.PrintFunctionCallContext ctx) {
         System.out.println("In visitPrintFunctionCall");
-        return visitChildren(ctx);
+        T result = (T) (visitChildren(ctx).toString());
+        return result;
     }
-
+    
+    T EvaluateConditionalBlock(myGrammarParser.BlockContext ctx){
+        T result = (T)"";
+        try{
+            result = (T)visitBlock(ctx).toString();
+        }catch(NullPointerException ne){
+            VisitorErrorReporter.CreateErrorMessage(
+                ne.getMessage()+
+                " - Could not resolve conditional code block", 
+                ctx.getAltNumber());
+        }
+        return result;
+    }
+    
     @Override
     public T visitIfStatement(myGrammarParser.IfStatementContext ctx) {
         System.out.println("In visitIfStatement");
-        return visitChildren(ctx);
+        System.out.println(ctx.getChildCount()+" children in if statement");
+        T result = (T)"";
+        
+        try{
+            Boolean ifConditional = Boolean.parseBoolean(visitIfStat(ctx.ifStat()).toString());
+            //if first condition is satisfied, then don't move to succeeding else-if code blocks
+            if(ifConditional){
+                result = EvaluateConditionalBlock(ctx.ifStat().block());
+            }else{
+                //check else if statements
+                int elseIfStatmentCount = ctx.getChildCount() - 3;
+                Boolean ifElseConditional = false;
+                for(int c = 0;c < elseIfStatmentCount;c++){
+                    System.out.println("if statement not statisfied, checking ifelse statements");
+                    ifElseConditional = Boolean.parseBoolean(visitElseIfStat(ctx.elseIfStat(c)).toString());
+                    if(ifElseConditional){
+                        result = EvaluateConditionalBlock(ctx.elseIfStat(c).block());
+                    }
+                }
+                //if no ifelse conditions were satisfied, then check if else statement exists
+                if(!ifElseConditional && ctx.elseStat() != null){
+                    System.out.println("ifelse statements not statisfied, checking else statements");
+                    result = EvaluateConditionalBlock(ctx.elseStat().block());
+                }
+            }
+        }catch(Exception e){
+            VisitorErrorReporter.CreateErrorMessage(
+                    e.getMessage()+
+                    " - Could not resolve condition inside if statement", 
+                    ctx.getAltNumber());
+        }
+        
+        return result;
     }
 
     @Override
     public T visitIfStat(myGrammarParser.IfStatContext ctx) {
         System.out.println("In visitIfStat");
-        return visitChildren(ctx);
+        T result = (T)"";
+        int numberOfChildren = ctx.getChildCount();
+        System.out.println(numberOfChildren+" children in visitIfStat");
+        
+        ParseTree conditionChild = ctx.expression();
+        ParseTree blockChild = ctx.block();
+        
+        Boolean condition = false;
+        try{
+            condition = Boolean.parseBoolean(visit(conditionChild).toString());
+        }catch(Exception e){
+            VisitorErrorReporter.CreateErrorMessage(
+                    e.getMessage()+
+                    " - Could not resolve if statement condition", 
+                    ctx.getAltNumber());
+        }
+        
+        /*if(condition){//implement error recovery?
+            try{
+                result = (T)visit(blockChild).toString();
+            }catch(NullPointerException ne){
+                VisitorErrorReporter.CreateErrorMessage(
+                    ne.getMessage()+
+                    " - Could not resolve if statement body code block", 
+                    ctx.getAltNumber());
+            }
+        }
+        
+        return result;*/
+        return (T)String.valueOf(condition);
     }
-
+    
     @Override
     public T visitElseIfStat(myGrammarParser.ElseIfStatContext ctx) {
         System.out.println("In visitElseIfStat");
-        return visitChildren(ctx);
+        T result = (T)"";
+        int numberOfChildren = ctx.getChildCount();
+        System.out.println(numberOfChildren+" children in visitIfStat");
+        
+        ParseTree conditionChild = ctx.expression();
+        ParseTree blockChild = ctx.block();
+        
+        Boolean condition = false;
+        try{
+            condition = Boolean.parseBoolean(visit(conditionChild).toString());
+        }catch(Exception e){
+            VisitorErrorReporter.CreateErrorMessage(
+                    e.getMessage()+
+                    " - Could not resolve else if condition", 
+                    ctx.getAltNumber());
+        }
+        
+        /*if(condition){//implement error recovery?
+            try{
+                result = (T)visit(blockChild).toString();
+            }catch(NullPointerException ne){
+                VisitorErrorReporter.CreateErrorMessage(
+                    ne.getMessage()+
+                    " - Could not resolve if statement body code block", 
+                    ctx.getAltNumber());
+            }
+        }
+        
+        return result;*/
+        return (T)String.valueOf(condition);
     }
 
     @Override
     public T visitElseStat(myGrammarParser.ElseStatContext ctx) {
-        System.out.println("In visitElseStat");
-        return visitChildren(ctx);
+        T result = (T)"";
+        int numberOfChildren = ctx.getChildCount();
+        System.out.println(numberOfChildren+" children in visitIfStat");
+        
+        ParseTree blockChild = ctx.block();
+        try{
+            result = (T)visit(blockChild).toString();
+        }catch(NullPointerException ne){
+            VisitorErrorReporter.CreateErrorMessage(
+                ne.getMessage()+
+                " - Could not resolve if statement body code block", 
+                ctx.getAltNumber());
+        }
+        
+        return result;
     }
 
     @Override
@@ -216,9 +343,26 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     }
 
     @Override
-    public T visitWhileStatement(myGrammarParser.WhileStatementContext ctx) {
-        System.out.println("In visitWhileStatement");
-        return visitChildren(ctx);
+    public T visitWhileStatement(myGrammarParser.WhileStatementContext ctx) {//need to implement variables to test
+        System.out.println("In visitWhileStatement, condition: "+ctx.expression().getText());
+        
+        T result = (T)"";
+        Boolean whileConditional = false;
+        try{
+            whileConditional = Boolean.parseBoolean(visit(ctx.expression()).toString());
+        }catch(Exception e){
+            VisitorErrorReporter.CreateErrorMessage(
+                e.getMessage()+
+                " - Could not resolve while statement condition. It must return an object of type Bool", 
+                ctx.getAltNumber());
+        }
+        while(whileConditional){
+          String iterationOutput = EvaluateConditionalBlock(ctx.block()).toString();
+          result += iterationOutput;
+          //outputArea.setText(outputArea.getText() + iterationOutput);
+        }
+        
+        return result;
     }
 
     @Override
@@ -235,12 +379,12 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitLtExpression(myGrammarParser.LtExpressionContext ctx) {
-        return CompareNumbers(ctx, NumberComparisonType.LESS);
+        return CompareExp(ctx, ComparisonOpType.LESS);
     }
 
     @Override
     public T visitGtExpression(myGrammarParser.GtExpressionContext ctx) {
-        return CompareNumbers(ctx, NumberComparisonType.GREATER);
+        return CompareExp(ctx, ComparisonOpType.GREATER);
     }
 
     @Override
@@ -250,7 +394,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitNotEqExpression(myGrammarParser.NotEqExpressionContext ctx) {
-        return CompareNumbers(ctx, NumberComparisonType.NOTEQUAL);
+        return CompareExp(ctx, ComparisonOpType.NOTEQUAL);
     }
 
     @Override
@@ -273,33 +417,40 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitNotExpression(myGrammarParser.NotExpressionContext ctx) {
-        System.out.println("in visitNotExpression: "+ctx.getText());
-        
-        return visitChildren(ctx);
+        System.out.println("inNotExpression has "+ctx.getChildCount()+" children");
+        ParseTree origBoolChild = ctx.getChild(1);
+        String result = "";
+        try{
+            result = String.valueOf(!Boolean.parseBoolean(visit(origBoolChild).toString()));
+        }catch(Exception e){
+            VisitorErrorReporter.CreateErrorMessage(e.getMessage(), 
+                    ctx.getAltNumber());
+        }
+        return (T)result;
     }
 
     @Override
     public T visitMultiplyExpression(myGrammarParser.MultiplyExpressionContext ctx) {
-        T result = Calculate(ctx, MathOpType.DIV);
+        T result = Calculate(ctx, MathOpType.MULT);
         return result;
     }
 
     @Override
     public T visitGtEqExpression(myGrammarParser.GtEqExpressionContext ctx) {
-        return CompareNumbers(ctx, NumberComparisonType.GREATEREQUAL);
+        return CompareExp(ctx, ComparisonOpType.GREATEREQUAL);
     }
     
     
     
     @Override
     public T visitDivideExpression(myGrammarParser.DivideExpressionContext ctx) {
-        T result = Calculate(ctx, MathOpType.MOD);
+        T result = Calculate(ctx, MathOpType.DIV);
         return result;
     }
 
     @Override
     public T visitOrExpression(myGrammarParser.OrExpressionContext ctx) {
-        return visitChildren(ctx);
+        return CompareExp(ctx, ComparisonOpType.OR);
     }
 
     @Override
@@ -310,17 +461,18 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitEqExpression(myGrammarParser.EqExpressionContext ctx) {
-        return CompareNumbers(ctx, NumberComparisonType.EQUAL);
+        return CompareExp(ctx, ComparisonOpType.EQUAL);
     }
 
     @Override
     public T visitAndExpression(myGrammarParser.AndExpressionContext ctx) {
-        return visitChildren(ctx);
+        return CompareExp(ctx, ComparisonOpType.AND);
     }
 
     @Override
-    public T visitStringExpression(myGrammarParser.StringExpressionContext ctx) {
-        return visitChildren(ctx);
+    public T visitStringExpression(myGrammarParser.StringExpressionContext ctx) {//string formatting?
+        System.out.println("in visitStringExpression: "+ctx.getText());
+        return (T)ctx.getText();
     }
 
     @Override
@@ -358,12 +510,50 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitLtEqExpression(myGrammarParser.LtEqExpressionContext ctx) {
-        return CompareNumbers(ctx, NumberComparisonType.LESSEQUAL);
+        return CompareExp(ctx, ComparisonOpType.LESSEQUAL);
     }
 
     @Override
     public T visitTernaryExpression(myGrammarParser.TernaryExpressionContext ctx) {
-        return visitChildren(ctx);
+        T result = (T)"";
+        int numberOfChildren = ctx.getChildCount();
+        System.out.println(numberOfChildren+" children in visitTernaryExpression");
+        
+        ParseTree conditionChild = ctx.getChild(0);
+        ParseTree trueConditionChild = ctx.getChild(2);
+        ParseTree falseConditionChild = ctx.getChild(4);
+        
+        Boolean condition = false;
+        try{
+            condition = Boolean.parseBoolean(visit(conditionChild).toString());
+        }catch(Exception e){
+            VisitorErrorReporter.CreateErrorMessage(
+                    e.getMessage()+
+                    " - Could not resolve ternary expression condition, continuing with false branch expression", 
+                    ctx.getAltNumber());
+        }
+        
+        if(condition){//implement error recovery?
+            try{
+                result = (T)visit(trueConditionChild).toString();
+            }catch(NullPointerException ne){
+                VisitorErrorReporter.CreateErrorMessage(
+                    ne.getMessage()+
+                    " - Could not resolve ternary expression true condition branch", 
+                    ctx.getAltNumber());
+            }
+        }else{
+            try{
+                result = (T)visit(falseConditionChild).toString();
+            }catch(NullPointerException ne){
+                VisitorErrorReporter.CreateErrorMessage(
+                    ne.getMessage()+
+                    " - Could not resolve ternary expression false condition branch", 
+                    ctx.getAltNumber());
+            }
+        }
+        
+        return result;
     }
 
     @Override

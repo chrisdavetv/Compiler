@@ -156,13 +156,14 @@ public class CompilerUI extends javax.swing.JFrame {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
-        jTextArea1.setText("Writeln(5+1);");
+        jTextArea1.setText("if 1==2 do\n    Writeln(5+1);\nelse if 1==1 do\n     Writeln(5+5);\nelse do\n       Writeln(5*5);\nend");
+        
     }//GEN-LAST:event_formWindowOpened
 
     private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ActionPerformed
         // TODO add your handling code here:
-        System.out.println("input text is "+jTextArea1.getText());
-        jTextArea2.setText(CompilerHelper.compile(jTextArea1.getText()));
+        jTextArea2.setText(CompilerHelper.compile(jTextArea1.getText(), jTextArea2));
+        
     }//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
 
     /**
