@@ -2,14 +2,18 @@ package compile.compilersource;
 
 import compile.compilersource.myGrammarParser.ExpressionContext;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JTextArea;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 //mismatched input errors still dont get caught 
     
-    Map<String, T> memory = new HashMap<String, T>();
+    Map<String, T> identifierMemory = new HashMap<String, T>();
+    Map<String, T> functionMemory = new HashMap<String, T>();
     
     ErrorReporter VisitorErrorReporter;
     JTextArea outputArea;
@@ -162,11 +166,53 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         System.out.println("visitStatement result: " + result);
         return result;
     }
+    
+    Boolean identifierExists(String idName){
+        return identifierMemory.get(idName) != null;
+    }
+    
+    void GenerateErrorIfIdentifierExistsElseAddToMemory(String identifierName, String value, ParserRuleContext ctx){
+        if(identifierExists(identifierName)){
+            VisitorErrorReporter.CreateErrorMessage(
+                "identifier "+identifierName+" already exists", 
+                ctx.getAltNumber());
+        }else{
+            identifierMemory.put(identifierName, (T)value);
+        }
+    }
+    
+    void GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(String idName, String value, ParserRuleContext ctx){
+        if(!identifierExists(idName)){
+            VisitorErrorReporter.CreateErrorMessage("identifier already exists: "+idName, 
+                    ctx.getAltNumber());
+        }else{
+            identifierMemory.put(idName, (T)value);
+        }
+    }
+    T GenerateErrorIfIdentifierDoesNotExistElseReturnValue(String idName, ParserRuleContext ctx){
+        if(!identifierExists(idName)){
+            VisitorErrorReporter.CreateErrorMessage("identifier does not exist: "+idName, 
+                    ctx.getAltNumber());
+            return (T)"";
+        }else{
+            return identifierMemory.get(idName);
+        }
+    }
+    
+    void RemoveIdentifierFromMemory(String idName){
+        identifierMemory.remove(idName);
+    }
 
     @Override
     public T visitAssignment(myGrammarParser.AssignmentContext ctx) {
         System.out.println("In visitAssignment");
-        return visitChildren(ctx);
+        
+        String identifierName = ctx.Identifier().getText();
+        String value = visit(ctx.expression()).toString();
+        //GenerateErrorIfIdentifierExistsElseAddToMemory(identifierName, value, ctx);
+        GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, ctx);
+        
+        return (T)"";
     }
 
     @Override
@@ -339,7 +385,40 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitForStatement(myGrammarParser.ForStatementContext ctx) {
         System.out.println("In visitForStatement");
-        return visitChildren(ctx);
+        
+        T result = (T)"";
+        String temp = "";
+        Double lowerLimit = 0.0;
+        Double upperLimit = 0.0;
+        try{
+            lowerLimit = Double.parseDouble(visit(ctx.expression(0)).toString());
+        }catch(Exception e){
+            VisitorErrorReporter.CreateErrorMessage(
+                e.getMessage()+
+                " - for loop lower limit must be an object of type Number", 
+                ctx.getAltNumber());
+        }
+        try{
+            upperLimit = Double.parseDouble(visit(ctx.expression(1)).toString());
+        }catch(Exception e){
+            VisitorErrorReporter.CreateErrorMessage(
+                e.getMessage()+
+                " - for loop upper limit must be an object of type Number", 
+                ctx.getAltNumber());
+        }
+        
+        if(lowerLimit < upperLimit){
+            GenerateErrorIfIdentifierExistsElseAddToMemory(
+                ctx.Identifier().getText(), lowerLimit.toString(), ctx);
+            while(lowerLimit < upperLimit){
+                temp = EvaluateConditionalBlock(ctx.block()).toString();
+                result += temp;
+                lowerLimit++;
+            }
+            RemoveIdentifierFromMemory(ctx.Identifier().getText());
+        }
+        
+        return result;
     }
 
     @Override
@@ -406,7 +485,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitIdentifierExpression(myGrammarParser.IdentifierExpressionContext ctx) {
-        return visitChildren(ctx);
+        String idName = ctx.Identifier().getText();
+        String result = GenerateErrorIfIdentifierDoesNotExistElseReturnValue(idName, ctx).toString();
+        if(CompilerHelper.isStringNullOrWhiteSpace(result)){
+            VisitorErrorReporter.CreateErrorMessage(
+                "identifier "+idName+" has no value yet", 
+                ctx.getAltNumber());
+        }
+        return (T)result;
     }
 
     @Override
@@ -564,5 +650,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitIndexes(myGrammarParser.IndexesContext ctx) {
         return visitChildren(ctx);
+    }
+    
+    @Override
+    public T visitIdentifierDeclaration(myGrammarParser.IdentifierDeclarationContext ctx){
+        List<TerminalNode> identifiers = ctx.idList().Identifier();
+        for(int c = 0;c < identifiers.size();c++){
+            GenerateErrorIfIdentifierExistsElseAddToMemory(identifiers.get(c).getText(), "", ctx);
+        }
+        return (T)"";
     }
 }

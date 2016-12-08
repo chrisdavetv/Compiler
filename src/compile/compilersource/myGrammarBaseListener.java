@@ -1,4 +1,4 @@
-// Generated from /Users/chris/Desktop/Projects/Compiler/src/compile/compilersource/myGrammar.g4 by ANTLR 4.5.3
+// Generated from C:\Users\chris\Desktop\Projects\Compiler\src\compile\compilersource\myGrammar.g4 by ANTLR 4.5.3
 
 package compile.compilersource;
 
@@ -61,6 +61,18 @@ public class myGrammarBaseListener implements myGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAssignment(myGrammarParser.AssignmentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIdentifierDeclaration(myGrammarParser.IdentifierDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIdentifierDeclaration(myGrammarParser.IdentifierDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

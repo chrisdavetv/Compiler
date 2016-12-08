@@ -30,6 +30,7 @@ block
 
 statement
  : assignment SemiColon
+ | identifierDeclaration SemiColon
  | functionCall SemiColon
  | ifStatement
  | forStatement
@@ -37,8 +38,12 @@ statement
  ;
 
 assignment
- : Identifier indexes? '=' expression
+ : Identifier indexes? Assign expression
  ;
+
+identifierDeclaration
+: Def idList
+;
 
 functionCall
  : Identifier OpenParen exprList? CloseParen #identifierFunctionCall

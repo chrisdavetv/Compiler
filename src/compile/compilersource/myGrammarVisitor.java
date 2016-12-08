@@ -1,4 +1,4 @@
-// Generated from /Users/chris/Desktop/Projects/Compiler/src/compile/compilersource/myGrammar.g4 by ANTLR 4.5.3
+// Generated from C:\Users\chris\Desktop\Projects\Compiler\src\compile\compilersource\myGrammar.g4 by ANTLR 4.5.3
 
 package compile.compilersource;
 
@@ -36,6 +36,12 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAssignment(myGrammarParser.AssignmentContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link myGrammarParser#identifierDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIdentifierDeclaration(myGrammarParser.IdentifierDeclarationContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code identifierFunctionCall}
 	 * labeled alternative in {@link myGrammarParser#functionCall}.

@@ -1,9 +1,8 @@
-// Generated from /Users/chris/Desktop/Projects/Compiler/src/compile/compilersource/myGrammar.g4 by ANTLR 4.5.3
+// Generated from C:\Users\chris\Desktop\Projects\Compiler\src\compile\compilersource\myGrammar.g4 by ANTLR 4.5.3
 
 package compile.compilersource;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-import org.antlr.v4.runtime.tree.RuleNode;
 
 /**
  * This class provides an empty implementation of {@link myGrammarVisitor},
@@ -14,9 +13,7 @@ import org.antlr.v4.runtime.tree.RuleNode;
  * operations with no return type.
  */
 public class myGrammarBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements myGrammarVisitor<T> {
-	
-        
-        /**
+	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
@@ -44,6 +41,13 @@ public class myGrammarBaseVisitor<T> extends AbstractParseTreeVisitor<T> impleme
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitAssignment(myGrammarParser.AssignmentContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitIdentifierDeclaration(myGrammarParser.IdentifierDeclarationContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

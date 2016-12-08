@@ -15,6 +15,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  */
 public class GrammarListener implements myGrammarListener{
 
+    
     @Override
     public void enterParse(myGrammarParser.ParseContext ctx) {
         System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
@@ -455,5 +456,15 @@ public class GrammarListener implements myGrammarListener{
         System.out.println("Not supported yet"); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public void enterIdentifierDeclaration(myGrammarParser.IdentifierDeclarationContext ctx) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exitIdentifierDeclaration(myGrammarParser.IdentifierDeclarationContext ctx) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
     
 }

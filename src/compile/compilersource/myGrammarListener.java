@@ -1,4 +1,4 @@
-// Generated from /Users/chris/Desktop/Projects/Compiler/src/compile/compilersource/myGrammar.g4 by ANTLR 4.5.3
+// Generated from C:\Users\chris\Desktop\Projects\Compiler\src\compile\compilersource\myGrammar.g4 by ANTLR 4.5.3
 
 package compile.compilersource;
 
@@ -49,6 +49,16 @@ public interface myGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAssignment(myGrammarParser.AssignmentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#identifierDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterIdentifierDeclaration(myGrammarParser.IdentifierDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#identifierDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitIdentifierDeclaration(myGrammarParser.IdentifierDeclarationContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code identifierFunctionCall}
 	 * labeled alternative in {@link myGrammarParser#functionCall}.

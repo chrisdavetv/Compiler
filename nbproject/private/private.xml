@@ -3,11 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/chris/Desktop/Projects/Compiler/src/compile/compilersource/myGrammar.g4</file>
-            <file>file:/Users/chris/Desktop/Projects/Compiler/src/compile/compiler/CompilerUI.java</file>
-            <file>file:/Users/chris/Desktop/Projects/Compiler/src/compile/compilersource/AntlrErrorListener.java</file>
-            <file>file:/Users/chris/Desktop/Projects/Compiler/src/compile/compilersource/CompilerHelper.java</file>
-            <file>file:/Users/chris/Desktop/Projects/Compiler/src/compile/compilersource/EvalVisitor.java</file>
+            <file>file:/C:/Users/chris/Desktop/Projects/Compiler/src/compile/compilersource/myGrammar.g4</file>
+            <file>file:/C:/Users/chris/Desktop/Projects/Compiler/src/compile/compiler/CompilerUI.java</file>
+            <file>file:/C:/Users/chris/Desktop/Projects/Compiler/src/compile/compilersource/EvalVisitor.java</file>
         </group>
     </open-files>
 </project-private>
