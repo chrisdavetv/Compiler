@@ -156,7 +156,7 @@ public class CompilerUI extends javax.swing.JFrame {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
-        jTextArea1.setText("Hello world!");
+        jTextArea1.setText("Writeln(5+1);");
     }//GEN-LAST:event_formWindowOpened
 
     private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ActionPerformed

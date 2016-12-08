@@ -3,6 +3,7 @@
 package compile.compilersource;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.antlr.v4.runtime.tree.RuleNode;
 
 /**
  * This class provides an empty implementation of {@link myGrammarVisitor},
@@ -13,7 +14,9 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * operations with no return type.
  */
 public class myGrammarBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements myGrammarVisitor<T> {
-	/**
+	
+        
+        /**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling

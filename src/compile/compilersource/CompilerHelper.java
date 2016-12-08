@@ -27,9 +27,10 @@ public class CompilerHelper {
 			//parser generates abstract syntax tree
 			myGrammarParser parser = new myGrammarParser(tokens);
                         
-                        EvalVisitor<String> eval = new EvalVisitor<String>();   
+                        ErrorReporter errorReporter = new ErrorReporter();
+                        EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter);   
                         
-                        parser.removeErrorListeners();
+                        /*parser.removeErrorListeners();
                         AntlrErrorListener errorListener = new AntlrErrorListener();//BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();
                         parser.addErrorListener(errorListener);
                         
@@ -38,14 +39,22 @@ public class CompilerHelper {
                         GrammarListener listener = new GrammarListener();
                         walker.walk(listener, parser.parse());
                         output = errorListener.GetAllErrorMessages();
+                        System.out.println("After getting error messages: "+output);
                         
                         //if no errors, then print value of expression
                         if(isStringNullOrWhiteSpace(output)){
-                            String result = eval.visit(parser.parse());
-                            System.out.println("result: "+result);
-                            output = result.toString();
+                            
                             //output = GetASTTextOutput(parser.parse().getRuleContext());
+                        }*/
+                        
+                        String results = eval.visitParse(parser.parse());
+                        String totalErrorString = errorReporter.GetTotalErrorString();
+                        if(isStringNullOrWhiteSpace(totalErrorString)){
+                            output = results;
+                        }else{
+                            output = totalErrorString;
                         }
+                        System.out.println("result: "+ output);
 		} catch (RecognitionException e) {
 			throw new IllegalStateException("Recognition exception is never thrown, only declared.");
 		}
