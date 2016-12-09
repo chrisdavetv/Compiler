@@ -9,6 +9,7 @@ import javax.swing.JTextArea;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -47,8 +48,13 @@ public class CompilerHelper {
                             //output = GetASTTextOutput(parser.parse().getRuleContext());
                         }*/
                         
+                        //ExceptionErrorStrategy errorStrat = new ExceptionErrorStrategy();
+                        //parser.setErrorHandler(errorStrat);
+                        
                         String results = eval.visitParse(parser.parse());
-                        String totalErrorString = errorReporter.GetTotalErrorString();
+                        String totalErrorString = //errorStrat.getTotalErrorString();
+                                                    errorReporter.GetTotalErrorString();
+                                                    //"";
                         if(isStringNullOrWhiteSpace(totalErrorString)){
                             output = results;
                         }else{
@@ -56,7 +62,8 @@ public class CompilerHelper {
                         }
                         System.out.println("result: "+ output);
 		} catch (RecognitionException e) {
-			throw new IllegalStateException("Recognition exception is never thrown, only declared.");
+                        throw new IllegalStateException
+                            ("Recognition exception is never thrown, only declared.");
 		}
                 return output;
 	}
