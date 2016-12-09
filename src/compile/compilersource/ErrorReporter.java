@@ -6,6 +6,7 @@
 package compile.compilersource;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import org.antlr.v4.runtime.Token;
 
 /**
  *
@@ -29,9 +30,9 @@ public class ErrorReporter {
     public String GetErrorAtPosition(int position){
         return errorList.toArray()[position].toString();
     }
-    public void CreateErrorMessage(String message, int lineNum){
+    public void CreateErrorMessage(String message, Token startToken){
         String errMessage = MessageFormat.format(
-                    "Exception! line {0}: {1}", lineNum, message);
+                    "Exception! line {0}, char {2}: {1}", startToken.getLine(), message, startToken.getCharPositionInLine());
         errorList.add(errMessage);
         //return errMessage;
     }

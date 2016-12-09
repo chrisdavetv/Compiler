@@ -104,7 +104,7 @@ public class myGrammarParser extends Parser {
 		super(input);
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
-	public static class ParseContext extends ParserRuleContext {
+	public static class ParseContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public BlockContext block() {
 			return getRuleContext(BlockContext.class,0);
 		}
@@ -151,7 +151,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class BlockContext extends ParserRuleContext {
+	public static class BlockContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public List<StatementContext> statement() {
 			return getRuleContexts(StatementContext.class);
 		}
@@ -247,7 +247,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class StatementContext extends ParserRuleContext {
+	public static class StatementContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public AssignmentContext assignment() {
 			return getRuleContext(AssignmentContext.class,0);
 		}
@@ -354,7 +354,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class AssignmentContext extends ParserRuleContext {
+	public static class AssignmentContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public TerminalNode Identifier() { return getToken(myGrammarParser.Identifier, 0); }
 		public TerminalNode Assign() { return getToken(myGrammarParser.Assign, 0); }
 		public ExpressionContext expression() {
@@ -417,7 +417,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class IdentifierDeclarationContext extends ParserRuleContext {
+	public static class IdentifierDeclarationContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public TerminalNode Def() { return getToken(myGrammarParser.Def, 0); }
 		public IdListContext idList() {
 			return getRuleContext(IdListContext.class,0);
@@ -464,7 +464,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class FunctionCallContext extends ParserRuleContext {
+	public static class FunctionCallContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public FunctionCallContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -620,7 +620,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class IfStatementContext extends ParserRuleContext {
+	public static class IfStatementContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public IfStatContext ifStat() {
 			return getRuleContext(IfStatContext.class,0);
 		}
@@ -703,7 +703,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class IfStatContext extends ParserRuleContext {
+	public static class IfStatContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public TerminalNode If() { return getToken(myGrammarParser.If, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
@@ -758,7 +758,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ElseIfStatContext extends ParserRuleContext {
+	public static class ElseIfStatContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public TerminalNode Else() { return getToken(myGrammarParser.Else, 0); }
 		public TerminalNode If() { return getToken(myGrammarParser.If, 0); }
 		public ExpressionContext expression() {
@@ -816,7 +816,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ElseStatContext extends ParserRuleContext {
+	public static class ElseStatContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public TerminalNode Else() { return getToken(myGrammarParser.Else, 0); }
 		public TerminalNode Do() { return getToken(myGrammarParser.Do, 0); }
 		public BlockContext block() {
@@ -866,7 +866,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class FunctionDeclContext extends ParserRuleContext {
+	public static class FunctionDeclContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public TerminalNode Def() { return getToken(myGrammarParser.Def, 0); }
 		public TerminalNode Identifier() { return getToken(myGrammarParser.Identifier, 0); }
 		public TerminalNode OpenParen() { return getToken(myGrammarParser.OpenParen, 0); }
@@ -938,7 +938,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ForStatementContext extends ParserRuleContext {
+	public static class ForStatementContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public TerminalNode For() { return getToken(myGrammarParser.For, 0); }
 		public TerminalNode Identifier() { return getToken(myGrammarParser.Identifier, 0); }
 		public List<ExpressionContext> expression() {
@@ -1009,7 +1009,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class WhileStatementContext extends ParserRuleContext {
+	public static class WhileStatementContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public TerminalNode While() { return getToken(myGrammarParser.While, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
@@ -1067,7 +1067,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class IdListContext extends ParserRuleContext {
+	public static class IdListContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public List<TerminalNode> Identifier() { return getTokens(myGrammarParser.Identifier); }
 		public TerminalNode Identifier(int i) {
 			return getToken(myGrammarParser.Identifier, i);
@@ -1129,7 +1129,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ExprListContext extends ParserRuleContext {
+	public static class ExprListContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
@@ -1193,7 +1193,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ExpressionContext extends ParserRuleContext {
+	public static class ExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public ExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2097,7 +2097,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ListContext extends ParserRuleContext {
+	public static class ListContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public TerminalNode OpenBracket() { return getToken(myGrammarParser.OpenBracket, 0); }
 		public TerminalNode CloseBracket() { return getToken(myGrammarParser.CloseBracket, 0); }
 		public ExprListContext exprList() {
@@ -2155,7 +2155,7 @@ public class myGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class IndexesContext extends ParserRuleContext {
+	public static class IndexesContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
 		public List<TerminalNode> OpenBracket() { return getTokens(myGrammarParser.OpenBracket); }
 		public TerminalNode OpenBracket(int i) {
 			return getToken(myGrammarParser.OpenBracket, i);

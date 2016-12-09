@@ -6,6 +6,7 @@ options
   language = Java;
   // generated parser should create abstract syntax tree
   //output = AST;
+  contextSuperClass = org.antlr.v4.runtime.RuleContextWithAltNum;
 }
 
 //as the generated lexer will reside in org.meri.antlr_step_by_step.parsers 

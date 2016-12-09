@@ -11,6 +11,7 @@ import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 
@@ -25,13 +26,23 @@ public class AntlrErrorListener implements ANTLRErrorListener{
         return mainErrorString;
     }
     
-    @Override
+    /*@Override
     public void syntaxError(Recognizer<?, ?> rcgnzr, Object o, int i, int i1, String string, RecognitionException re) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         System.out.println(
                 MessageFormat.format("caught a syntax error: string:{0}, i:{1}, i:{2}, o:{3} ", string, i, i1)
         );
         mainErrorString += "\n"+MessageFormat.format("Caught syntax error at line {1}, char {2}: {0}", string, i - 1, i1);
+    }*/
+    
+    @Override
+    public void syntaxError(
+            //Recognizer<T, ?> recognizer, T offendingSymbol, 
+            Recognizer<?, ?> recognizer, Object o,
+            int line, int charPositionInLine, String msg, RecognitionException e) {
+        String sourceName = recognizer.getInputStream().getSourceName();
+        sourceName = !sourceName.isEmpty() ? sourceName+": " : "";
+        mainErrorString += sourceName+"line "+line+":"+charPositionInLine+" "+msg + "\n";
     }
 
     @Override

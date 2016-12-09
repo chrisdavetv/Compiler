@@ -25,7 +25,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             if(identifierExists(identifierName)){
                 VisitorErrorReporter.CreateErrorMessage(
                     "identifier "+identifierName+" already exists", 
-                    ctx.getAltNumber());
+                    ctx.getStart());
             }else{
                 identifierMemory.put(identifierName, (T)value);
             }
@@ -34,7 +34,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
        public void GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(String idName, String value, ParserRuleContext ctx){
             if(!identifierExists(idName)){
                 VisitorErrorReporter.CreateErrorMessage("identifier already exists: "+idName, 
-                        ctx.getAltNumber());
+                        ctx.getStart());
             }else{
                 identifierMemory.put(idName, (T)value);
             }
@@ -42,7 +42,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         public T GenerateErrorIfIdentifierDoesNotExistElseReturnValue(String idName, ParserRuleContext ctx){
             if(!identifierExists(idName)){
                 VisitorErrorReporter.CreateErrorMessage("identifier does not exist: "+idName, 
-                        ctx.getAltNumber());
+                        ctx.getStart());
                 return (T)"";
             }else{
                 return identifierMemory.get(idName);
@@ -115,7 +115,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             System.out.println("Expression returning: " + (T) result.toString());
         } catch (NullPointerException ne) {
             VisitorErrorReporter.CreateErrorMessage("operator can only be applied to type Number", 
-                    ctx.getAltNumber());
+                    ctx.getStart());
             return (T)"";
         }
         return (T) result.toString();
@@ -166,7 +166,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             result = decideComparison(ctx, type);
         }catch(Exception e){
             System.out.println("error in visitGtEqExpression of type: "+e.getMessage());
-            VisitorErrorReporter.CreateErrorMessage(e.getMessage()+" - please check expressions on both sides of your comparison operators", ctx.getAltNumber());
+            VisitorErrorReporter.CreateErrorMessage(
+                    " - please check expressions on both sides of your comparison operators", 
+                    ctx.getStart());
             result = "";
         }
         return (T)result;
@@ -206,8 +208,21 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitStatement(myGrammarParser.StatementContext ctx) {
+        /*Boolean continueVisit = false;
+        System.out.println("in visitStatement");
+        if(ctx.assignment() != null || ctx.identifierDeclaration() != null || ctx.functionCall() != null){
+            System.out.println("statement contains either assignment, identifierDeclaration or functionCall");
+            System.out.println("has semi colon: "+ctx.SemiColon().getText());
+            if(!ctx.SemiColon().getText().equals(";")){
+                System.out.println("Missing semi colon");
+                VisitorErrorReporter.CreateErrorMessage(
+                    " - Missing ';' at the end of the statement", 
+                    ctx.getStart());
+            }else continueVisit = true;
+        }
+        
+        T result = continueVisit? (T) visitChildren(ctx) : (T)"";*/
         T result = (T) visitChildren(ctx);
-        System.out.println("visitStatement result: " + result);
         return result;
     }
     
@@ -219,7 +234,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         if(identifierExists(identifierName)){
             VisitorErrorReporter.CreateErrorMessage(
                 "identifier "+identifierName+" already exists", 
-                ctx.getAltNumber());
+                ctx.getStart());
         }else{
             identifierMemory.put(identifierName, (T)value);
         }
@@ -228,7 +243,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     void GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(String idName, String value, ParserRuleContext ctx){
         if(!identifierExists(idName)){
             VisitorErrorReporter.CreateErrorMessage("identifier already exists: "+idName, 
-                    ctx.getAltNumber());
+                    ctx.getStart());
         }else{
             identifierMemory.put(idName, (T)value);
         }
@@ -236,7 +251,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     T GenerateErrorIfIdentifierDoesNotExistElseReturnValue(String idName, ParserRuleContext ctx){
         if(!identifierExists(idName)){
             VisitorErrorReporter.CreateErrorMessage("identifier does not exist: "+idName, 
-                    ctx.getAltNumber());
+                    ctx.getStart());
             return (T)"";
         }else{
             return identifierMemory.get(idName);
@@ -262,7 +277,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public FunctionData GenerateErrorIfFuncDoesNotExistElseReturnValue(String idName, ParserRuleContext ctx){
         if(!functionExists(idName)){
             VisitorErrorReporter.CreateErrorMessage("function does not exist: "+idName, 
-                    ctx.getAltNumber());
+                    ctx.getStart());
             return null;
         }else{
             return functionMemory.get(idName);
@@ -306,7 +321,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             VisitorErrorReporter.CreateErrorMessage(
                 ne.getMessage()+
                 " - Could not resolve conditional code block", 
-                ctx.getAltNumber());
+                ctx.getStart());
         }
         return result;
     }
@@ -339,11 +354,17 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                     result = EvaluatelBlockWithErrorGeneration(ctx.elseStat().block());
                 }
             }
-        }catch(Exception e){
+        }catch(NullPointerException ne){
+            VisitorErrorReporter.CreateErrorMessage(
+                    ne.getMessage()+
+                    " - Could not resolve condition inside if statement", 
+                    ctx.getStart());
+        }
+        catch(Exception e){
             VisitorErrorReporter.CreateErrorMessage(
                     e.getMessage()+
-                    " - Could not resolve condition inside if statement", 
-                    ctx.getAltNumber());
+                    " - Could not resolve code block inside if statement", 
+                    ctx.getStart());
         }
         
         return result;
@@ -366,7 +387,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             VisitorErrorReporter.CreateErrorMessage(
                     e.getMessage()+
                     " - Could not resolve if statement condition", 
-                    ctx.getAltNumber());
+                    ctx.getStart());
         }
        
         return (T)String.valueOf(condition);
@@ -389,7 +410,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             VisitorErrorReporter.CreateErrorMessage(
                     e.getMessage()+
                     " - Could not resolve else if condition", 
-                    ctx.getAltNumber());
+                    ctx.getStart());
         }
         
         /*if(condition){//implement error recovery?
@@ -399,7 +420,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 VisitorErrorReporter.CreateErrorMessage(
                     ne.getMessage()+
                     " - Could not resolve if statement body code block", 
-                    ctx.getAltNumber());
+                    ctx.getStart());
             }
         }
         
@@ -420,7 +441,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             VisitorErrorReporter.CreateErrorMessage(
                 ne.getMessage()+
                 " - Could not resolve if statement body code block", 
-                ctx.getAltNumber());
+                ctx.getStart());
         }
         
         return result;
@@ -447,7 +468,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         if(identifierExists(identifierName)){
             VisitorErrorReporter.CreateErrorMessage(
                 "function "+identifierName+" already exists", 
-                ctx.getAltNumber());
+                ctx.getStart());
         }else{
             functionMemory.put(identifierName, value);
         }
@@ -486,7 +507,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             VisitorErrorReporter.CreateErrorMessage(
                 e.getMessage()+
                 " - for loop lower limit must be an object of type Number", 
-                ctx.getAltNumber());
+                ctx.getStart());
         }
         try{
             upperLimit = Double.parseDouble(visit(ctx.expression(1)).toString());
@@ -494,7 +515,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             VisitorErrorReporter.CreateErrorMessage(
                 e.getMessage()+
                 " - for loop upper limit must be an object of type Number", 
-                ctx.getAltNumber());
+                ctx.getStart());
         }
         
         if(lowerLimit < upperLimit){
@@ -523,7 +544,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             VisitorErrorReporter.CreateErrorMessage(
                 e.getMessage()+
                 " - Could not resolve while statement condition. It must return an object of type Bool", 
-                ctx.getAltNumber());
+                ctx.getStart()
+            );
         }
         while(whileConditional){
           String iterationOutput = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
@@ -580,7 +602,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         if(CompilerHelper.isStringNullOrWhiteSpace(result)){
             VisitorErrorReporter.CreateErrorMessage(
                 "identifier "+idName+" has no value yet", 
-                ctx.getAltNumber());
+                ctx.getStart());
         }
         return (T)result;
     }
@@ -600,7 +622,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             result = String.valueOf(!Boolean.parseBoolean(visit(origBoolChild).toString()));
         }catch(Exception e){
             VisitorErrorReporter.CreateErrorMessage(e.getMessage(), 
-                    ctx.getAltNumber());
+                    ctx.getStart());
         }
         return (T)result;
     }
@@ -706,7 +728,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             VisitorErrorReporter.CreateErrorMessage(
                     e.getMessage()+
                     " - Could not resolve ternary expression condition, continuing with false branch expression", 
-                    ctx.getAltNumber());
+                    ctx.getStart());
         }
         
         if(condition){//implement error recovery?
@@ -716,7 +738,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 VisitorErrorReporter.CreateErrorMessage(
                     ne.getMessage()+
                     " - Could not resolve ternary expression true condition branch", 
-                    ctx.getAltNumber());
+                    ctx.getStart());
             }
         }else{
             try{
@@ -725,7 +747,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 VisitorErrorReporter.CreateErrorMessage(
                     ne.getMessage()+
                     " - Could not resolve ternary expression false condition branch", 
-                    ctx.getAltNumber());
+                    ctx.getStart());
             }
         }
         

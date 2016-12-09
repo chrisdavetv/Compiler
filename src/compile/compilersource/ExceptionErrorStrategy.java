@@ -6,11 +6,8 @@
 package compile.compilersource;
 
 import org.antlr.v4.runtime.DefaultErrorStrategy;
-import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.misc.IntervalSet;
+import org.antlr.v4.runtime.ParserRuleContext;
 
 /**
  *
@@ -23,10 +20,18 @@ public class ExceptionErrorStrategy extends DefaultErrorStrategy {
         return totalErrorString;
     }
     
+    @Override
+    public void sync(Parser recognizer)
+    {
+        if(recognizer.getContext() instanceof ParserRuleContext){
+            super.sync(recognizer);
+        }
+    }
+    
     /*@Override
     public void recover(Parser recognizer, RecognitionException e) {
         throw e;
-    }*/
+    }
 
     @Override
     public void reportInputMismatch(Parser recognizer, InputMismatchException e) throws RecognitionException {
@@ -47,5 +52,5 @@ public class ExceptionErrorStrategy extends DefaultErrorStrategy {
         String msg = "missing "+expecting.toString(recognizer.getTokenNames()) + " at " + getTokenErrorDisplay(t);
         totalErrorString += msg + "\n";
         throw new RecognitionException(msg, recognizer, recognizer.getInputStream(), recognizer.getContext());
-    }
+    }*/
 }

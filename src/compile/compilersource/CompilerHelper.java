@@ -9,10 +9,10 @@ import javax.swing.JTextArea;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 /**
  *
@@ -28,33 +28,35 @@ public class CompilerHelper {
 			//parser generates abstract syntax tree
 			myGrammarParser parser = new myGrammarParser(tokens);
                         
+                        ExceptionErrorStrategy errorStrat = new ExceptionErrorStrategy();
+                        parser.setErrorHandler(errorStrat);
+                        
                         ErrorReporter errorReporter = new ErrorReporter();
                         EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter, outputTextArea);   
+                        String totalErrorString = "";
                         
-                        /*parser.removeErrorListeners();
+                        String results = eval.visitParse(parser.parse());
+                        totalErrorString += //errorStrat.getTotalErrorString();
+                                                    errorReporter.GetTotalErrorString() + "\n";
+                                                    //"";
+                                                    
+                                                    
+                        //new instance for listener to gather syntax errors
+			input = new ANTLRInputStream(expression);
+			tokens = new CommonTokenStream(new myGrammarLexer(input));
+			//parser generates abstract syntax tree
+			parser = new myGrammarParser(tokens);
+                        parser.removeErrorListeners();
                         AntlrErrorListener errorListener = new AntlrErrorListener();//BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();
                         parser.addErrorListener(errorListener);
-                        
                         //parse input text
                         ParseTreeWalker walker = new ParseTreeWalker();
                         GrammarListener listener = new GrammarListener();
                         walker.walk(listener, parser.parse());
-                        output = errorListener.GetAllErrorMessages();
+                        totalErrorString += errorListener.GetAllErrorMessages() +"\n";
                         System.out.println("After getting error messages: "+output);
                         
-                        //if no errors, then print value of expression
-                        if(isStringNullOrWhiteSpace(output)){
-                            
-                            //output = GetASTTextOutput(parser.parse().getRuleContext());
-                        }*/
                         
-                        //ExceptionErrorStrategy errorStrat = new ExceptionErrorStrategy();
-                        //parser.setErrorHandler(errorStrat);
-                        
-                        String results = eval.visitParse(parser.parse());
-                        String totalErrorString = //errorStrat.getTotalErrorString();
-                                                    errorReporter.GetTotalErrorString();
-                                                    //"";
                         if(isStringNullOrWhiteSpace(totalErrorString)){
                             output = results;
                         }else{
