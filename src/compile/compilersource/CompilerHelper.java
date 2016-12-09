@@ -19,9 +19,11 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
  * @author chris
  */
 public class CompilerHelper {
-    public /*CommonTree*/ static String compile(String expression, JTextArea outputTextArea) {
+    public static String compile(String expression, JTextArea outputTextArea) {
         String output = "";
 		try {
+                        //use a visitor to check semantics
+                        
 			//lexer splits input into tokens
 			ANTLRInputStream input = new ANTLRInputStream(expression);
 			CommonTokenStream tokens = new CommonTokenStream(new myGrammarLexer(input));
@@ -36,26 +38,10 @@ public class CompilerHelper {
                         String totalErrorString = "";
                         
                         String results = eval.visitParse(parser.parse());
-                        totalErrorString += //errorStrat.getTotalErrorString();
-                                                    errorReporter.GetTotalErrorString() + "\n";
-                                                    //"";
+                        totalErrorString += errorReporter.GetTotalErrorString() + "\n";
                                                     
-                                                    
-                        //new instance for listener to gather syntax errors
-			input = new ANTLRInputStream(expression);
-			tokens = new CommonTokenStream(new myGrammarLexer(input));
-			//parser generates abstract syntax tree
-			parser = new myGrammarParser(tokens);
-                        parser.removeErrorListeners();
-                        AntlrErrorListener errorListener = new AntlrErrorListener();//BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();
-                        parser.addErrorListener(errorListener);
-                        //parse input text
-                        ParseTreeWalker walker = new ParseTreeWalker();
-                        GrammarListener listener = new GrammarListener();
-                        walker.walk(listener, parser.parse());
-                        totalErrorString += errorListener.GetAllErrorMessages() +"\n";
-                        System.out.println("After getting error messages: "+output);
-                        
+                        //use a listener to gather syntax errors
+                        totalErrorString += CheckSyntaxReturnErrors(expression);
                         
                         if(isStringNullOrWhiteSpace(totalErrorString)){
                             output = results;
@@ -69,6 +55,25 @@ public class CompilerHelper {
 		}
                 return output;
 	}
+    
+    static String CheckSyntaxReturnErrors(String expression){
+        //lexer splits input into tokens
+        ANTLRInputStream input = new ANTLRInputStream(expression);
+        CommonTokenStream tokens = new CommonTokenStream(new myGrammarLexer(input));
+        
+        //parser generates abstract syntax tree
+        myGrammarParser parser = new myGrammarParser(tokens);
+        parser.removeErrorListeners();
+        AntlrErrorListener errorListener = new AntlrErrorListener();//BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();
+        parser.addErrorListener(errorListener);
+        
+        //parse input text
+        ParseTreeWalker walker = new ParseTreeWalker();
+        GrammarListener listener = new GrammarListener();
+        walker.walk(listener, parser.parse());
+        
+        return errorListener.GetAllErrorMessages() +"\n";
+    }
     
     public static boolean isStringNullOrWhiteSpace(String value) {
         if (value == null) {

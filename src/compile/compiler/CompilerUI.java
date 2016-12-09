@@ -6,6 +6,15 @@
 package compile.compiler;
 
 import compile.compilersource.CompilerHelper;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -16,6 +25,8 @@ public class CompilerUI extends javax.swing.JFrame {
     /**
      * Creates new form CompilerUI
      */
+    File currentFile;
+    
     public CompilerUI() {
         initComponents();
     }
@@ -41,7 +52,6 @@ public class CompilerUI extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem6 = new javax.swing.JMenuItem();
@@ -90,18 +100,19 @@ public class CompilerUI extends javax.swing.JFrame {
         jMenu1.add(jMenuItem3);
 
         jMenuItem4.setText("Open");
-        jMenu1.add(jMenuItem4);
-
-        jMenuItem2.setText("Save");
-        jMenuItem2.setToolTipText("");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                jMenuItem4ActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem2);
+        jMenu1.add(jMenuItem4);
 
         jMenuItem5.setText("Save As...");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem5);
 
         jMenuBar1.add(jMenu1);
@@ -146,14 +157,23 @@ public class CompilerUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
-
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem3ActionPerformed
+/*
+    *save code:
+    if(currentFile != null){
+            File existingFile = new File(currentFile.getAbsolutePath());
+            System.out.println("overwrite file? "+existingFile != null);
+            if(existingFile != null){
+                existingFile.delete();
+            }
 
+            SaveFile(currentFile.getAbsolutePath());
+        }else{
+            SaveAs();
+        }
+    */
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
         jTextArea1.setText("if 1==2 do\n    Writeln(5+1);\nelse if 1==1 do\n     Writeln(5+5);\nelse do\n       Writeln(5*5);\nend");
@@ -166,6 +186,101 @@ public class CompilerUI extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
 
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        //Handle open button action.
+        
+        //Create a file chooser
+        final JFileChooser fc = new JFileChooser();
+        FileFilter filter = new FileNameExtensionFilter("Text file", new String[] {"txt"});
+        fc.setFileFilter(filter);
+        fc.addChoosableFileFilter(filter);
+        String fileText = "";
+        int fileResult = fc.showOpenDialog(this);
+        
+        if (fileResult == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            //This is where a real application would open the file.
+
+            try {
+                FileReader reader = new FileReader(file.getAbsolutePath());
+                BufferedReader bufferedReader = new BufferedReader(reader);
+
+                String line;
+
+                while ((line = bufferedReader.readLine()) != null) {
+                    fileText += line;
+                }
+                reader.close();
+                currentFile = file;
+                jTextArea1.setText(fileText);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } 
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+        // TODO add your handling code here:
+        SaveAs();
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
+    void SaveAs(){
+        JFileChooser fc = new JFileChooser();
+        FileFilter filter = new FileNameExtensionFilter("Text file", new String[] {"txt"});
+        fc.setFileFilter(filter);
+        fc.addChoosableFileFilter(filter);
+        
+        //File existingFile = new File(file.getAbsolutePath());
+        //System.out.println("overwrite file? "+existingFile != null);
+        if(currentFile != null){
+            int dialogButton = JOptionPane.YES_NO_OPTION;
+            int dialogResult = JOptionPane.showConfirmDialog (null, 
+                    "Overwrite current file?","Shortcut",dialogButton);
+            if(dialogResult == JOptionPane.YES_OPTION){
+                currentFile.delete();
+                SaveFile(currentFile.getAbsolutePath());
+            }else{
+                int fileResult = fc.showSaveDialog(this);
+                if (fileResult == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    currentFile = file;
+                    SaveFile(file.getAbsolutePath());
+                }
+            }
+        }else{
+            int fileResult = fc.showSaveDialog(this);
+            if (fileResult == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                currentFile = file;
+                SaveFile(file.getAbsolutePath());
+            }
+        }
+    }
+    void SaveFile(String absolutePath){
+        //check if its really a text file
+        int lastIndex = absolutePath.length() - 1;
+        System.out.println(lastIndex+" chars in path, total string is "+absolutePath);
+        String fileWithExt = absolutePath.charAt(lastIndex) == 't' && 
+                    absolutePath.charAt(lastIndex - 1) == 'x' && 
+                    absolutePath.charAt(lastIndex - 2) == 't' && 
+                    absolutePath.charAt(lastIndex - 3) == '.'
+                ? absolutePath : absolutePath+".txt";
+        System.out.println("last char is "+absolutePath.charAt(lastIndex));
+        System.out.println("last char is "+absolutePath.charAt(lastIndex - 1));
+        System.out.println("last char is "+absolutePath.charAt(lastIndex - 2));
+        System.out.println("last char is "+absolutePath.charAt(lastIndex - 3));
+        System.out.println("About to save: "+fileWithExt);
+        
+        try {
+            FileWriter writer = new FileWriter(fileWithExt, true);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+            bufferedWriter.write(jTextArea1.getText());
+
+            bufferedWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -208,7 +323,6 @@ public class CompilerUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
