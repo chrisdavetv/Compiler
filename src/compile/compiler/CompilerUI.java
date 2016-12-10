@@ -178,7 +178,139 @@ public class CompilerUI extends javax.swing.JFrame {
     */
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
-        jTextArea1.setText("if 1==2 do\n    Writeln(5+1);\nelse if 1==1 do\n     Writeln(5+5);\nelse do\n       Writeln(5*5);\nend");
+        String testcode = "//This sample code (also in compilerdemofinal.txt)  tests my script - like grammar for  math operators, comparison operators,\n" +
+                            "// type agnostic variable declaration,  if-then-else, for and while loops, ternary conditional expressions, assignment,\n" +
+                            "// parenthesis grouped expression evaluation, function calls\n" +
+                            "\n" +
+                            "def useTernary\n" +
+                            "useTernary = false	 //change this to test ternary expresson or traditional if-then type conditional\n" +
+                            "\n" +
+                            "def demonstarteMathOps()	\n" +
+                            "	//comments are supported as well\n" +
+                            "	\n" +
+                            "	Writeln(\"Starting math ops demonstration\")\n" +
+                            "	Writeln()\n" +
+                            "\n" +
+                            "	def x, y\n" +
+                            "	x = 10\n" +
+                            "	y = 50\n" +
+                            "\n" +
+                            "	//addition\n" +
+                            "	Write(\"Adding 10 and 50: \")\n" +
+                            "	Writeln(x+y)\n" +
+                            "	\n" +
+                            "	//sub\n" +
+                            "	Write(\"Subtracting 10 and 50: \")\n" +
+                            "	Writeln(x - y)\n" +
+                            "\n" +
+                            "	//mult\n" +
+                            "	Write(\"Multiplying 10 and 50:\")\n" +
+                            "	Writeln(x * y)\n" +
+                            "\n" +
+                            "	//div\n" +
+                            "	Write(\"Dividing 10 and 50:\")\n" +
+                            "	Writeln(10/50)\n" +
+                            "\n" +
+                            "	//exponentiation\n" +
+                            "	Write(\"Raising 10 to the 50th power:\")\n" +
+                            "	Writeln(10^50)\n" +
+                            "\n" +
+                            "	//modulo\n" +
+                            "	Write(\"10 modulo 50:\")\n" +
+                            "	Writeln(10%50)\n" +
+                            "	Writeln()Writeln()Writeln()\n" +
+                            "end\n" +
+                            "\n" +
+                            "def demonstrateComparisonOps()\n" +
+                            "	def a,b, c, compareResult\n" +
+                            "	a = 100\n" +
+                            "	b = 200\n" +
+                            "	c = 300\n" +
+                            "	Write(\"Starting comparison operators demo: Creating 3 variables a, b and c with respective values: \")\n" +
+                            "	Write(a)\n" +
+                            "	Write(\", \")\n" +
+                            "	Write(b)\n" +
+                            "	Write(\", \")\n" +
+                            "	Writeln(c)\n" +
+                            "	Write(\" and using boolean variables to hold comparison result\")\n" +
+                            "	Writeln()\n" +
+                            "	Writeln()\n" +
+                            "\n" +
+                            "	// equals, not equal\n" +
+                            "	Write(\"Is a equal to b?: \")\n" +
+                            "	compareResult = a ==b\n" +
+                            "	Writeln(compareResult)\n" +
+                            "	Write(\"Is a not equal to b+1?: \")\n" +
+                            "	compareResult = a != ( b + 1) \n" +
+                            "	Writeln(compareResult)\n" +
+                            "	Writeln()\n" +
+                            "\n" +
+                            "	//lessthan\n" +
+                            "	Write(\"Is a less than b?:\")\n" +
+                            "	compareResult = a < b\n" +
+                            "	Writeln(compareResult)\n" +
+                            "	Writeln()	\n" +
+                            "\n" +
+                            "	//lessthanequal\n" +
+                            "	Write(\"Is a - 1 less than or equal to b?: \")\n" +
+                            "	compareResult = (a-1) <= b\n" +
+                            "	Writeln(compareResult)\n" +
+                            "	Writeln()\n" +
+                            "\n" +
+                            "	//greaterthan\n" +
+                            "	Write(\"Is b greater than a?: \")\n" +
+                            "	compareResult = b > a\n" +
+                            "	Writeln(compareResult)\n" +
+                            "	Writeln()\n" +
+                            "\n" +
+                            "	//greaterthan equal\n" +
+                            "	Write(\"Is a >= a? :\")\n" +
+                            "	compareResult = a >= a\n" +
+                            "	Writeln(compareResult)\n" +
+                            "	Writeln()\n" +
+                            "	\n" +
+                            "	//And\n" +
+                            "	Write(\"Is a < 2 AND b > 4? : \")\n" +
+                            "	compareResult = a < 2 && b > 4\n" +
+                            "	Writeln(compareResult)\n" +
+                            "	Writeln()\n" +
+                            "\n" +
+                            "	//OR\n" +
+                            "	Write(\"Is a < 2 OR b > 4? : \")\n" +
+                            "	compareResult = a < 2 || b > 4\n" +
+                            "	Writeln(compareResult)\n" +
+                            "	Writeln()\n" +
+                            "\n" +
+                            "end\n" +
+                            "\n" +
+                            "def printTernarySuccessBranch()\n" +
+                            "	Writeln(\"Ternary Success branch executed!\")\n" +
+                            "end\n" +
+                            "def printTernaryFalseBranch()\n" +
+                            "	Writeln(\"Ternary False branch executed!\")\n" +
+                            "end\n" +
+                            "\n" +
+                            "\n" +
+                            "\n" +
+                            "//main code is simply all code that is not wrapped in a function, like the following\n" +
+                            "if(useTernary) do\n" +
+                            "\n" +
+                            "	(1 == 1) ? printTernarySuccessBranch() : printTernaryFalseBranch() \n" +
+                            "\n" +
+                            "else do \n" +
+                            "\n" +
+                            "	if 1==2 do\n" +
+                            "   	 	Writeln(\"first condition met\")\n" +
+                            "	else if 1==1 do\n" +
+                            "     		Writeln(\"Starting compiler demo: Please note that all numbers used in math/comparison operations are stored in variables. Included with this jar file are sample grammar source code files to verify functionality.\")\n" +
+                            "		demonstarteMathOps()\n" +
+                            "		demonstrateComparisonOps()\n" +
+                            "	else do\n" +
+                            "      		 Writeln(\"else if condition met\")\n" +
+                            "	end\n" +
+                            "\n" +
+                            "end";
+        jTextArea1.setText(testcode);
         
     }//GEN-LAST:event_formWindowOpened
 

@@ -26,20 +26,21 @@ parse
  ;
 
 block
- : (statement | functionDecl)* (Return expression SemiColon)?
+ : (statement | functionDecl)* (Return expression)?
  ;
 
 statement
- : assignment SemiColon Comment?
- | identifierDeclaration SemiColon 
- | functionCall SemiColon 
+ : assignment Comment?
+ | identifierDeclaration 
+ | functionCall 
  | ifStatement 
  | forStatement
  | whileStatement 
+ | expression
  ;
 
 assignment
- : Identifier indexes? Assign expression
+ : Identifier Assign expression
  ;
 
 identifierDeclaration

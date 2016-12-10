@@ -37,7 +37,6 @@ public class AntlrErrorListener implements ANTLRErrorListener{
     
     @Override
     public void syntaxError(
-            //Recognizer<T, ?> recognizer, T offendingSymbol, 
             Recognizer<?, ?> recognizer, Object o,
             int line, int charPositionInLine, String msg, RecognitionException e) {
         String sourceName = recognizer.getInputStream().getSourceName();

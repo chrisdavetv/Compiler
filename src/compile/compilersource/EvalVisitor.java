@@ -267,8 +267,13 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         System.out.println("In visitAssignment");
         
         String identifierName = ctx.Identifier().getText();
-        String value = visit(ctx.expression()).toString();
-        //GenerateErrorIfIdentifierExistsElseAddToMemory(identifierName, value, ctx);
+        String value = "";
+        try{
+            value = visit(ctx.expression()).toString();
+        }catch(NullPointerException ne){
+            VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
+                    ctx.getStart());
+        }
         GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, ctx);
         
         return (T)"";
@@ -584,7 +589,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitBoolExpression(myGrammarParser.BoolExpressionContext ctx) {
-        return visitChildren(ctx);
+        return (T)ctx.Bool().toString();
     }
 
     @Override
