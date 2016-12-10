@@ -30,12 +30,12 @@ block
  ;
 
 statement
- : assignment SemiColon
- | identifierDeclaration SemiColon
- | functionCall SemiColon
- | ifStatement
+ : assignment SemiColon Comment?
+ | identifierDeclaration SemiColon 
+ | functionCall SemiColon 
+ | ifStatement 
  | forStatement
- | whileStatement
+ | whileStatement 
  ;
 
 assignment

@@ -17,7 +17,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         public Map<String, T> identifierMemory = new HashMap<String, T>();
         public myGrammarParser.BlockContext blockCtx;
         
-        public Boolean identifierExists(String idName){
+        /*public Boolean identifierExists(String idName){
             return identifierMemory.get(idName) != null;
         }
 
@@ -51,7 +51,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
         public void RemoveIdentifierFromMemory(String idName){
             identifierMemory.remove(idName);
-        }
+        }*/
     }
     
     Map<String, T> identifierMemory = new HashMap<String, T>();
@@ -242,7 +242,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     
     void GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(String idName, String value, ParserRuleContext ctx){
         if(!identifierExists(idName)){
-            VisitorErrorReporter.CreateErrorMessage("identifier already exists: "+idName, 
+            VisitorErrorReporter.CreateErrorMessage("identifier does not exist: "+idName, 
                     ctx.getStart());
         }else{
             identifierMemory.put(idName, (T)value);
@@ -301,7 +301,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitPrintlnFunctionCall(myGrammarParser.PrintlnFunctionCallContext ctx) {
         System.out.println("In VisitPrintlnFunctionCall: " + ctx.getText());
-        T result = (T) (visitChildren(ctx).toString() + "\n");
+        T result = (T)"";
+        if(ctx.expression() != null) 
+            result = (T)(visitChildren(ctx).toString() +"\n");
+        else 
+            result = (T)"\n";
         System.out.println("Writing a new line, result: " + result);
         return result;
     }
@@ -490,7 +494,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         funcData.blockCtx = ctx.block();
         GenerateErrorIfFuncExistsElseAddToMemory(funcName, funcData, ctx);
         
-        return visitChildren(ctx);
+        return (T)"";
     }
 
     @Override
@@ -698,6 +702,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitFunctionCallExpression(myGrammarParser.FunctionCallExpressionContext ctx) {
         System.out.println("Calling a function");
+        
         return (T) visitChildren(ctx);
     }
 

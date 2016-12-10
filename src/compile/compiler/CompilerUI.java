@@ -11,6 +11,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.StringReader;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
@@ -185,7 +187,7 @@ public class CompilerUI extends javax.swing.JFrame {
         jTextArea2.setText(CompilerHelper.compile(jTextArea1.getText(), jTextArea2));
         
     }//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
-
+    
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         //Handle open button action.
         
@@ -208,7 +210,7 @@ public class CompilerUI extends javax.swing.JFrame {
                 String line;
 
                 while ((line = bufferedReader.readLine()) != null) {
-                    fileText += line;
+                    fileText += line + "\n";
                 }
                 reader.close();
                 currentFile = file;
@@ -270,7 +272,15 @@ public class CompilerUI extends javax.swing.JFrame {
         System.out.println("last char is "+absolutePath.charAt(lastIndex - 3));
         System.out.println("About to save: "+fileWithExt);
         
-        try {
+        try (
+            BufferedReader reader = new BufferedReader(new StringReader(jTextArea1.getText()));
+            PrintWriter writer = new PrintWriter(new FileWriter(fileWithExt));
+        ) {
+            reader.lines().forEach(line -> writer.println(line));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        /*try {
             FileWriter writer = new FileWriter(fileWithExt, true);
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
@@ -279,7 +289,7 @@ public class CompilerUI extends javax.swing.JFrame {
             bufferedWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
     /**
      * @param args the command line arguments
