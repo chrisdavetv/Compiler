@@ -1,7 +1,3 @@
-//This sample code (also in compilerdemofinal.txt)  tests my script - like grammar for  math operators, comparison operators,
-// type agnostic variable declaration,  if-then-else, for and while loops, ternary conditional expressions, assignment,
-// parenthesis grouped expression evaluation, function calls
-
 def useTernary
 useTernary = false	 //change this to test ternary expresson or traditional if-then type conditional
 
@@ -9,6 +5,14 @@ def printRecurse()
 
 	def iterationCtr
 	iterationCtr = 0
+
+	for z = 0 to 2 do 
+	
+		Writeln("iteration: ")
+		Writeln(iterationCtr)
+		iterationCtr = iterationCtr + 1
+
+	end
 
 	return 0
 
@@ -147,8 +151,10 @@ Writeln("result of printRecurse() is")
 Writeln(printRes)
 Writeln("Adding 5 to result: ")
 printRes = printRes + 5
-Writeln(printRes)*/
+Writeln(printRes)
 
 if(printRecurse() < 6 && (1 == 2 || 1 ==1) ) do
 	Writeln("printRes is less than 6")
-end
+end*/
+
+Writeln(printRecurse())
