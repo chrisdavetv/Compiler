@@ -4,6 +4,8 @@ import compile.compilersource.myGrammarParser.ExpressionContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.JTextArea;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
@@ -15,6 +17,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     
     class FunctionData{
         public Map<String, T> identifierMemory = new HashMap<String, T>();
+        public Map<Integer, String> funcIdentifierTracker = new HashMap<Integer, String>();
         public myGrammarParser.BlockContext blockCtx;
         
         /*public Boolean identifierExists(String idName){
@@ -293,10 +296,60 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitIdentifierFunctionCall(myGrammarParser.IdentifierFunctionCallContext ctx) {
         System.out.println("In visitIdentifierFunctionCall");
         T result = (T)"";
-        
         String funcName = ctx.Identifier().getText();
+        String exParam = "";
+        String[] postParam = new String[1];
+        boolean hasParam = false;
+        if (ctx.exprList() != null)
+        	exParam = ctx.exprList().getText();
+        if (!(exParam.equals(""))){
+        	exParam = exParam.replaceAll("\\s", "");
+        	postParam = exParam.split(",");
+        
+        	System.out.println("first param : " + postParam[0]);
+        	hasParam = true;
+        	
+        	
+        }
         FunctionData functionData = GenerateErrorIfFuncDoesNotExistElseReturnValue(funcName, ctx);
+        //System.out.println(functionData.identifierMemory.size());
         if(functionData != null){
+        	if (hasParam){
+        		
+        		String[] memToArray = identifierMemory.keySet().toArray(new String[identifierMemory.keySet().size()]);
+            	int k = 1;
+            	while (k <= postParam.length){
+	        		/*for (int i = 1; i <= functionData.identifierMemory.size(); i++){
+	        			identifierMemory.replace(functionData.funcIdentifierTracker.get(k).toString(), (T) postParam[i-1]);
+	        			k++;
+	        		}*/
+	        		
+	        		if (k > postParam.length)
+	        			break;
+	        		
+	            	for (int i = 0; i < postParam.length; i++){
+	            		for (int j = 0; j < identifierMemory.keySet().size(); j++){
+	            			if (k > postParam.length)
+	            				break;
+	            			
+	            			if (postParam[i].equals(memToArray[j])){
+	            				System.out.println("CONTAINS VARIABLE" + memToArray[j]);
+	            				identifierMemory.replace(functionData.funcIdentifierTracker.get(k).toString(), identifierMemory.get(memToArray[j]));
+	            				k++;
+	            				break;
+	            			}
+	  	
+	            			
+	            			else{
+	            				if (j == (identifierMemory.keySet().size() - 1)){
+	            					identifierMemory.replace(functionData.funcIdentifierTracker.get(k).toString(), (T) postParam[i]);
+	    	        				k++;	            				
+	            				}
+	            			}
+	            		}
+	            	}
+	            }
+            }
             result = EvaluatelBlockWithErrorGeneration(functionData.blockCtx);//what about function identifiers???
         }
         
@@ -490,9 +543,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         String funcName = ctx.Identifier().getText();
         HashMap<String, T> funcIdentifiers = new HashMap<String, T>();
         FunctionData funcData = new FunctionData();
+      
         if(ctx.idList() != null){
             for(int c = 0;c < ctx.idList().Identifier().size();c++){
+            	funcData.funcIdentifierTracker.put(c+1, ctx.idList().Identifier(c).getText());
                 funcIdentifiers.put(ctx.idList().Identifier(c).getText(), (T)"");
+                System.out.println("PUT : " + ctx.idList().Identifier(c).getText());
+                GenerateErrorIfIdentifierExistsElseAddToMemory(ctx.idList().
+                		Identifier(c).getText(), "", ctx);
             }
             funcData.identifierMemory = funcIdentifiers;
         }
@@ -532,7 +590,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 ctx.Identifier().getText(), lowerLimit.toString(), ctx);
             while(lowerLimit < upperLimit){
                 temp = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
-                result += temp;
+                result = (T) (result + temp);
                 lowerLimit++;
             }
             RemoveIdentifierFromMemory(ctx.Identifier().getText());
@@ -558,7 +616,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
         while(whileConditional){
           String iterationOutput = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
-          result += iterationOutput;
+          result = (T) (result + iterationOutput);
+          whileConditional = Boolean.parseBoolean(visit(ctx.expression()).toString());
           //outputArea.setText(outputArea.getText() + iterationOutput);
         }
         
