@@ -49,18 +49,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Edit"/>
           </Properties>
-          <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem6">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Undo"/>
-              </Properties>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem7">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Redo"/>
-              </Properties>
-            </MenuItem>
-          </SubComponents>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="Action cut = new DefaultEditorKit.CutAction();&#xa;Action paste = new DefaultEditorKit.PasteAction();&#xa;Action copy = new DefaultEditorKit.CopyAction();&#xa;//UndoManager manager = new UndoManager();&#xa;//Action undo = javax.swing.undo.UndoManagerHelper.getUndoAction(manager);&#xa;//Action redo = javax.swing.undo.UndoManagerHelper.getRedoAction(manager);&#xa;&#xa;Action[] textActions = { cut, copy, paste };&#xa;for (Action textAction : textActions) {&#xa;    javax.swing.JMenuItem menuitem = new javax.swing.JMenuItem(textAction);&#xa;    &#xa;    if(textAction == cut ){&#xa;        menuitem.setText(&quot;Cut&quot;);&#xa;        menuitem.setAccelerator(KeyStroke.getKeyStroke(&apos;X&apos;, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));&#xa;    } else if(textAction == copy ){&#xa;        menuitem.setText(&quot;Copy&quot;);&#xa;        menuitem.setAccelerator(KeyStroke.getKeyStroke(&apos;C&apos;, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));&#xa;    } else if(textAction == paste ){&#xa;        menuitem.setText(&quot;Paste&quot;);&#xa;        menuitem.setAccelerator(KeyStroke.getKeyStroke(&apos;V&apos;, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));&#xa;    } /*else if (textAction == undo){&#xa;        menuitem.setText(&quot;Undo&quot;);&#xa;        menuitem.setAccelerator(KeyStroke.getKeyStroke(&apos;Z&apos;, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));&#xa;    } else if (textAction == redo){&#xa;        menuitem.setText(&quot;Redo&quot;);&#xa;        menuitem.setAccelerator(KeyStroke.getKeyStroke(&apos;Y&apos;, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));&#xa;    }*/&#xa;    jMenu2.add(menuitem);&#xa;}"/>
+          </AuxValues>
         </Menu>
         <Menu class="javax.swing.JMenu" name="jMenu3">
           <Properties>
@@ -75,6 +66,22 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBoxMenuItem1ActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="jMenu4">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Search"/>
+            <Property name="name" type="java.lang.String" value="SearchMenu" noResource="true"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Search Code"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem2ActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>
@@ -155,6 +162,10 @@
                     <Property name="rows" type="int" value="5"/>
                     <Property name="text" type="java.lang.String" value="lkjhlkjh"/>
                   </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTextArea()"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="LineNumberedBorder lnb = new LineNumberedBorder(LineNumberedBorder.LEFT_SIDE, LineNumberedBorder.LEFT_JUSTIFY);&#xa;jTextArea1.setBorder(lnb);&#xa;&#xa;final UndoManager undo = new UndoManager();&#xa;Document doc = jTextArea1.getDocument();&#xa;&#xa;// Listen for undo and redo events&#xa;doc.addUndoableEditListener(new UndoableEditListener() {&#xa;    public void undoableEditHappened(UndoableEditEvent evt) {&#xa;        undo.addEdit(evt.getEdit());&#xa;    }&#xa;});&#xa;&#xa;// Create an undo action and add it to the text component&#xa;jTextArea1.getActionMap().put(&quot;Undo&quot;,&#xa;    new AbstractAction(&quot;Undo&quot;) {&#xa;        public void actionPerformed(ActionEvent evt) {&#xa;            try {&#xa;                if (undo.canUndo()) {&#xa;                    undo.undo();&#xa;                }&#xa;            } catch (CannotUndoException e) {&#xa;            }&#xa;        }&#xa;   });&#xa;&#xa;// Bind the undo action to ctl-Z&#xa;jTextArea1.getInputMap().put(KeyStroke.getKeyStroke(&apos;Z&apos;, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()), &quot;Undo&quot;);&#xa;&#xa;// Create an undo action and add it to the text component&#xa;jTextArea1.getActionMap().put(&quot;Redo&quot;,&#xa;    new AbstractAction(&quot;Redo&quot;) {&#xa;        public void actionPerformed(ActionEvent evt) {&#xa;            try {&#xa;                if (undo.canRedo()) {&#xa;                    undo.redo();&#xa;                }&#xa;            } catch (CannotUndoException e) {&#xa;            }&#xa;        }&#xa;   });&#xa;&#xa;// Bind the undo action to ctl-Z&#xa;jTextArea1.getInputMap().put(KeyStroke.getKeyStroke(&apos;Y&apos;, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()), &quot;Redo&quot;);"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
