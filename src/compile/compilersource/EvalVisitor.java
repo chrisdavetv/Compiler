@@ -297,8 +297,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         System.out.println("In visitIdentifierFunctionCall");
         T result = (T)"";
         String funcName = ctx.Identifier().getText();
-        String exParam = "";
+        String exParam = "", temp = "";
         String[] postParam = new String[1];
+        String[] splitRes = new String[1];
         boolean hasParam = false;
         if (ctx.exprList() != null)
         	exParam = ctx.exprList().getText();
@@ -309,6 +310,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	System.out.println("first param : " + postParam[0]);
         	hasParam = true;
         	
+        		T res = (T) visitChildren(ctx);
+        		System.out.println("Result : " + res);
+        		temp = (String) res;
+        		splitRes = temp.split("\\s");
+        		System.out.println(splitRes[0]);
+        		for (int i = 0; i < splitRes.length; i++){
+        		postParam[i] = splitRes[i];
+        		}
         	
         }
         FunctionData functionData = GenerateErrorIfFuncDoesNotExistElseReturnValue(funcName, ctx);
@@ -349,7 +358,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	            		}
 	            	}
 	            }
-            }
+            } 
             result = EvaluatelBlockWithErrorGeneration(functionData.blockCtx);//what about function identifiers???
         }
         
