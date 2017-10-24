@@ -5,7 +5,7 @@
  */
 package compile.compilersource;
 
-import javax.swing.JTextArea;
+import compile.compiler.CompilerUI;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -19,7 +19,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
  * @author chris
  */
 public class CompilerHelper {
-    public static String compile(String expression, JTextArea outputTextArea) {
+    public static String compile(String expression, CompilerUI ui) {
         String output = "";
 		try {
                         //use a visitor to check semantics
@@ -34,14 +34,14 @@ public class CompilerHelper {
                         parser.setErrorHandler(errorStrat);
                         
                         ErrorReporter errorReporter = new ErrorReporter();
-                        EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter, outputTextArea);   
+                        EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter, ui);   
                         String totalErrorString = "";
                         
                         String results = eval.visitParse(parser.parse());
                         totalErrorString += errorReporter.GetTotalErrorString() + "\n";
                                                     
                         //use a listener to gather syntax errors
-                        totalErrorString += CheckSyntaxReturnErrors(expression);
+                        totalErrorString += CheckSyntaxReturnErrors(expression, ui);
                         
                         if(isStringNullOrWhiteSpace(totalErrorString)){
                             output = results;
@@ -56,7 +56,7 @@ public class CompilerHelper {
                 return output;
 	}
     
-    static String CheckSyntaxReturnErrors(String expression){
+    static String CheckSyntaxReturnErrors(String expression, CompilerUI ui){
         //lexer splits input into tokens
         ANTLRInputStream input = new ANTLRInputStream(expression);
         CommonTokenStream tokens = new CommonTokenStream(new myGrammarLexer(input));
@@ -64,7 +64,8 @@ public class CompilerHelper {
         //parser generates abstract syntax tree
         myGrammarParser parser = new myGrammarParser(tokens);
         parser.removeErrorListeners();
-        AntlrErrorListener errorListener = new AntlrErrorListener();//BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();
+        AntlrErrorListener errorListener = new AntlrErrorListener(ui);//BaseErrorListenerExtension errorListener = new BaseErrorListenerExtension();
+        //errorListener.SetEditor(inputTextArea);
         parser.addErrorListener(errorListener);
         
         //parse input text

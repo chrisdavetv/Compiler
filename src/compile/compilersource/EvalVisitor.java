@@ -1,14 +1,13 @@
 package compile.compilersource;
 
+import compile.compiler.CompilerUI;
 import compile.compilersource.myGrammarParser.ExpressionContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JTextArea;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -61,14 +60,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     Map<String, FunctionData> functionMemory = new HashMap<String, FunctionData>();
         
     ErrorReporter VisitorErrorReporter;
-    JTextArea outputArea;
+    CompilerUI ui;
     
     final String functionParamSeparator = ",";
     
-    public EvalVisitor(ErrorReporter errorReporter, JTextArea outputTextArea){
+    public EvalVisitor(ErrorReporter errorReporter, CompilerUI ui){
         super();
         VisitorErrorReporter = errorReporter;
-        outputArea = outputTextArea;
+        this.ui = ui;
     }
     
     enum MathOpType {

@@ -5,13 +5,16 @@
  */
 package compile.compilersource;
 
-import java.text.MessageFormat;
+import compile.compiler.CompilerUI;
+import java.awt.Color;
 import java.util.BitSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 
@@ -20,8 +23,15 @@ import org.antlr.v4.runtime.dfa.DFA;
  * @author chris
  */
 public class AntlrErrorListener implements ANTLRErrorListener{
-
+    
     String mainErrorString = "";
+    CompilerUI ui;
+ 
+    public AntlrErrorListener(CompilerUI ui){
+        super();
+        this.ui = ui;
+    }
+    
     public String GetAllErrorMessages(){
         return mainErrorString;
     }
@@ -39,24 +49,49 @@ public class AntlrErrorListener implements ANTLRErrorListener{
     public void syntaxError(
             Recognizer<?, ?> recognizer, Object o,
             int line, int charPositionInLine, String msg, RecognitionException e) {
+        
+        System.out.println("In syntaxError");
+        
         String sourceName = recognizer.getInputStream().getSourceName();
         sourceName = !sourceName.isEmpty() ? sourceName+": " : "";
         mainErrorString += sourceName+"line "+line+":"+charPositionInLine+" "+msg + "\n";
+        
+        highlightErrorLine(line);
+    }
+    
+    public void highlightErrorLine(int line){
+        line -= 1;
+        
+        if(ui.getEditor() != null){
+            System.out.println("Editor ready");
+            
+            try{
+                int offset = ui.getEditor().getLineStartOffset(line);
+                int endOffset = ui.getEditor().getLineEndOffset(line);
+                Highlighter highlighter = ui.getEditor().getHighlighter();
+                highlighter.addHighlight(offset, endOffset, new DefaultHighlighter.DefaultHighlightPainter(Color.RED));
+            }catch(BadLocationException ex){
+                System.out.println("Syntax highlight error: " + ex.getMessage());
+            }
+        }else System.out.println("Syntax highlight error: editor cannot be accessed");
     }
 
     @Override
     public void reportAmbiguity(Parser parser, DFA dfa, int i, int i1, boolean bln, BitSet bitset, ATNConfigSet atncs) {
         System.out.println("reportAmbiguity triggered"); //To change body of generated methods, choose Tools | Templates.
+        highlightErrorLine(1);
     }
 
     @Override
     public void reportAttemptingFullContext(Parser parser, DFA dfa, int i, int i1, BitSet bitset, ATNConfigSet atncs) {
         System.out.println("reportAttemptingFullContext triggered");  //To change body of generated methods, choose Tools | Templates.
+        highlightErrorLine(1);
     }
 
     @Override
     public void reportContextSensitivity(Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atncs) {
         System.out.println("reportContextSensitivity triggered"); //To change body of generated methods, choose Tools | Templates.
+        highlightErrorLine(1);
     }
     
 }

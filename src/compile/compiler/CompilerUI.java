@@ -9,12 +9,18 @@ import compile.compilersource.CompilerHelper;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
@@ -24,6 +30,7 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.Document;
 import javax.swing.undo.CannotUndoException;
@@ -44,6 +51,14 @@ public class CompilerUI extends javax.swing.JFrame {
         initComponents();
     }
 
+    public javax.swing.JTextArea getEditor(){
+        return this.jTextArea1;
+    }
+    
+    public javax.swing.JTextArea getOuputConsole(){
+        return this.jTextArea1;
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -141,113 +156,162 @@ public class CompilerUI extends javax.swing.JFrame {
 
                 jTextArea2.setColumns(20);
                 jTextArea2.setRows(5);
-                jTextArea2.setName("OutputTextArea"); // NOI18N
-                jScrollPane2.setViewportView(jTextArea2);
+                jTextArea2.setName("OutputTextArea");
+                jTextArea2.addMouseListener(new MouseAdapter()
+                    {
+                        public void mouseClicked(MouseEvent me)
+                        {
+                            String s = "";
+                            String[] splitS = new String[5];
+                            if (!jTextArea2.getText().trim().equals("")) {
+                                int position = jTextArea2.viewToModel(jTextArea2.getMousePosition());
+                                String[] text = jTextArea2.getText().split("\n");
+                                int[] charNum = new int[text.length];
+                                for (int i = 0; i < text.length; i++) {
+                                    charNum[i] = text[i].length() + 1;
+                                }
+                                int sum = 0;
+                                for (int i = 0; i < charNum.length; i++) {
+                                    sum += charNum[i];
+                                    if (sum >= position) {
+                                        s += text[i] + "\n";
+                                        break;
+                                    }
+                                }
+                                //System.out.println("Clicked on text: " + s);
+                                Pattern pattern = Pattern.compile("line \\d+");
+                                Matcher matcher = pattern.matcher(s);
+                                if (matcher.find())
+                                {
+                                    try{
+                                        String lineStr = matcher.group(0);
+                                        System.out.println(lineStr);
+                                        lineStr = lineStr.split(" ")[1];
+                                        System.out.println("Error line number is: " + lineStr);
+                                        int pos = Integer.parseInt(lineStr) * jTextArea1.getColumns();
 
-                jSplitPane1.setRightComponent(jScrollPane2);
+                                        //go to error line number in editor
+                                        // Get the rectangle of the where the text would be visible...
+                                        Rectangle viewRect = jTextArea1.modelToView(pos);
+                                        // Scroll to make the rectangle visible
+                                        jTextArea1.scrollRectToVisible(viewRect);
+                                        // Highlight the text
+                                        jTextArea1.setCaretPosition(pos);
+                                        jTextArea1.moveCaretPosition(pos);
+                                    }catch(Exception ne){
+                                        System.out.println("Error: " +  ne.getMessage());
+                                    }
+                                }
 
-                jMenu1.setText("File");
+                            }
+                        }
+                    });
+                    jScrollPane2.setViewportView(jTextArea2);
 
-                jMenuItem3.setText("New");
-                jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        jMenuItem3ActionPerformed(evt);
+                    jSplitPane1.setRightComponent(jScrollPane2);
+
+                    jMenu1.setText("File");
+
+                    jMenuItem3.setText("New");
+                    jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            jMenuItem3ActionPerformed(evt);
+                        }
+                    });
+                    jMenu1.add(jMenuItem3);
+
+                    jMenuItem4.setText("Open");
+                    jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            jMenuItem4ActionPerformed(evt);
+                        }
+                    });
+                    jMenu1.add(jMenuItem4);
+
+                    jMenuItem5.setText("Save As...");
+                    jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            jMenuItem5ActionPerformed(evt);
+                        }
+                    });
+                    jMenu1.add(jMenuItem5);
+
+                    jMenuBar1.add(jMenu1);
+
+                    Action cut = new DefaultEditorKit.CutAction();
+                    Action paste = new DefaultEditorKit.PasteAction();
+                    Action copy = new DefaultEditorKit.CopyAction();
+                    //UndoManager manager = new UndoManager();
+                    //Action undo = javax.swing.undo.UndoManagerHelper.getUndoAction(manager);
+                    //Action redo = javax.swing.undo.UndoManagerHelper.getRedoAction(manager);
+
+                    Action[] textActions = { cut, copy, paste };
+                    for (Action textAction : textActions) {
+                        javax.swing.JMenuItem menuitem = new javax.swing.JMenuItem(textAction);
+
+                        if(textAction == cut ){
+                            menuitem.setText("Cut");
+                            menuitem.setAccelerator(KeyStroke.getKeyStroke('X', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
+                        } else if(textAction == copy ){
+                            menuitem.setText("Copy");
+                            menuitem.setAccelerator(KeyStroke.getKeyStroke('C', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
+                        } else if(textAction == paste ){
+                            menuitem.setText("Paste");
+                            menuitem.setAccelerator(KeyStroke.getKeyStroke('V', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
+                        } /*else if (textAction == undo){
+                            menuitem.setText("Undo");
+                            menuitem.setAccelerator(KeyStroke.getKeyStroke('Z', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
+                        } else if (textAction == redo){
+                            menuitem.setText("Redo");
+                            menuitem.setAccelerator(KeyStroke.getKeyStroke('Y', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
+                        }*/
+                        jMenu2.add(menuitem);
                     }
-                });
-                jMenu1.add(jMenuItem3);
+                    jMenu2.setText("Edit");
+                    jMenuBar1.add(jMenu2);
 
-                jMenuItem4.setText("Open");
-                jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        jMenuItem4ActionPerformed(evt);
-                    }
-                });
-                jMenu1.add(jMenuItem4);
+                    jMenu3.setText("Run");
 
-                jMenuItem5.setText("Save As...");
-                jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        jMenuItem5ActionPerformed(evt);
-                    }
-                });
-                jMenu1.add(jMenuItem5);
+                    jCheckBoxMenuItem1.setSelected(true);
+                    jCheckBoxMenuItem1.setText("Run");
+                    jCheckBoxMenuItem1.setName("RunMenuItem"); // NOI18N
+                    jCheckBoxMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            jCheckBoxMenuItem1ActionPerformed(evt);
+                        }
+                    });
+                    jMenu3.add(jCheckBoxMenuItem1);
 
-                jMenuBar1.add(jMenu1);
+                    jMenuBar1.add(jMenu3);
 
-                Action cut = new DefaultEditorKit.CutAction();
-                Action paste = new DefaultEditorKit.PasteAction();
-                Action copy = new DefaultEditorKit.CopyAction();
-                //UndoManager manager = new UndoManager();
-                //Action undo = javax.swing.undo.UndoManagerHelper.getUndoAction(manager);
-                //Action redo = javax.swing.undo.UndoManagerHelper.getRedoAction(manager);
+                    jMenu4.setText("Search");
+                    jMenu4.setName("SearchMenu"); // NOI18N
 
-                Action[] textActions = { cut, copy, paste };
-                for (Action textAction : textActions) {
-                    javax.swing.JMenuItem menuitem = new javax.swing.JMenuItem(textAction);
+                    jMenuItem2.setText("Search Code");
+                    jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            jMenuItem2ActionPerformed(evt);
+                        }
+                    });
+                    jMenu4.add(jMenuItem2);
 
-                    if(textAction == cut ){
-                        menuitem.setText("Cut");
-                        menuitem.setAccelerator(KeyStroke.getKeyStroke('X', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
-                    } else if(textAction == copy ){
-                        menuitem.setText("Copy");
-                        menuitem.setAccelerator(KeyStroke.getKeyStroke('C', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
-                    } else if(textAction == paste ){
-                        menuitem.setText("Paste");
-                        menuitem.setAccelerator(KeyStroke.getKeyStroke('V', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
-                    } /*else if (textAction == undo){
-                        menuitem.setText("Undo");
-                        menuitem.setAccelerator(KeyStroke.getKeyStroke('Z', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
-                    } else if (textAction == redo){
-                        menuitem.setText("Redo");
-                        menuitem.setAccelerator(KeyStroke.getKeyStroke('Y', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
-                    }*/
-                    jMenu2.add(menuitem);
-                }
-                jMenu2.setText("Edit");
-                jMenuBar1.add(jMenu2);
+                    jMenuBar1.add(jMenu4);
 
-                jMenu3.setText("Run");
+                    setJMenuBar(jMenuBar1);
 
-                jCheckBoxMenuItem1.setSelected(true);
-                jCheckBoxMenuItem1.setText("Run");
-                jCheckBoxMenuItem1.setName("RunMenuItem"); // NOI18N
-                jCheckBoxMenuItem1.addActionListener(new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        jCheckBoxMenuItem1ActionPerformed(evt);
-                    }
-                });
-                jMenu3.add(jCheckBoxMenuItem1);
+                    javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+                    getContentPane().setLayout(layout);
+                    layout.setHorizontalGroup(
+                        layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 771, Short.MAX_VALUE)
+                    );
+                    layout.setVerticalGroup(
+                        layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                    );
 
-                jMenuBar1.add(jMenu3);
-
-                jMenu4.setText("Search");
-                jMenu4.setName("SearchMenu"); // NOI18N
-
-                jMenuItem2.setText("Search Code");
-                jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        jMenuItem2ActionPerformed(evt);
-                    }
-                });
-                jMenu4.add(jMenuItem2);
-
-                jMenuBar1.add(jMenu4);
-
-                setJMenuBar(jMenuBar1);
-
-                javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-                getContentPane().setLayout(layout);
-                layout.setHorizontalGroup(
-                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 771, Short.MAX_VALUE)
-                );
-                layout.setVerticalGroup(
-                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
-                );
-
-                pack();
-            }// </editor-fold>//GEN-END:initComponents
+                    pack();
+                }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         // TODO add your handling code here:
@@ -406,7 +470,8 @@ public class CompilerUI extends javax.swing.JFrame {
 
     private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ActionPerformed
         // TODO add your handling code here:
-        jTextArea2.setText(CompilerHelper.compile(jTextArea1.getText(), jTextArea2));
+        jTextArea1.getHighlighter().removeAllHighlights();
+        jTextArea2.setText(CompilerHelper.compile(jTextArea1.getText(), CompilerUI.this));
         
     }//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
     
