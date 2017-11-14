@@ -1,4 +1,4 @@
-// Generated from /Users/chris/Documents/Projects/Compiler/src/compile/compilersource/myGrammar.g4 by ANTLR 4.5.3
+// Generated from myGrammar.g4 by ANTLR 4.5.3
 
 package compile.compilersource;
 
@@ -112,18 +112,17 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIdList(myGrammarParser.IdListContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link myGrammarParser#paramIdList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParamIdList(myGrammarParser.ParamIdListContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link myGrammarParser#exprList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitExprList(myGrammarParser.ExprListContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code ltExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLtExpression(myGrammarParser.LtExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code gtExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
@@ -131,20 +130,6 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitGtExpression(myGrammarParser.GtExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code boolExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBoolExpression(myGrammarParser.BoolExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code notEqExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNotEqExpression(myGrammarParser.NotEqExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code numberExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
@@ -188,34 +173,6 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitGtEqExpression(myGrammarParser.GtEqExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code divideExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDivideExpression(myGrammarParser.DivideExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code orExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitOrExpression(myGrammarParser.OrExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code powerExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPowerExpression(myGrammarParser.PowerExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code eqExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitEqExpression(myGrammarParser.EqExpressionContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code andExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
 	 * @param ctx the parse tree
@@ -236,20 +193,6 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpressionExpression(myGrammarParser.ExpressionExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code addExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAddExpression(myGrammarParser.AddExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code subtractExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSubtractExpression(myGrammarParser.SubtractExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code nullExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
@@ -278,6 +221,76 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitLtEqExpression(myGrammarParser.LtEqExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ltExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLtExpression(myGrammarParser.LtExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code boolExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoolExpression(myGrammarParser.BoolExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code arrayExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayExpression(myGrammarParser.ArrayExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code notEqExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNotEqExpression(myGrammarParser.NotEqExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code divideExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDivideExpression(myGrammarParser.DivideExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code orExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOrExpression(myGrammarParser.OrExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code powerExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPowerExpression(myGrammarParser.PowerExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code eqExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEqExpression(myGrammarParser.EqExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code addExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAddExpression(myGrammarParser.AddExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code subtractExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubtractExpression(myGrammarParser.SubtractExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ternaryExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.

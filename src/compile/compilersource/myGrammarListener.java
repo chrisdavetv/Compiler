@@ -1,4 +1,4 @@
-// Generated from /Users/chris/Documents/Projects/Compiler/src/compile/compilersource/myGrammar.g4 by ANTLR 4.5.3
+// Generated from myGrammar.g4 by ANTLR 4.5.3
 
 package compile.compilersource;
 
@@ -176,6 +176,16 @@ public interface myGrammarListener extends ParseTreeListener {
 	 */
 	void exitIdList(myGrammarParser.IdListContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#paramIdList}.
+	 * @param ctx the parse tree
+	 */
+	void enterParamIdList(myGrammarParser.ParamIdListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#paramIdList}.
+	 * @param ctx the parse tree
+	 */
+	void exitParamIdList(myGrammarParser.ParamIdListContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link myGrammarParser#exprList}.
 	 * @param ctx the parse tree
 	 */
@@ -185,18 +195,6 @@ public interface myGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExprList(myGrammarParser.ExprListContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code ltExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterLtExpression(myGrammarParser.LtExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ltExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitLtExpression(myGrammarParser.LtExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code gtExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
@@ -209,30 +207,6 @@ public interface myGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitGtExpression(myGrammarParser.GtExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code boolExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBoolExpression(myGrammarParser.BoolExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code boolExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBoolExpression(myGrammarParser.BoolExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code notEqExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNotEqExpression(myGrammarParser.NotEqExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code notEqExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNotEqExpression(myGrammarParser.NotEqExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code numberExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
@@ -306,54 +280,6 @@ public interface myGrammarListener extends ParseTreeListener {
 	 */
 	void exitGtEqExpression(myGrammarParser.GtEqExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code divideExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterDivideExpression(myGrammarParser.DivideExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code divideExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitDivideExpression(myGrammarParser.DivideExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code orExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterOrExpression(myGrammarParser.OrExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code orExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitOrExpression(myGrammarParser.OrExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code powerExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterPowerExpression(myGrammarParser.PowerExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code powerExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitPowerExpression(myGrammarParser.PowerExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code eqExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterEqExpression(myGrammarParser.EqExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code eqExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitEqExpression(myGrammarParser.EqExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code andExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
 	 * @param ctx the parse tree
@@ -389,30 +315,6 @@ public interface myGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpressionExpression(myGrammarParser.ExpressionExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code addExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterAddExpression(myGrammarParser.AddExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code addExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitAddExpression(myGrammarParser.AddExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code subtractExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterSubtractExpression(myGrammarParser.SubtractExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code subtractExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitSubtractExpression(myGrammarParser.SubtractExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code nullExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
@@ -461,6 +363,126 @@ public interface myGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLtEqExpression(myGrammarParser.LtEqExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ltExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLtExpression(myGrammarParser.LtExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ltExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLtExpression(myGrammarParser.LtExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code boolExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBoolExpression(myGrammarParser.BoolExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code boolExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBoolExpression(myGrammarParser.BoolExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code arrayExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayExpression(myGrammarParser.ArrayExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code arrayExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayExpression(myGrammarParser.ArrayExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code notEqExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNotEqExpression(myGrammarParser.NotEqExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code notEqExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNotEqExpression(myGrammarParser.NotEqExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code divideExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterDivideExpression(myGrammarParser.DivideExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code divideExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitDivideExpression(myGrammarParser.DivideExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code orExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrExpression(myGrammarParser.OrExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code orExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrExpression(myGrammarParser.OrExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code powerExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterPowerExpression(myGrammarParser.PowerExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code powerExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitPowerExpression(myGrammarParser.PowerExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code eqExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterEqExpression(myGrammarParser.EqExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code eqExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitEqExpression(myGrammarParser.EqExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code addExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAddExpression(myGrammarParser.AddExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code addExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAddExpression(myGrammarParser.AddExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code subtractExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubtractExpression(myGrammarParser.SubtractExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code subtractExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubtractExpression(myGrammarParser.SubtractExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ternaryExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.

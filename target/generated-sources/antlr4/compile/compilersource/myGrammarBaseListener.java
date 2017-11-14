@@ -331,6 +331,18 @@ public class myGrammarBaseListener implements myGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArrayExpression(@NotNull myGrammarParser.ArrayExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayExpression(@NotNull myGrammarParser.ArrayExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterNotEqExpression(@NotNull myGrammarParser.NotEqExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -398,6 +410,18 @@ public class myGrammarBaseListener implements myGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitList(@NotNull myGrammarParser.ListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterParamIdList(@NotNull myGrammarParser.ParamIdListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitParamIdList(@NotNull myGrammarParser.ParamIdListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

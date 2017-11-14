@@ -41,10 +41,12 @@ statement
 
 assignment
  : Identifier Assign expression
+ | Scan OpenParen expression? Comma Identifier CloseParen
+ | Def Identifier Array
  ;
 
 identifierDeclaration
-: Def idList
+: Def DataType idList 
 ;
 
 functionCall
@@ -70,11 +72,12 @@ elseStat
  ;
 
 functionDecl
- : Def Identifier OpenParen idList? CloseParen block End
+ : Def DataType Identifier OpenParen paramIdList? CloseParen block End
  ;
 
 forStatement
- : For Identifier '=' expression To expression Do block End
+ : For DataType Identifier '=' expression To expression Do block End
+ | For Identifier '=' expression To expression Do block End
  ;
 
 whileStatement
@@ -83,6 +86,10 @@ whileStatement
 
 idList
  : Identifier (',' Identifier)*
+ ;
+
+paramIdList
+ : DataType Identifier (',' DataType Identifier)*
  ;
 
 exprList
@@ -114,6 +121,7 @@ expression
  | Identifier indexes?                      #identifierExpression
  | String indexes?                          #stringExpression
  | OpenParen expression CloseParen indexes?              #expressionExpression
+ | Identifier OpenBracket ArrayUnion CloseBracket                         #arrayExpression
  ;
 
 list
@@ -126,6 +134,7 @@ indexes
 
 Writeln  : 'Writeln';
 Write    : 'Write';
+Scan     : 'Scan';
 Def      : 'def';
 If       : 'if';
 Else     : 'else';
@@ -163,6 +172,16 @@ Assign   : '=';
 Comma    : ',';
 Colon    : ':';
 
+DataType 
+: 'boolean'
+| 'string'
+| 'int'
+| 'float'
+| 'long'
+| 'short'
+| 'double'
+;
+
 Bool
  : 'true' 
  | 'false'
@@ -197,3 +216,12 @@ Digit
 
 UNKNOWN_CHAR 
     : . ;
+
+ArrayUnion
+: Int
+| Identifier
+;
+
+Array
+: OpenBracket ArrayUnion  (',' ArrayUnion)* CloseBracket
+;
