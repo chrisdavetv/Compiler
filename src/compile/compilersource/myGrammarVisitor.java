@@ -229,19 +229,19 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLtExpression(myGrammarParser.LtExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code boolExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBoolExpression(myGrammarParser.BoolExpressionContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code arrayExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitArrayExpression(myGrammarParser.ArrayExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code boolExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoolExpression(myGrammarParser.BoolExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code notEqExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.

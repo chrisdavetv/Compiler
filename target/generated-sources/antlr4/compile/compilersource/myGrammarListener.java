@@ -293,18 +293,6 @@ public interface myGrammarListener extends ParseTreeListener {
 	 */
 	void exitLtExpression(@NotNull myGrammarParser.LtExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code boolExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBoolExpression(@NotNull myGrammarParser.BoolExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code boolExpression}
-	 * labeled alternative in {@link myGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBoolExpression(@NotNull myGrammarParser.BoolExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code arrayExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
 	 * @param ctx the parse tree
@@ -316,6 +304,18 @@ public interface myGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArrayExpression(@NotNull myGrammarParser.ArrayExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code boolExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBoolExpression(@NotNull myGrammarParser.BoolExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code boolExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBoolExpression(@NotNull myGrammarParser.BoolExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code notEqExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.

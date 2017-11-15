@@ -414,18 +414,6 @@ public class myGrammarBaseListener implements myGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBoolExpression(myGrammarParser.BoolExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBoolExpression(myGrammarParser.BoolExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterArrayExpression(myGrammarParser.ArrayExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -433,6 +421,18 @@ public class myGrammarBaseListener implements myGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArrayExpression(myGrammarParser.ArrayExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBoolExpression(myGrammarParser.BoolExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBoolExpression(myGrammarParser.BoolExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

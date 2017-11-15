@@ -41,12 +41,13 @@ statement
 
 assignment
  : Identifier Assign expression
+ | Identifier indexes Assign expression
  | Scan OpenParen expression? Comma Identifier CloseParen
- | Def Identifier Array
+ | Def DataType Identifier indexes
  ;
 
 identifierDeclaration
-: Def DataType idList 
+: Def Final? DataType idList 
 ;
 
 functionCall
@@ -113,6 +114,7 @@ expression
  | expression And expression               #andExpression
  | expression Or expression               #orExpression
  | expression '?' expression ':' expression #ternaryExpression
+ | Identifier indexes                         #arrayExpression
  | Number                                   #numberExpression
  | Bool                                     #boolExpression
  | Null                                     #nullExpression
@@ -121,7 +123,6 @@ expression
  | Identifier indexes?                      #identifierExpression
  | String indexes?                          #stringExpression
  | OpenParen expression CloseParen indexes?              #expressionExpression
- | Identifier OpenBracket ArrayUnion CloseBracket                         #arrayExpression
  ;
 
 list
@@ -171,6 +172,7 @@ SemiColon   : ';';
 Assign   : '=';
 Comma    : ',';
 Colon    : ':';
+Final    : 'final';
 
 DataType 
 : 'boolean'
@@ -216,12 +218,3 @@ Digit
 
 UNKNOWN_CHAR 
     : . ;
-
-ArrayUnion
-: Int
-| Identifier
-;
-
-Array
-: OpenBracket ArrayUnion  (',' ArrayUnion)* CloseBracket
-;
