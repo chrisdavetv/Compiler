@@ -1,0 +1,33 @@
+//Convert this into your language rule syntax.
+
+int myFunction(int x) {
+	int add = x + 50 ++ 1; //syntax error #1
+	
+	return int; //syntax error #2
+}
+
+float myFunctionFloat(float x) {
+	float fTest = (x * 50) + (x * 15)); //syntax error #3
+	
+	return fTest * 50 (); //syntax error #4
+}
+
+void main() {
+	this.myFunction(50);
+	this.myFunctionFloat(50.0f);
+}
+
+def myFunction(def x)
+	def add;
+	add = x + 50 ++ 1
+
+	return int
+end
+
+def myFunctionFloat(def y)
+	def fTest = (x * 50) + (x * 15)) //syntax error #3
+	return fTest * 50 ()
+end
+
+myFunction(50)
+myFunctionFloat(50.0)
