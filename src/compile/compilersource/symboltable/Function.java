@@ -130,13 +130,13 @@ public class Function implements ICommand{
     }
 
     public void verifyParameterByValueAt(ExpressionContext exprCtx, int index) {
-            if(index >= this.parameterValues.size()) {
+            /*if(index >= this.parameterValues.size()) {
                     return;
             }
 
             Value Value = this.getParameterAt(index);
             TypeChecker typeChecker = new TypeChecker(Value, exprCtx);
-            typeChecker.verify();
+            typeChecker.verify();*/
     }
 
     /*

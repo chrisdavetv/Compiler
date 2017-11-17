@@ -6,7 +6,6 @@
 package compile.compilersource.symboltable;
 
 import java.util.ArrayList;
-import sun.rmi.runtime.Log;
 
 /**
  *

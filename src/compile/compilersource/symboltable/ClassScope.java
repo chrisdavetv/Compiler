@@ -5,9 +5,7 @@
  */
 package compile.compilersource.symboltable;
 
-import java.io.Console;
 import java.util.HashMap;
-import sun.rmi.runtime.Log;
 
 /**
  *
