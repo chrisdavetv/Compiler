@@ -11,14 +11,6 @@ package compile.compilersource.symboltable;
  */
 import java.util.HashMap;
 
-//import com.neildg.mobiprog.semantics.representations.MobiValue;
-//import com.neildg.mobiprog.semantics.symboltable.scopes.ClassScope;
-
-/**
- * Holds all of the found variables in code and stores them here in the symbol table manager.
- * @author NeilDG
- *
- */
 public class SymbolTableManager {
 
 	private final static String TAG = "SymbolTableManager";

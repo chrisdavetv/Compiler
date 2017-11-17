@@ -6,6 +6,7 @@
 package compile.compilersource;
 
 import compile.compiler.CompilerUI;
+import compile.compilersource.symboltable.ErrorRepository;
 import java.awt.Color;
 import java.util.BitSet;
 import javax.swing.text.BadLocationException;
@@ -24,26 +25,40 @@ import org.antlr.v4.runtime.dfa.DFA;
  */
 public class AntlrErrorListener implements ANTLRErrorListener{
     
+    private final static String TAG = "AntlrErrorListener";
     String mainErrorString = "";
     CompilerUI ui;
+    private static AntlrErrorListener sharedInstance = null;
+    private boolean successful = true;
+    
+    public static AntlrErrorListener getInstance() {
+            return sharedInstance;
+    }
  
     public AntlrErrorListener(CompilerUI ui){
         super();
         this.ui = ui;
     }
     
+    public AntlrErrorListener(){}
+    
+    public static void initialize() {
+            sharedInstance = new AntlrErrorListener();
+            ErrorRepository.initialize();
+    }
+    
     public String GetAllErrorMessages(){
         return mainErrorString;
     }
     
-    /*@Override
-    public void syntaxError(Recognizer<?, ?> rcgnzr, Object o, int i, int i1, String string, RecognitionException re) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        System.out.println(
-                MessageFormat.format("caught a syntax error: string:{0}, i:{1}, i:{2}, o:{3} ", string, i, i1)
-        );
-        mainErrorString += "\n"+MessageFormat.format("Caught syntax error at line {1}, char {2}: {0}", string, i - 1, i1);
-    }*/
+    public static void reset() {
+            sharedInstance.successful  = true;
+            ErrorRepository.reset();
+    }
+    
+    public boolean canExecute() {
+            return this.successful;
+    }
     
     @Override
     public void syntaxError(
@@ -92,6 +107,20 @@ public class AntlrErrorListener implements ANTLRErrorListener{
     public void reportContextSensitivity(Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atncs) {
         System.out.println("reportContextSensitivity triggered"); //To change body of generated methods, choose Tools | Templates.
         highlightErrorLine(1);
+    }
+    
+    public static void reportCustomError(int errorCode, String additionalMessage) {
+            String errorMessage = ErrorRepository.getErrorMessage(errorCode) + " " + additionalMessage;
+            //Console.log(LogType.ERROR, errorMessage);
+
+            sharedInstance.successful = false;
+    }
+
+    public static void reportCustomError(int errorCode, String additionalMessage, Object... parameters) {
+            String errorMessage = String.format(ErrorRepository.getErrorMessage(errorCode) + " " + additionalMessage, parameters);
+            //Console.log(LogType.ERROR, errorMessage);
+
+            sharedInstance.successful = false;
     }
     
 }

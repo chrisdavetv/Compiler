@@ -103,8 +103,8 @@ public class LocalScope implements IScope{
 	public void addEmptyVariableFromKeywords(String primitiveTypeString, String identifierString) {
 		this.initializeLocalVariableMap();
 		
-		Value mobiValue = Value.createEmptyVariableFromKeywords(primitiveTypeString);
-		this.localVariables.put(identifierString, mobiValue);
+		Value value = Value.createEmptyVariableFromKeywords(primitiveTypeString);
+		this.localVariables.put(identifierString, value);
 	}
 	
 	/*
@@ -114,13 +114,13 @@ public class LocalScope implements IScope{
 		this.initializeLocalVariableMap();
 		
 		this.addEmptyVariableFromKeywords(primitiveTypeString, identifierString);
-		Value mobiValue = this.localVariables.get(identifierString);
-		mobiValue.setValue(valueString);
+		Value Value = this.localVariables.get(identifierString);
+		Value.setValue(valueString);
 	}
 	
-	public void addValue(String identifier, Value mobiValue) {
+	public void addValue(String identifier, Value Value) {
 		this.initializeLocalVariableMap();
-		this.localVariables.put(identifier, mobiValue);
+		this.localVariables.put(identifier, Value);
 	}
 	
 	/*

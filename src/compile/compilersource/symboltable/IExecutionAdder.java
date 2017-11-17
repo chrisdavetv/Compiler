@@ -9,7 +9,7 @@ package compile.compilersource.symboltable;
  *
  * @author chris
  */
-public interface IScope {
-    public Value searchVariableIncludingLocal(String identifier);
-    public boolean isParent();
+public interface IExecutionAdder {
+	public abstract void addCommand(ICommand command);
 }
+

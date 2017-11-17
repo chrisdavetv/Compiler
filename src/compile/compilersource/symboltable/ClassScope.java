@@ -64,21 +64,21 @@ public class ClassScope implements IScope{
 			isPublic = false;
 		}
 		
-		//create empty mobi value
-		Value mobiValue = Value.createEmptyVariableFromKeywords(primitiveTypeString);
+		//create empty  value
+		Value value = Value.createEmptyVariableFromKeywords(primitiveTypeString);
 		
 		if(isPublic) {
-			this.publicVariables.put(identifierString, mobiValue);
-			//Console.log(LogType.DEBUG, "Created public variable " +identifierString+ " type: " +mobiValue.getPrimitiveType());
+			this.publicVariables.put(identifierString, value);
+			//Console.log(LogType.DEBUG, "Created public variable " +identifierString+ " type: " +Value.getPrimitiveType());
 		}
 		else {
-			this.privateVariables.put(identifierString, mobiValue);
-			//Console.log(LogType.DEBUG, "Created private variable " +identifierString+ " type: " +mobiValue.getPrimitiveType());
+			this.privateVariables.put(identifierString, value);
+			//Console.log(LogType.DEBUG, "Created private variable " +identifierString+ " type: " +Value.getPrimitiveType());
 		}
 	}
 	
 	/*
-	 * Attempts to add an initialized variable mobi value
+	 * Attempts to add an initialized variable  value
 	 */
 	public void addInitializedVariableFromKeywords(String classModifierString, String primitiveTypeString, String identifierString, String valueString) {
 		boolean isPublic = true;
@@ -90,14 +90,14 @@ public class ClassScope implements IScope{
 		this.addEmptyVariableFromKeywords(classModifierString, primitiveTypeString, identifierString);
 		
 		if(isPublic) {
-			Value mobiValue = this.publicVariables.get(identifierString);
-			mobiValue.setValue(valueString);
-			//Console.log(LogType.DEBUG, "Updated public variable " +identifierString+ " of type " +mobiValue.getPrimitiveType()+ " with value " +valueString);
+			Value Value = this.publicVariables.get(identifierString);
+			Value.setValue(valueString);
+			//Console.log(LogType.DEBUG, "Updated public variable " +identifierString+ " of type " +Value.getPrimitiveType()+ " with value " +valueString);
 		}
 		else {
-			Value mobiValue = this.privateVariables.get(identifierString);
-			mobiValue.setValue(valueString);
-			//Console.log(LogType.DEBUG, "Updated private variable " +identifierString+ " of type " +mobiValue.getPrimitiveType()+ " with value " +valueString);
+			Value Value = this.privateVariables.get(identifierString);
+			Value.setValue(valueString);
+			//Console.log(LogType.DEBUG, "Updated private variable " +identifierString+ " of type " +Value.getPrimitiveType()+ " with value " +valueString);
 		}
 	}
 	
@@ -121,17 +121,17 @@ public class ClassScope implements IScope{
 		}
 	}
 	
-	public void addPrivateFunction(String identifier, Function mobiFunction) {
-		this.privateFunctions.put(identifier, mobiFunction);
-		//Console.log(LogType.DEBUG, "Created private function " +identifier+ " with return type " +mobiFunction.getReturnType());
+	public void addPrivateFunction(String identifier, Function Function) {
+		this.privateFunctions.put(identifier, Function);
+		//Console.log(LogType.DEBUG, "Created private function " +identifier+ " with return type " +Function.getReturnType());
 	}
 	
-	public void addPublicFunction(String identifier, Function mobiFunction) {
-		this.publicFunctions.put(identifier, mobiFunction);
-		//Console.log(LogType.DEBUG, "Created public function " +identifier+ " with return type " +mobiFunction.getReturnType());
+	public void addPublicFunction(String identifier, Function Function) {
+		this.publicFunctions.put(identifier, Function);
+		//Console.log(LogType.DEBUG, "Created public function " +identifier+ " with return type " +Function.getReturnType());
 	}
 	
-	public void addValue(String accessControlModifier, String identifier, Value mobiValue) {
+	public void addValue(String accessControlModifier, String identifier, Value Value) {
 		boolean isPublic = true;
 		
 		if(Keywords.matchesKeyword(Keywords.CLASS_MODIFIER_PRIVATE, accessControlModifier)) {
@@ -139,10 +139,10 @@ public class ClassScope implements IScope{
 		}
 		
 		if(isPublic){
-			this.publicVariables.put(identifier, mobiValue);
+			this.publicVariables.put(identifier, Value);
 		}
 		else {
-			this.privateVariables.put(identifier, mobiValue);
+			this.privateVariables.put(identifier, Value);
 		}	
 	}
 	
@@ -190,7 +190,7 @@ public class ClassScope implements IScope{
 	@Override
 	/* Attempts to find a variable first in the private and public variable storage, then on the local scopes.
 	 * (non-Javadoc)
-	 * @see com.neildg.mobiprog.semantics.symboltable.scopes.IScope#getVariable(java.lang.String)
+	 * @see com.neildg.prog.semantics.symboltable.scopes.IScope#getVariable(java.lang.String)
 	 */
 	public Value searchVariableIncludingLocal(String identifier) {
 		Value value;

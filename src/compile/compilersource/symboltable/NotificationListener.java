@@ -9,7 +9,7 @@ package compile.compilersource.symboltable;
  *
  * @author chris
  */
-public interface IScope {
-    public Value searchVariableIncludingLocal(String identifier);
-    public boolean isParent();
+public interface NotificationListener {
+
+	public abstract void onNotify(String notificationString, Parameters params);
 }

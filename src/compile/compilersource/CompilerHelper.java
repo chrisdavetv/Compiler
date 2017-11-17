@@ -19,10 +19,15 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
  * @author chris
  */
 public class CompilerHelper {
+    
+    private static String currentClassName;
+    private final static String TAG = "CompilerHelper";
+    private static CompilerHelper sharedInstance = null;
+    
     public static String compile(String expression, CompilerUI ui) {
         String output = "";
 		try {
-                        //use a visitor to check semantics
+                        //TODO: assign classname here
                         
 			//lexer splits input into tokens
 			ANTLRInputStream input = new ANTLRInputStream(expression);
@@ -56,6 +61,14 @@ public class CompilerHelper {
                 return output;
 	}
     
+    public static CompilerHelper getInstance() {
+            if(sharedInstance == null) {
+                    sharedInstance = new CompilerHelper();
+            }
+
+            return sharedInstance;
+    }
+    
     static String CheckSyntaxReturnErrors(String expression, CompilerUI ui){
         //lexer splits input into tokens
         ANTLRInputStream input = new ANTLRInputStream(expression);
@@ -74,6 +87,10 @@ public class CompilerHelper {
         walker.walk(listener, parser.parse());
         
         return errorListener.GetAllErrorMessages() +"\n";
+    }
+    
+    public static String getCurrentClassName() {
+            return currentClassName;
     }
     
     public static boolean isStringNullOrWhiteSpace(String value) {

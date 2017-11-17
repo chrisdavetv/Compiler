@@ -9,7 +9,12 @@ package compile.compilersource.symboltable;
  *
  * @author chris
  */
-public interface IScope {
-    public Value searchVariableIncludingLocal(String identifier);
-    public boolean isParent();
+public class Util {
+    public enum ControlTypeEnum {
+        CONDITIONAL_IF,
+        DO_WHILE_CONTROL,
+        WHILE_CONTROL,
+        FOR_CONTROL,
+        FUNCTION_TYPE
+    }
 }
