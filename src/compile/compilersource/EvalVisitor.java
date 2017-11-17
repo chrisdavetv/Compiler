@@ -400,6 +400,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitIdentifierFunctionCall(myGrammarParser.IdentifierFunctionCallContext ctx) {
         System.out.println("In visitIdentifierFunctionCall");
         T result = (T)"";
+	try{
         String funcName = ctx.Identifier().getText();
         String exParam = "", temp = "";
         String[] postParam = new String[1];
@@ -526,7 +527,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	currentFunction = funcName;
             result = EvaluatelBlockWithErrorGeneration(functionData.blockCtx);//what about function identifiers???
         }
-        
+        }catch(NullPointerException ne){
+                VisitorErrorReporter.CreateErrorMessage("Identifier does not exist:" + ctx.Identifier(), 
+                        ctx.getStart());
+        }
         return result;
     }
 
@@ -743,6 +747,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitForStatement(myGrammarParser.ForStatementContext ctx) {
         System.out.println("In visitForStatement");
         
+	try{    
         T result = (T)"";
         String temp = "";
         Double lowerLimit = 0.0;
@@ -787,8 +792,36 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 RemoveIdentifierFromMemory(ctx.Identifier().getText());
             }
         }
-        
+        else if(upperLimit < lowerLimit){
+            while(upperLimit < lowerLimit){
+            	//update
+            	if (ctx.DataType().getText().equals("int") || ctx.DataType().getText().equals("short")
+            			|| ctx.DataType().getText().equals("long"))
+            	{
+            		long val = (long) Double.parseDouble(lowerLimit.toString());
+                GenerateErrorIfIdentifierExistsElseAddToMemory(
+                    ctx.Identifier().getText(), String.valueOf(val), ctx.DataType().getText(), "not", ctx);
+            	}
+            	// for string type?
+            	else {
+                    GenerateErrorIfIdentifierExistsElseAddToMemory(
+                            ctx.Identifier().getText(), lowerLimit.toString(), ctx.DataType().getText(), "not", ctx);        		
+            	}
+            	System.out.println("LowerLimit : " + lowerLimit);
+            	System.out.println(ctx.Identifier().getText());
+                temp = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
+                result = (T) (result + temp);
+                lowerLimit--;
+                RemoveIdentifierFromMemory(ctx.Identifier().getText());
+            }
+        }
         return result;
+	}catch(Exception e){
+            VisitorErrorReporter.CreateErrorMessage(
+               "Identifier does not exist: " + ctx.Identifier(), 
+                ctx.getStart());
+        }
+        return (T)"";	
     }
 
     @Override
