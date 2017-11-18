@@ -22,9 +22,12 @@ package compile.compilersource;
 }
 
 parse
- : block EOF
+ : functionBlock EOF
  ;
 
+functionBlock
+ : block
+ ;
 block
  : (statement | functionDecl)* (Return expression)?
  ;
@@ -73,7 +76,7 @@ elseStat
  ;
 
 functionDecl
- : Def DataType Identifier OpenParen paramIdList? CloseParen block End
+ : Def DataType Identifier OpenParen paramIdList? CloseParen functionBlock End
  ;
 
 forStatement
@@ -181,7 +184,7 @@ DataType
 | 'float'
 | 'long'
 | 'short'
-| 'double'
+| 'void'
 ;
 
 Bool

@@ -225,6 +225,16 @@ public interface myGrammarListener extends ParseTreeListener {
 	 */
 	void exitStatement(@NotNull myGrammarParser.StatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#functionBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionBlock(@NotNull myGrammarParser.FunctionBlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#functionBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionBlock(@NotNull myGrammarParser.FunctionBlockContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code functionCallExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
 	 * @param ctx the parse tree

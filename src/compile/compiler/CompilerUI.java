@@ -55,8 +55,8 @@ public class CompilerUI extends javax.swing.JFrame {
         return this.jTextArea1;
     }
     
-    public javax.swing.JTextArea getOuputConsole(){
-        return this.jTextArea1;
+    public javax.swing.JTextArea getOutputConsole(){
+        return this.jTextArea2;
     }
     
     /**
