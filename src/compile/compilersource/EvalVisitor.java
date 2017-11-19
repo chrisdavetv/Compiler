@@ -111,13 +111,21 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             System.out.println(numberOfChildren + " children in Expression");
             for (int c = 0; c < numberOfChildren; c++) {
                 ParseTree child = ctx.getChild(c);
-                if (!(child.getText().contains("\"")) && child.getText().matches("[a-zA-Z_][a-zA-Z_0-9]*") ) {
+                System.out.println("child : " + child.getText());
+                if (!(child.getText().contains("\"")) && child.getText().matches("[a-zA-Z_][a-zA-Z_0-9]*") &&
+                		!(child.getText().equals("true") || child.getText().equals("false"))) {
                 	if (functionMemory.get(currentFunction).identifierMemory.get(child.getText()) == null) {
                         VisitorErrorReporter.CreateErrorMessage("the identifier : "
                         		+ child.getText() + " used in the expression does not exist!", 
                                 ctx.getStart());
                         break;
                 	}
+                }
+                
+                if (child.getText().equals("true") || child.getText().equals("false")) {
+                    VisitorErrorReporter.CreateErrorMessage("boolean datatype exists in the equation.", 
+                            ctx.getStart());
+                    break;
                 }
                 if (!child.getText().equals(operatorString)) {
                     if (c == 0) {
@@ -135,7 +143,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                     ctx.getStart());
             return (T)"";
         } catch (NumberFormatException nfe) {
-            VisitorErrorReporter.CreateErrorMessage("NFE", 
+            VisitorErrorReporter.CreateErrorMessage("Invalid equation. Please check again.", 
                     ctx.getStart());        	
         }
         return (T) result.toString();
@@ -408,6 +416,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             int i = 0;
             System.out.println(visit(ctx.indexes()).toString());
             int length = Integer.parseInt(visit(ctx.indexes()).toString());
+            
+            GenerateErrorIfIdentifierExistsElseAddToMemory(ctx.Identifier().getText(), 
+            		Integer.toString(length), "array", "not", ctx);
             
             for(int j = 0; j < length; j++){
             String identifierName = ctx.Identifier().getText() + "[" + i + "]";
@@ -1075,7 +1086,38 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitAddExpression(myGrammarParser.AddExpressionContext ctx) {
-        T result = Calculate(ctx, MathOpType.ADD);
+    	T result = (T)"";
+    	String stringBuilder = "";
+    	boolean toCalculate = true;
+    	
+    	for (int i = 0; i < ctx.getChildCount(); i++) {
+    		if (ctx.getChild(i).getText().contains("\"")){
+    			toCalculate = false;
+    		}
+    	}
+    	
+    	if (!toCalculate) {
+	    	for (int i = 0; i < ctx.getChildCount(); i++) {
+	    		if (i == 0) {
+	    			stringBuilder = visit(ctx.getChild(i)).toString().replace("\"", "");
+	    		}
+	    		else {
+	    			
+	    			if (ctx.getChild(i).getText().equals("+")){
+	    				
+	    			}
+	    			else {
+	    				stringBuilder += visit(ctx.getChild(i)).toString().replace("\"", "");
+	    			}
+	    			
+	    		}
+	    	}
+	    	stringBuilder = '"' + stringBuilder + '"';
+	    	result = (T)stringBuilder;
+    	}
+    	else {
+    		result = Calculate(ctx, MathOpType.ADD);
+    	}
         return result;
     }
 
