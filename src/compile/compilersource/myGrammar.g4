@@ -46,11 +46,11 @@ assignment
  : Identifier Assign expression
  | Identifier indexes Assign expression
  | Scan OpenParen expression? Comma Identifier CloseParen
- | Def DataType Identifier indexes
+ | Identifier Assign DataType indexes
  ;
 
 identifierDeclaration
-: Def Final? DataType idList 
+: Def Final? DataType (OpenBracket CloseBracket)? idList
 ;
 
 functionCall
