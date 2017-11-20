@@ -68,6 +68,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     CompilerUI ui;
     FunctionData main;
     final String functionParamSeparator = ",";
+    String[] depth = new String[1000];
+    int depthIndex;
     
     public EvalVisitor(ErrorReporter errorReporter, CompilerUI ui){
         super();
@@ -76,6 +78,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         currentFunction = "main";
         functionMemory.put("main", new FunctionData());
         functionMemory.get("main").parent = null;
+        depthIndex = 0;
+        depth[0] = "main";
     }
     
     enum MathOpType {
@@ -140,6 +144,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 else System.out.println("found a " + operatorString + " sign at position" + c);
             }
             System.out.println("Expression returning: " + (T) result.toString());
+            System.out.println("The first child was : " + ctx.getChild(0).getText());
         } catch (NullPointerException ne) {
             VisitorErrorReporter.CreateErrorMessage("operator can only be applied to type Number", 
                     ctx.getStart());
@@ -237,13 +242,17 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     	if (!currentFunction.equals("main"))
     	{
         	if (functionMemory.get(currentFunction).getReturnType().equals("void")) {
-        		currentFunction = functionMemory.get(currentFunction).parent;
+        		depthIndex--;
+        		currentFunction = depth[depthIndex];
+        		//currentFunction = functionMemory.get(currentFunction).parent;
         	}
         	else {
     		result = (T)functionMemory.get(currentFunction).getReturnValue();
     		System.out.println("Function " + currentFunction + " returned : " + functionMemory.get(currentFunction).getReturnValue());
     		functionMemory.get(currentFunction).setReturnValue(null);
-    		currentFunction = functionMemory.get(currentFunction).parent;
+    		depthIndex--;
+    		currentFunction = depth[depthIndex];
+    		//currentFunction = functionMemory.get(currentFunction).parent;
         	}
     	}
     	System.out.println("currentFunction : " + currentFunction);
@@ -252,12 +261,25 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitBlock(myGrammarParser.BlockContext ctx) {
+    	System.out.println("enter visitBlock : ");
+    	
+    	////////////// ���⼭ return ó�� (statement ���� ���)
         T result = (T) visitChildren(ctx);
+        
+        
         System.out.println("visitBlock result: " + result);
+        functionMemory.get(currentFunction).setReturnValue((String) result);
+        /*
+        System.out.println(ctx.getChildCount());
+        
         for (int i = 0; i < ctx.getChildCount(); i++) {
+        	System.out.println("Block Child : " + ctx.getChild(i).getText());
+        	if (i + 1 < ctx.getChildCount()) {
+        		System.out.println("Block Child 2 : " + ctx.getChild(i+1).getText());
+        	}
         	if (ctx.getChild(i).getText().equals("return")) {
         		if (functionMemory.get(currentFunction).getReturnValue() == null) {
-        		String returnVal = visit(ctx.getChild(i+1)).toString();
+        		String returnVal = visit(ctx.getChild(i+1)).toString(); 
         		System.out.println("returnVal : " + returnVal);
         		String checker = typeCheck(functionMemory.get(currentFunction).getReturnType(), returnVal, ctx);
         		functionMemory.get(currentFunction).setReturnValue(checker);
@@ -268,7 +290,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         		//currentFunction = functionMemory.get(currentFunction).parent;
         		//System.out.println("currentFunction : " + currentFunction);
         	}
-        }
+        }*/
+        
         return result;
     }
 
@@ -640,9 +663,12 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         		}
         	}
         	if (!hasError) {
-        	functionData.parent = currentFunction;
+        	//functionData.parent = currentFunction;
+        	depthIndex++;
+        	depth[depthIndex] = funcName;
         	currentFunction = funcName; 
             result = EvaluateFunctionBlockWithErrorGeneration(functionData.functionBlockCtx);//what about function identifiers???
+            System.out.println("IDENTIFIER CALL RESULT : " + result);
         	}
         	else {
         		result = (T)"";
@@ -675,7 +701,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             ui.getOutputConsole().update(ui.getGraphics());
         }
         System.out.println("Writing a new line, result: " + result);
-        return result;
+        return (T)"";
     }
 
     @Override
@@ -724,6 +750,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             Boolean ifConditional = Boolean.parseBoolean(visitIfStat(ctx.ifStat()).toString());
             //if first condition is satisfied, then don't move to succeeding else-if code blocks
             if(ifConditional){
+            	System.out.println("if satisfied.");
                 result = EvaluatelBlockWithErrorGeneration(ctx.ifStat().block());
             }else{
                 //check else if statements
@@ -1107,6 +1134,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitMultiplyExpression(myGrammarParser.MultiplyExpressionContext ctx) {
         T result = Calculate(ctx, MathOpType.MULT);
+        System.out.println("Multi Returning! : " + result.toString());
         return result;
     }
 

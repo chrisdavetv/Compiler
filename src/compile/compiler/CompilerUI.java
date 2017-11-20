@@ -470,8 +470,9 @@ public class CompilerUI extends javax.swing.JFrame {
 
     private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ActionPerformed
         // TODO add your handling code here:
+    	jTextArea2.setText("");
         jTextArea1.getHighlighter().removeAllHighlights();
-        jTextArea2.setText(CompilerHelper.compile(jTextArea1.getText(), CompilerUI.this));
+        jTextArea2.append(CompilerHelper.compile(jTextArea1.getText(), CompilerUI.this));
         
     }//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
     
