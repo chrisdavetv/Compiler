@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JOptionPane;
 
 import javax.swing.JTextArea;
 
@@ -475,19 +476,21 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
         
         else if(ctx.getChild(0) == ctx.Scan()){
-            /*String identifierName = ctx.Identifier().getText();
+           String identifierName = ctx.Identifier().getText();
             String value = "";
-            String constant;
-            constant = identifierMemory.get(identifierName).get(2).toString();
+            String type = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(1).toString();
+            String constant = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(2).toString();
+
             try{
-                //value = outputArea.getText();
-               System.out.println("aa");
+                value = JOptionPane.showInputDialog(visit(ctx.expression()).toString());
+                System.out.println("Value:" + value);
+                typeCheck(type,value,ctx);
+                
             }catch(NullPointerException ne){
                 VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
                         ctx.getStart());
             }
             GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, constant, ctx);    
-            */
         }
         
         return (T)"";
