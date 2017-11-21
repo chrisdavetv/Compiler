@@ -1,0 +1,68 @@
+1. Create your first "Hello World" program by asking the user for its name, then displaying "Hello <name>!"
+in the console.
+
+Example Run:
+Please enter your name: NeilDG
+Hello NeilDG!
+
+2. Create a program that will get as input from the user the base and the height of a
+triangle. Compute the area of the triangle.
+
+Example Run:
+Enter base: 15
+Enter height : 3
+The area of the triangle is 22.5
+
+3. Check if you can support simple conditional statements. Write a program that will display ‘IT’S COLD!’ 
+if the given temperature is less than 20, ‘IT’S HOT!’ if the given temperature is greater than 30, ‘COOL
+CLIMATE!’ otherwise.
+
+Example Run:
+Enter temperature: 21
+COOL CLIMATE!
+
+Enter temperature: 19
+IT'S COLD!
+
+4. Check if you can support conditional statements with simple arithmetic and logical expressions.
+Write a program that will ask the user for the grades of their 3 assignments. The grade weight is as follows:
+
+Assignment 1 - 40%
+Assignment 2 - 35%
+Assignment 3 - 25%
+
+Afterwards, compute for the final grade and display its DLSU equivalent grade.
+
+>= 94 --> 4.0
+>= 89 --> 3.5
+>= 83 --> 3.0
+>= 78 --> 2.5
+>=72  --> 2.0
+>= 66 --> 1.5
+>= 60 --> 1.0
+below 60 --> 0.0
+
+
+Example Run: 
+Enter assignment 1 grade: 90
+Enter assignment 2 grade: 50
+Enter assignment 3 grade: 75
+
+Your grade is: 72.25. Your DLSU grade is: 2.0.
+
+5. Check if you can support simple loops. Write a program that will continuously ask the user for a number.
+If the user enters a negative number, the program halts and then displays the total of all numbers entered (except
+the negative number).
+
+Example Run:
+Gimme number: 1
+Gimme number: 2
+Gimme number: 3
+Gimme number: 4
+Gimme number: 5
+Gimme number: 6
+Gimme number: 7
+Gimme number: 8
+Gimme number: -1
+
+Total: 36

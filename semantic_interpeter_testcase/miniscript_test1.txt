@@ -1,0 +1,27 @@
+
+
+def int x
+x = 0
+def float _veryWeirdIdentifier567
+veryWeirdIdentifier567= 999.9
+def boolean y = (5 > 4 && true) || (false && !(x==0))
+def int myArray[10]
+
+/*
+
+//Convert this into your language rule syntax.
+
+void main() {
+	int x = 0;
+	float _veryWeirdIdentifier567 = 999.9f;
+	boolean y = (5 > 4 && true) || (false && !(x==0));
+	int[] myArray = new int[10];
+	
+	scan("What is the input: " ,x); //ask for user input
+	print("Input: " ,x); //print the input
+	
+	for(int i = 0; i < 5; i++) {
+		print("Hello world");
+	}
+}
+*/

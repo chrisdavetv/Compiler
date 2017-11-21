@@ -1,0 +1,23 @@
+private const FINAL_X = 10;
+
+int add(int x, int y) {
+	return (x + y);
+}
+
+void main() {
+	int x = 0;
+	int y = 0;
+	
+	scan("Enter value for X: " ,x);
+	scan("Enter value for Y: " ,y);
+	
+	print("Value is: " + add(x)); //error #1
+	
+	FINAL_X++; //error #2
+	FINAL_X += 10; //error #3
+	
+	x = 5 + z; //error #4
+	x = "hello"; //error #5
+	
+	print(x);
+}
