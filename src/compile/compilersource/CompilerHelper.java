@@ -49,8 +49,9 @@ public class CompilerHelper {
                         totalErrorString += CheckSyntaxReturnErrors(expression, ui);
                         
                         if(isStringNullOrWhiteSpace(totalErrorString)){
-                            output = results;
+                            output = "";
                         }else{
+                        	ui.getOutputConsole().setText("");
                             output = totalErrorString;
                         }
                         System.out.println("result: "+ output);
