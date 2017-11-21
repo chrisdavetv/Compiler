@@ -19,11 +19,9 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 //mismatched input errors still dont get caught
 	// to do :
-	//comparison mismatch
-	//Writeln, write, scan, return issues
-	// parameter  mismatch for recursive.
-	// a[] works, fix!
-	
+	//comparison mismatch (expression?)
+	// for loop datatype issue
+	// double calculation makes slight difference in the resulting value (big number)
     class FunctionData{
     	public String parent;
     	public String returnValue;
@@ -264,12 +262,13 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitBlock(myGrammarParser.BlockContext ctx) {
     	System.out.println("enter visitBlock : ");
     	
-    	////////////// ���⼭ return ó�� (statement ���� ���)
+    	
         T result = (T) visitChildren(ctx);
         
         
         System.out.println("visitBlock result: " + result);
-        functionMemory.get(currentFunction).setReturnValue((String) result);
+        if (functionMemory.get(currentFunction).getReturnValue() == null)
+        	functionMemory.get(currentFunction).setReturnValue((String) result);
         /*
         System.out.println(ctx.getChildCount());
         
@@ -476,14 +475,29 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
         
         else if(ctx.getChild(0) == ctx.Scan()){
-           String identifierName = ctx.Identifier().getText();
+        	// scan 1st argument = string only?
+            String identifierName;
+            if (ctx.indexes() == null) {
+            	identifierName = ctx.Identifier().getText();
+            }
+            else {
+            	identifierName = ctx.Identifier().getText() + "[" + visit(ctx.indexes()).toString() + "]";
+            }
             String value = "";
-            String type = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(1).toString();
-            String constant = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(2).toString();
-
+            String type = "", constant = "";
+            try {
+            type = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(1).toString();
+            constant = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(2).toString();
+            } catch(NullPointerException ne) {
+                VisitorErrorReporter.CreateErrorMessage("the identifier does not exist.", 
+                        ctx.getStart());            	
+            }
             try{
-                value = JOptionPane.showInputDialog(visit(ctx.expression()).toString());
+                value = JOptionPane.showInputDialog(visit(ctx.expression()).toString().replace("\"", ""));
                 System.out.println("Value:" + value);
+                if (type.equals("string")) {
+                	value = '"' + value + '"';
+                }
                 typeCheck(type,value,ctx);
                 
             }catch(NullPointerException ne){
@@ -693,8 +707,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         if(ctx.expression() != null) {
         	
             String printAppender = visitChildren(ctx).toString() + "\n";
-            ui.getOutputConsole().append(printAppender);
-            ui.getOutputConsole().update(ui.getGraphics());
+            ui.getOutputConsole().append(printAppender.replace("\"", ""));
+            ui.getOutputConsole().update(ui.getOutputConsole().getGraphics());
             result = (T) printAppender;
 
         }
@@ -712,8 +726,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         System.out.println("In visitPrintFunctionCall");
         String printAppender = visitChildren(ctx).toString();
         T result = (T) printAppender;
-        ui.getOutputConsole().append(printAppender);
-        ui.getOutputConsole().update(ui.getGraphics());
+        ui.getOutputConsole().append(printAppender.replace("\"", ""));
+        ui.getOutputConsole().update(ui.getOutputConsole().getGraphics());
         return result;
     }
     
@@ -762,8 +776,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 for(int c = 0;c < elseIfStatmentCount;c++){
                     System.out.println("if statement not statisfied, checking ifelse statements");
                     ifElseConditional = Boolean.parseBoolean(visitElseIfStat(ctx.elseIfStat(c)).toString());
+                    System.out.println(ifElseConditional);
                     if(ifElseConditional){
                         result = EvaluatelBlockWithErrorGeneration(ctx.elseIfStat(c).block());
+                        break;
                     }
                 }
                 //if no ifelse conditions were satisfied, then check if else statement exists
@@ -1396,6 +1412,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         		value = value.replace(".0", "");
         	}
         	try {
+        	System.out.println("Integer Test : " + value);
         	int integerTest = Integer.parseInt(value);
         	}	catch(NumberFormatException nfe) {
                 	VisitorErrorReporter.CreateErrorMessage("the value is not an integer.", 
