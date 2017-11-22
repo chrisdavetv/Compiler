@@ -45,7 +45,7 @@ statement
 assignment
  : Identifier Assign expression
  | Identifier indexes Assign expression
- | Scan OpenParen expression? Comma Identifier CloseParen
+ | Scan OpenParen expression? Comma Identifier indexes? CloseParen
  | Identifier Assign DataType indexes
  ;
 
