@@ -376,85 +376,16 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         System.out.println("In visitAssignment");
         
         
-        if(ctx.getChild(0) == ctx.Identifier()){
+        try{
+            if(ctx.getChild(0) == ctx.Identifier()){
         	
-        	if (ctx.indexes() == null) {
-            String identifierName = ctx.Identifier().getText();
-            String type, constant;
-            String value = "";
-            
-            type = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(1).toString();
-            constant = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(2).toString();
-            
-            try{
-                value = visit(ctx.expression()).toString();
-            }catch(NullPointerException ne){
-                VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
-                        ctx.getStart());
-            }
-            
-        
-            if (!(type.equals("float")) && !(type.equals("string")) && value.contains(".0")) {
-            	value = value.replace(".0", "");
-            }
-            value = typeCheck(type, value, ctx);
-            System.out.println("after mismatch check : " + value);
-            System.out.println("current function : " + currentFunction);
-  
-            GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, constant, ctx);
-        	}
-        	
-        	else if (ctx.DataType() != null && ctx.indexes() != null){
-        		if (functionMemory.get(currentFunction).identifierExists(ctx.Identifier().getText())) {
-        			int length = 0;
-        			try {
-        				length = Integer.parseInt(visit(ctx.indexes()).toString());
-        			} catch (NumberFormatException nfe) {
-                        VisitorErrorReporter.CreateErrorMessage("Type Mismatch : only integer or integer variable are possible for the array size.", 
-                                ctx.getStart());          				
-        			}
-        	        String type = ctx.DataType().getText();
-        			for (int i = 0; i < length; i++) {
-    	        	String identifierName = ctx.Identifier().getText() + "[" + i + "]";
-    	        	GenerateErrorIfIdentifierExistsElseAddToMemory(identifierName, "", type, "not", ctx);
-    	        	System.out.println(identifierName + "generated.");
-        			}
-        			GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(ctx.Identifier().getText(), Integer.toString(length), 
-        					functionMemory.get(currentFunction).identifierMemory.get(ctx.Identifier().getText()).get(2).toString(), ctx);
-        		}
-        	}
-        	
-            else{
-                String type = "" , constant = "";
+                if (ctx.indexes() == null) {
+                String identifierName = ctx.Identifier().getText();
+                String type, constant;
                 String value = "";
-                String desiredLoc = visit(ctx.indexes()).toString();
-                String identifierName = ctx.Identifier().getText() + "[" + desiredLoc +  "]";
-                int length = -1;
-                try {
-                	length = Integer.parseInt(functionMemory.get(currentFunction).identifierMemory.get(ctx.Identifier().getText()).get(0).toString());
-                } catch (NullPointerException ne) {
-                    VisitorErrorReporter.CreateErrorMessage("The array variable is not declared.", 
-                            ctx.getStart());                	
-                } catch (NumberFormatException ne) {
-                    VisitorErrorReporter.CreateErrorMessage("The array variable is not initalized.", 
-                            ctx.getStart());                	
-                }
-                
-                System.out.println("Array bound : " + length);
-                if (length > -1) {
-	                if (Integer.parseInt(desiredLoc) >= length) {
-	                    VisitorErrorReporter.CreateErrorMessage("Array index out of bound!", 
-	                            ctx.getStart());
-	                }
-                }
-                try {
+
                 type = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(1).toString();
                 constant = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(2).toString();
-                } catch (NullPointerException ne) {
-                	// 
-                }
-                
-            	System.out.println("identifierName of the array : " + identifierName);
 
                 try{
                     value = visit(ctx.expression()).toString();
@@ -462,51 +393,124 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                     VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
                             ctx.getStart());
                 }
-                
+
+
                 if (!(type.equals("float")) && !(type.equals("string")) && value.contains(".0")) {
-                	value = value.replace(".0", "");
+                    value = value.replace(".0", "");
                 }
-                
                 value = typeCheck(type, value, ctx);
                 System.out.println("after mismatch check : " + value);
-                
+                System.out.println("current function : " + currentFunction);
+
                 GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, constant, ctx);
-                
-            }
-        	
-        }
-        
-        else if(ctx.getChild(0) == ctx.Scan()){
-        	// scan 1st argument = string only?
-            String identifierName;
-            if (ctx.indexes() == null) {
-            	identifierName = ctx.Identifier().getText();
-            }
-            else {
-            	identifierName = ctx.Identifier().getText() + "[" + visit(ctx.indexes()).toString() + "]";
-            }
-            String value = "";
-            String type = "", constant = "";
-            try {
-            type = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(1).toString();
-            constant = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(2).toString();
-            } catch(NullPointerException ne) {
-                VisitorErrorReporter.CreateErrorMessage("the identifier does not exist.", 
-                        ctx.getStart());            	
-            }
-            try{
-                value = JOptionPane.showInputDialog(visit(ctx.expression()).toString().replace("\"", ""));
-                System.out.println("Value:" + value);
-                if (type.equals("string")) {
-                	value = '"' + value + '"';
+                    }
+
+                    else if (ctx.DataType() != null && ctx.indexes() != null){
+                            if (functionMemory.get(currentFunction).identifierExists(ctx.Identifier().getText())) {
+                                    int length = 0;
+                                    try {
+                                            length = Integer.parseInt(visit(ctx.indexes()).toString());
+                                    } catch (NumberFormatException nfe) {
+                            VisitorErrorReporter.CreateErrorMessage("Type Mismatch : only integer or integer variable are possible for the array size.", 
+                                    ctx.getStart());          				
+                                    }
+                            String type = ctx.DataType().getText();
+                                    for (int i = 0; i < length; i++) {
+                            String identifierName = ctx.Identifier().getText() + "[" + i + "]";
+                            GenerateErrorIfIdentifierExistsElseAddToMemory(identifierName, "", type, "not", ctx);
+                            System.out.println(identifierName + "generated.");
+                                    }
+                                    GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(ctx.Identifier().getText(), Integer.toString(length), 
+                                                    functionMemory.get(currentFunction).identifierMemory.get(ctx.Identifier().getText()).get(2).toString(), ctx);
+                            }
+                    }
+
+                else{
+                    String type = "" , constant = "";
+                    String value = "";
+                    String desiredLoc = visit(ctx.indexes()).toString();
+                    String identifierName = ctx.Identifier().getText() + "[" + desiredLoc +  "]";
+                    int length = -1;
+                    try {
+                            length = Integer.parseInt(functionMemory.get(currentFunction).identifierMemory.get(ctx.Identifier().getText()).get(0).toString());
+                    } catch (NullPointerException ne) {
+                        VisitorErrorReporter.CreateErrorMessage("The array variable is not declared.", 
+                                ctx.getStart());                	
+                    } catch (NumberFormatException ne) {
+                        VisitorErrorReporter.CreateErrorMessage("The array variable is not initalized.", 
+                                ctx.getStart());                	
+                    }
+
+                    System.out.println("Array bound : " + length);
+                    if (length > -1) {
+                            if (Integer.parseInt(desiredLoc) >= length) {
+                                VisitorErrorReporter.CreateErrorMessage("Array index out of bound!", 
+                                        ctx.getStart());
+                            }
+                    }
+                    try {
+                    type = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(1).toString();
+                    constant = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(2).toString();
+                    } catch (NullPointerException ne) {
+                            // 
+                    }
+
+                    System.out.println("identifierName of the array : " + identifierName);
+
+                    try{
+                        value = visit(ctx.expression()).toString();
+                    }catch(NullPointerException ne){
+                        VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
+                                ctx.getStart());
+                    }
+
+                    if (!(type.equals("float")) && !(type.equals("string")) && value.contains(".0")) {
+                            value = value.replace(".0", "");
+                    }
+
+                    value = typeCheck(type, value, ctx);
+                    System.out.println("after mismatch check : " + value);
+
+                    GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, constant, ctx);
+
                 }
-                typeCheck(type,value,ctx);
-                
-            }catch(NullPointerException ne){
-                VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
-                        ctx.getStart());
+
             }
-            GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, constant, ctx);    
+
+            else if(ctx.getChild(0) == ctx.Scan()){
+                    // scan 1st argument = string only?
+                String identifierName;
+                if (ctx.indexes() == null) {
+                    identifierName = ctx.Identifier().getText();
+                }
+                else {
+                    identifierName = ctx.Identifier().getText() + "[" + visit(ctx.indexes()).toString() + "]";
+                }
+                String value = "";
+                String type = "", constant = "";
+                try {
+                type = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(1).toString();
+                constant = functionMemory.get(currentFunction).identifierMemory.get(identifierName).get(2).toString();
+                } catch(NullPointerException ne) {
+                    VisitorErrorReporter.CreateErrorMessage("the identifier does not exist.", 
+                            ctx.getStart());            	
+                }
+                try{
+                    value = JOptionPane.showInputDialog(visit(ctx.expression()).toString().replace("\"", ""));
+                    System.out.println("Value:" + value);
+                    if (type.equals("string")) {
+                            value = '"' + value + '"';
+                    }
+                    typeCheck(type,value,ctx);
+
+                }catch(NullPointerException ne){
+                    VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
+                            ctx.getStart());
+                }
+                GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, constant, ctx);    
+            }
+        }catch(NullPointerException ne){
+            System.out.println("visitAssignment Error: "+ne.getMessage());
         }
         
         return (T)"";
