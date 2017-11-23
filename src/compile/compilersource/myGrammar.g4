@@ -29,7 +29,11 @@ functionBlock
  : block
  ;
 block
- : (statement | functionDecl)* (Return expression)?
+ : (statement | functionDecl)* returnStatement?
+ ;
+ 
+returnStatement
+ : Return expression
  ;
 
 statement

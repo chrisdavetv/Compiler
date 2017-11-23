@@ -1,4 +1,4 @@
-// Generated from /Users/chris/Documents/Projects/Compiler/src/compile/compilersource/myGrammar.g4 by ANTLR 4.5.3
+// Generated from myGrammar.g4 by ANTLR 4.5.3
 
 package compile.compilersource;
 
@@ -30,6 +30,12 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBlock(myGrammarParser.BlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link myGrammarParser#returnStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnStatement(myGrammarParser.ReturnStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link myGrammarParser#statement}.
 	 * @param ctx the parse tree

@@ -66,17 +66,10 @@ public class AntlrErrorListener implements ANTLRErrorListener{
             int line, int charPositionInLine, String msg, RecognitionException e) {
         
         System.out.println("In syntaxError");
-        System.out.println("Original ANTLR error msg: "+msg);
         
         String sourceName = recognizer.getInputStream().getSourceName();
         sourceName = !sourceName.isEmpty() ? sourceName+": " : "";
-       
-        //make some custom error messages for better user code tracaeability
-        if (msg.contains("extraneous input '=' expecting")){
-            msg = "caught a weird '=' token. You may be assigning a value in the same declaration statement, which MiniScript does not support. Try declaring the variable, then assigning on a separate statement immediately after.";
-        }
-        
-        mainErrorString += /*sourceName+*/"Error at line "+line+":"+charPositionInLine+" "+msg + "\n";
+        mainErrorString += sourceName+"line "+line+":"+charPositionInLine+" "+msg + "\n";
         
         highlightErrorLine(line);
     }
@@ -100,27 +93,25 @@ public class AntlrErrorListener implements ANTLRErrorListener{
 
     @Override
     public void reportAmbiguity(Parser parser, DFA dfa, int i, int i1, boolean bln, BitSet bitset, ATNConfigSet atncs) {
-        System.out.println("reportAmbiguity triggered: i="+i+", i1:"+i1); //To change body of generated methods, choose Tools | Templates.
-        //highlightErrorLine(1);
-        
-        
+        System.out.println("reportAmbiguity triggered"); //To change body of generated methods, choose Tools | Templates.
+        highlightErrorLine(1);
     }
 
     @Override
     public void reportAttemptingFullContext(Parser parser, DFA dfa, int i, int i1, BitSet bitset, ATNConfigSet atncs) {
         System.out.println("reportAttemptingFullContext triggered");  //To change body of generated methods, choose Tools | Templates.
-        //highlightErrorLine(1);
+        highlightErrorLine(1);
     }
 
     @Override
     public void reportContextSensitivity(Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atncs) {
         System.out.println("reportContextSensitivity triggered"); //To change body of generated methods, choose Tools | Templates.
-        //highlightErrorLine(1);
+        highlightErrorLine(1);
     }
     
     public static void reportCustomError(int errorCode, String additionalMessage) {
             String errorMessage = ErrorRepository.getErrorMessage(errorCode) + " " + additionalMessage;
-            System.out.println("reportCustomError triggered: "+errorMessage);
+            //Console.log(LogType.ERROR, errorMessage);
 
             sharedInstance.successful = false;
     }
