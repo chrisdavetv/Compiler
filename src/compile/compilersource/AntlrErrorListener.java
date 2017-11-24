@@ -74,6 +74,8 @@ public class AntlrErrorListener implements ANTLRErrorListener{
         //make some custom error messages for better user code tracaeability
         if (msg.contains("extraneous input '=' expecting")){
             msg = "caught a weird '=' token. You may be assigning a value in the same declaration statement, which MiniScript does not support. Try declaring the variable, then assigning on a separate statement immediately after.";
+        }else if(msg.contains("no viable alternative")){
+            msg = "the interpreter couldn't understand these keywords. Please make sure you are following the grammar rules";
         }
         
         mainErrorString += /*sourceName+*/"Error at line "+line+":"+charPositionInLine+" "+msg + "\n";

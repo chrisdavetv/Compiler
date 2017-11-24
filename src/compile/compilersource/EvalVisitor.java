@@ -230,8 +230,16 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitParse(myGrammarParser.ParseContext ctx) {
         //in here goes error checking, etc - in antlr3, all the code previously mixed in the grammar goes here
-        T result = (T) visitChildren(ctx);
+        T result = (T) "";
         System.out.println("visitParse result: " + result);
+        
+        try{
+            result = (T) visitChildren(ctx);
+        }catch(Exception e){
+            VisitorErrorReporter.CreateErrorMessage(
+                    " - syntax error", 
+                    ctx.getStart());
+        }
         return result;
     }
     

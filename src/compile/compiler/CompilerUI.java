@@ -46,9 +46,15 @@ public class CompilerUI extends javax.swing.JFrame {
      * Creates new form CompilerUI
      */
     File currentFile;
+    public static CompilerUI instance;
     
     public CompilerUI() {
         initComponents();
+        instance = this;
+    }
+    
+    public CompilerUI getInstance(){
+        return instance;
     }
 
     public javax.swing.JTextArea getEditor(){
@@ -586,15 +592,15 @@ public class CompilerUI extends javax.swing.JFrame {
         }*/
     }
     
-    public void SearchEditorForTextThenScrollIfFound(javax.swing.JTextArea textArea, String text){
+    public void SearchEditorForTextThenScrollIfFound(String text){
         int pos = 0;
         
         String find = text.toLowerCase();
         // Focus the text area, otherwise the highlighting won't show up
-        textArea.requestFocusInWindow();
+        jTextArea1.requestFocusInWindow();
         // Make sure we have a valid search term
         if (find != null && find.length() > 0) {
-            Document document = textArea.getDocument();
+            Document document = jTextArea1.getDocument();
             int findLength = find.length();
             try {
                 boolean found = false;
@@ -618,12 +624,12 @@ public class CompilerUI extends javax.swing.JFrame {
                 // Did we find something...
                 if (found) {
                     // Get the rectangle of the where the text would be visible...
-                    Rectangle viewRect = textArea.modelToView(pos);
+                    Rectangle viewRect = jTextArea1.modelToView(pos);
                     // Scroll to make the rectangle visible
-                    textArea.scrollRectToVisible(viewRect);
+                    jTextArea1.scrollRectToVisible(viewRect);
                     // Highlight the text
-                    textArea.setCaretPosition(pos + findLength);
-                    textArea.moveCaretPosition(pos);
+                    jTextArea1.setCaretPosition(pos + findLength);
+                    jTextArea1.moveCaretPosition(pos);
                     // Move the search position beyond the current match
                     pos += findLength;
                 }
