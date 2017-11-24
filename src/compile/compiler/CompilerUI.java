@@ -195,17 +195,17 @@ public class CompilerUI extends javax.swing.JFrame {
                                         System.out.println(lineStr);
                                         lineStr = lineStr.split(" ")[1];
                                         System.out.println("Error line number is: " + lineStr);
-                                        int pos = Integer.parseInt(lineStr) * jTextArea1.getColumns();
-                                        System.out.println(" N : " + pos);
+                                        int pos = 10;
+                                        System.out.println(" N : " + jTextArea1.getColumns());
                                         //go to error line number in editor
                                         // Get the rectangle of the where the text would be visible...
                                         
-                                        Rectangle viewRect = jTextArea1.modelToView(pos);
+                                        //Rectangle viewRect = jTextArea1.modelToView(pos);
                                         // Scroll to make the rectangle visible
-                                        jTextArea1.scrollRectToVisible(viewRect);
+                                        //jTextArea1.scrollRectToVisible(viewRect);
                                         // Highlight the text
-                                        jTextArea1.setCaretPosition(pos);
-                                        jTextArea1.moveCaretPosition(pos);
+                                        jTextArea1.setCaretPosition(jTextArea1.getLineStartOffset(Integer.parseInt(lineStr)-1));
+                                        jTextArea1.moveCaretPosition(jTextArea1.getLineStartOffset(Integer.parseInt(lineStr)-1));
                                     }catch(Exception ne){
                                         System.out.println("Error: " +  ne.getMessage());
                                     }
