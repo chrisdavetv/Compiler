@@ -1,4 +1,4 @@
-// Generated from /Users/chris/Documents/Projects/Compiler/src/compile/compilersource/myGrammar.g4 by ANTLR 4.5.3
+// Generated from myGrammar.g4 by ANTLR 4.5.3
 
 package compile.compilersource;
 
@@ -39,6 +39,16 @@ public interface myGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBlock(myGrammarParser.BlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#returnStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturnStatement(myGrammarParser.ReturnStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#returnStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturnStatement(myGrammarParser.ReturnStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link myGrammarParser#statement}.
 	 * @param ctx the parse tree

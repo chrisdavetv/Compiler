@@ -1,4 +1,4 @@
-// Generated from /Users/chris/Documents/Projects/Compiler/src/compile/compilersource/myGrammar.g4 by ANTLR 4.5.3
+// Generated from myGrammar.g4 by ANTLR 4.5.3
 
 package compile.compilersource;
 
@@ -34,6 +34,13 @@ public class myGrammarBaseVisitor<T> extends AbstractParseTreeVisitor<T> impleme
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitBlock(myGrammarParser.BlockContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitReturnStatement(myGrammarParser.ReturnStatementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

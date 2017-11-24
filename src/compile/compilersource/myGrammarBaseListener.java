@@ -1,4 +1,4 @@
-// Generated from /Users/chris/Documents/Projects/Compiler/src/compile/compilersource/myGrammar.g4 by ANTLR 4.5.3
+// Generated from myGrammar.g4 by ANTLR 4.5.3
 
 package compile.compilersource;
 
@@ -49,6 +49,18 @@ public class myGrammarBaseListener implements myGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBlock(myGrammarParser.BlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterReturnStatement(myGrammarParser.ReturnStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReturnStatement(myGrammarParser.ReturnStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

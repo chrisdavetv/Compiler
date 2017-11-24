@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import compile.compilersource.myGrammarParser.ArrayExpressionContext;
 import compile.compilersource.myGrammarParser.FunctionBlockContext;
 import compile.compilersource.myGrammarParser.ParamIdListContext;
+import compile.compilersource.myGrammarParser.ReturnStatementContext;
 
 /**
  *
@@ -502,6 +503,18 @@ public class GrammarListener implements myGrammarListener{
 
 	@Override
 	public void exitFunctionBlock(FunctionBlockContext ctx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void enterReturnStatement(ReturnStatementContext ctx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void exitReturnStatement(ReturnStatementContext ctx) {
 		// TODO Auto-generated method stub
 		
 	}
