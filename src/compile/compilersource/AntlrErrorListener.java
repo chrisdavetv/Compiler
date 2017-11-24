@@ -112,13 +112,13 @@ public class AntlrErrorListener implements ANTLRErrorListener{
     @Override
     public void reportAmbiguity(Parser parser, DFA dfa, int i, int i1, boolean bln, BitSet bitset, ATNConfigSet atncs) {
         System.out.println("reportAmbiguity triggered"); //To change body of generated methods, choose Tools | Templates.
-        highlightErrorLine(1);
+        //highlightErrorLine(1);
     }
 
     @Override
     public void reportAttemptingFullContext(Parser parser, DFA dfa, int i, int i1, BitSet bitset, ATNConfigSet atncs) {
         System.out.println("reportAttemptingFullContext triggered");  //To change body of generated methods, choose Tools | Templates.
-        highlightErrorLine(1);
+        //highlightErrorLine(1);
     }
 
     @Override
