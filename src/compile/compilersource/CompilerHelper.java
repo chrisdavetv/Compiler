@@ -38,7 +38,7 @@ public class CompilerHelper {
                         ExceptionErrorStrategy errorStrat = new ExceptionErrorStrategy();
                         parser.setErrorHandler(errorStrat);
                         
-                        ErrorReporter errorReporter = new ErrorReporter();
+                        ErrorReporter errorReporter = new ErrorReporter(ui);
                         EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter, ui);   
                         String totalErrorString = "";
                         

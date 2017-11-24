@@ -4,9 +4,17 @@
  * and open the template in the editor.
  */
 package compile.compilersource;
+import java.awt.Color;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+
 import org.antlr.v4.runtime.Token;
+
+import compile.compiler.CompilerUI;
 
 /**
  *
@@ -14,9 +22,10 @@ import org.antlr.v4.runtime.Token;
  */
 public class ErrorReporter {
     ArrayList<String> errorList = new ArrayList<String>();
+    CompilerUI ui;
     
-    public ErrorReporter(){
-        
+    public ErrorReporter(CompilerUI ui){
+    	 this.ui = ui;
     }
     public String GetTotalErrorString(){
         String totalErrors = "";
@@ -34,7 +43,19 @@ public class ErrorReporter {
         String errMessage = MessageFormat.format(
                     "Exception! line {0}, char {2}: {1}", startToken.getLine(), message, startToken.getCharPositionInLine());
         errorList.add(errMessage);
-        //return errMessage;
+        
+        if(ui.getEditor() != null){            
+            try{
+                int offset = ui.getEditor().getLineStartOffset(startToken.getLine()-1);
+                int endOffset = ui.getEditor().getLineEndOffset(startToken.getLine()-1);
+                Highlighter highlighter = ui.getEditor().getHighlighter();
+                highlighter.addHighlight(offset, endOffset, new DefaultHighlighter.DefaultHighlightPainter(Color.RED));
+            }catch(BadLocationException ex){
+                System.out.println("Semantic highlight error: " + ex.getMessage());
+            }
+        }else System.out.println("Semantic error: editor cannot be accessed");
+        
+        
     }
     public Boolean ReportErrorIfIsErrorMessage(String message){
         if(message.toLowerCase().contains("exception!")){

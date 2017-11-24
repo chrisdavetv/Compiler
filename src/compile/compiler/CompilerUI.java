@@ -196,9 +196,10 @@ public class CompilerUI extends javax.swing.JFrame {
                                         lineStr = lineStr.split(" ")[1];
                                         System.out.println("Error line number is: " + lineStr);
                                         int pos = Integer.parseInt(lineStr) * jTextArea1.getColumns();
-
+                                        System.out.println(" N : " + pos);
                                         //go to error line number in editor
                                         // Get the rectangle of the where the text would be visible...
+                                        
                                         Rectangle viewRect = jTextArea1.modelToView(pos);
                                         // Scroll to make the rectangle visible
                                         jTextArea1.scrollRectToVisible(viewRect);
