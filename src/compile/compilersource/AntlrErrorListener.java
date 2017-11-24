@@ -97,6 +97,8 @@ public class AntlrErrorListener implements ANTLRErrorListener{
                 System.out.println("Syntax highlight error: " + ex.getMessage());
             }
         }else System.out.println("Syntax highlight error: editor cannot be accessed");
+        
+        //this.ui.SearchEditorForPositionThenScrollIfFound(line);
     }
 
     @Override

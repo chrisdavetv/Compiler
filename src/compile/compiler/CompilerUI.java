@@ -591,7 +591,27 @@ public class CompilerUI extends javax.swing.JFrame {
             e.printStackTrace();
         }*/
     }
-    
+    public void SearchEditorForPositionThenScrollIfFound(int pos){
+        Document document = jTextArea1.getDocument();
+        // Focus the text area, otherwise the highlighting won't show up
+        jTextArea1.requestFocusInWindow();
+        
+        // Get the rectangle of the where the text would be visible...
+        try{
+            Rectangle viewRect = jTextArea1.modelToView(pos);
+            jTextArea1.scrollRectToVisible(viewRect);
+            jTextArea1.setCaretPosition(pos);
+            jTextArea1.moveCaretPosition(pos);
+        }catch(BadLocationException be){
+            be.printStackTrace();
+        }
+       
+        
+        // Scroll to make the rectangle visible
+        //j
+        // Highlight the text
+        
+    }
     public void SearchEditorForTextThenScrollIfFound(String text){
         int pos = 0;
         
@@ -624,9 +644,9 @@ public class CompilerUI extends javax.swing.JFrame {
                 // Did we find something...
                 if (found) {
                     // Get the rectangle of the where the text would be visible...
-                    Rectangle viewRect = jTextArea1.modelToView(pos);
+                    Rectangle viewRect = jTextArea1.modelToView(pos);//((int) (pos + ((float)pos*.5)));
                     // Scroll to make the rectangle visible
-                    jTextArea1.scrollRectToVisible(viewRect);
+                    //jTextArea1.scrollRectToVisible(viewRect);
                     // Highlight the text
                     jTextArea1.setCaretPosition(pos + findLength);
                     jTextArea1.moveCaretPosition(pos);
