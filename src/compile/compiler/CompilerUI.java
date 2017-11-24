@@ -25,6 +25,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
@@ -522,8 +523,11 @@ public class CompilerUI extends javax.swing.JFrame {
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
-        
-        // call search functionality here
+        String s = (String)JOptionPane.showInputDialog(this, "Please enter the code to search for", "Search", INFORMATION_MESSAGE);
+        //If a string was returned, say so.
+        if ((s != null) && (s.length() > 0)) {
+            this.SearchEditorForTextThenScrollIfFound(s);
+        }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
     void SaveAs(){
         JFileChooser fc = new JFileChooser();
