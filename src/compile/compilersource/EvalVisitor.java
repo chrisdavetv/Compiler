@@ -767,7 +767,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	}
         }
         }catch(NullPointerException ne){
-        	ne.printStackTrace();
+        	System.out.println("Caught in visitIdentifierFunctionCall: "+ne.getMessage());
         }
         return result;
     }

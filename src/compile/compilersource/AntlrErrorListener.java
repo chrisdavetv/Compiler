@@ -87,6 +87,7 @@ public class AntlrErrorListener implements ANTLRErrorListener{
         
         mainErrorString += /*sourceName+*/"Error at line "+line+":"+charPositionInLine+" "+msg + "\n";
         
+        this.ui.SearchEditorForPositionThenScrollIfFound(line);
         highlightErrorLine(line);
     }
     
@@ -105,8 +106,6 @@ public class AntlrErrorListener implements ANTLRErrorListener{
                 System.out.println("Syntax highlight error: " + ex.getMessage());
             }
         }else System.out.println("Syntax highlight error: editor cannot be accessed");
-        
-        //this.ui.SearchEditorForPositionThenScrollIfFound(line);
     }
 
     @Override

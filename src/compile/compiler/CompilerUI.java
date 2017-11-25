@@ -7,6 +7,7 @@ package compile.compiler;
 
 import compile.compilersource.CompilerHelper;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -17,8 +18,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
@@ -34,6 +33,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.Document;
+import javax.swing.text.Position;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
@@ -194,20 +194,22 @@ public class CompilerUI extends javax.swing.JFrame {
                                         String lineStr = matcher.group(0);
                                         System.out.println(lineStr);
                                         lineStr = lineStr.split(" ")[1];
-                                        System.out.println("Error line number is: " + lineStr);
+                                        System.out.println("Error line number is:'" + lineStr+"'");
+
                                         int pos = Integer.parseInt(lineStr) * jTextArea1.getColumns();
-                                        System.out.println(" N : " + pos);
+
                                         //go to error line number in editor
                                         // Get the rectangle of the where the text would be visible...
-                                        
-                                        Rectangle viewRect = jTextArea1.modelToView(pos);
+
+                                        // Rectangle viewRect = jTextArea1.modelToView(pos);
+                                        //viewRect.setBounds(viewRect.x, jMenuBar1.getHeight()+jTabbedPane1.getHeight() + jTextArea1.getHeight(), viewRect.width, viewRect.height);
                                         // Scroll to make the rectangle visible
-                                        jTextArea1.scrollRectToVisible(viewRect);
+                                        jTextArea1.scrollRectToVisible(GetBoundsForErrorJumping(pos));
                                         // Highlight the text
                                         jTextArea1.setCaretPosition(pos);
                                         jTextArea1.moveCaretPosition(pos);
-                                    }catch(Exception ne){
-                                        System.out.println("Error: " +  ne.getMessage());
+                                    }catch(NumberFormatException nfe){
+                                        System.out.println("Number format Error: " +  nfe.getMessage());
                                     }
                                 }
 
@@ -596,20 +598,27 @@ public class CompilerUI extends javax.swing.JFrame {
             e.printStackTrace();
         }*/
     }
+    Rectangle GetBoundsForErrorJumping(int pos){
+        Rectangle viewRect = null;
+            try{
+                viewRect = jTextArea1.modelToView(pos);
+                viewRect.setBounds(viewRect.x, jMenuBar1.getHeight()+jTabbedPane1.getHeight()/* + jTextArea1.getHeight()*/, viewRect.width, viewRect.height);
+
+            }catch(BadLocationException e){
+                            System.out.println("Exception in SearchEditorForPositionThenScrollIfFound: "+e.getMessage());//be.printStackTrace();
+
+            }
+        return viewRect;
+    }
     public void SearchEditorForPositionThenScrollIfFound(int pos){
         Document document = jTextArea1.getDocument();
         // Focus the text area, otherwise the highlighting won't show up
         jTextArea1.requestFocusInWindow();
         
         // Get the rectangle of the where the text would be visible...
-        try{
-            Rectangle viewRect = jTextArea1.modelToView(pos);
-            jTextArea1.scrollRectToVisible(viewRect);
-            jTextArea1.setCaretPosition(pos);
-            jTextArea1.moveCaretPosition(pos);
-        }catch(BadLocationException be){
-            be.printStackTrace();
-        }
+        jTextArea1.scrollRectToVisible(GetBoundsForErrorJumping(pos));
+        jTextArea1.setCaretPosition(pos);
+        jTextArea1.moveCaretPosition(pos);
        
         
         // Scroll to make the rectangle visible
@@ -649,9 +658,8 @@ public class CompilerUI extends javax.swing.JFrame {
                 // Did we find something...
                 if (found) {
                     // Get the rectangle of the where the text would be visible...
-                    Rectangle viewRect = jTextArea1.modelToView(pos);//((int) (pos + ((float)pos*.5)));
                     // Scroll to make the rectangle visible
-                    //jTextArea1.scrollRectToVisible(viewRect);
+                    jTextArea1.scrollRectToVisible(GetBoundsForErrorJumping(pos));
                     // Highlight the text
                     jTextArea1.setCaretPosition(pos + findLength);
                     jTextArea1.moveCaretPosition(pos);
@@ -659,8 +667,9 @@ public class CompilerUI extends javax.swing.JFrame {
                     pos += findLength;
                 }
 
-            } catch (Exception exp) {
-                exp.printStackTrace();
+            } catch (BadLocationException exp) {
+                
+                System.out.println("Error in SearchEditorForTextThenScrollIfFound: "+exp.getMessage());
             }
 
         }
