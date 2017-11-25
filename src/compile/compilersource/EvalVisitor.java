@@ -481,6 +481,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                                 ctx.getStart());          				
         			}
         	        String type = ctx.DataType().getText();
+        	        String originalType = currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(1).toString();
+        	        if (typeCheckByTypeName(type, originalType.replace("array,", ""), ctx)) {
         			for (int i = 0; i < length; i++) {
     	        	String identifierName = ctx.Identifier().getText() + "[" + i + "]";
     	        	GenerateErrorIfIdentifierExistsElseAddToMemory(identifierName, "", type, "not", ctx);
@@ -488,6 +490,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         			}
         			GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(ctx.Identifier().getText(), Integer.toString(length), 
         					currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(2).toString(), ctx);
+        	        }
         		}
         	}
         	
@@ -1621,7 +1624,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     		try {
     		float a = Float.parseFloat("deny");
     		} catch (NumberFormatException nfe) {
-            	VisitorErrorReporter.CreateErrorMessage("types do not match for the variables.", 
+            	VisitorErrorReporter.CreateErrorMessage("Type Mismatch, please check the data types of variable(s) again.", 
                         ctx.getStart());    			
     		}
     	}
