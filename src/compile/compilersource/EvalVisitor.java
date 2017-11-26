@@ -79,6 +79,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     
     //Map<String, ArrayList<T>> identifierMemory = new HashMap<String, ArrayList<T>>();
     Map<String, FunctionData> functionMemory = new HashMap<String, FunctionData>();
+    ArrayList<FunctionData> functionList = new ArrayList<FunctionData>();
     String currentFunction = "";
     ErrorReporter VisitorErrorReporter;
     CompilerUI ui;
@@ -98,6 +99,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         functionMemory.put("main", currentFunctionData);
         depthIndex = 0;
         depth[0] = "main";
+        functionList.add(currentFunctionData);
     }
     
     enum MathOpType {
@@ -263,6 +265,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                     " - syntax error", 
                     ctx.getStart());
         }
+        for (int i = 0; i < functionList.size(); i++) {
+        	System.out.println(functionList.get(i).identifierMemory);
+        	System.out.println("-------------------------------");
+        }
         return result;
     }
     
@@ -299,7 +305,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	    		currentFunctionData.setReturnValue(null);
 	    		depthIndex--;
 	    		currentFunction = depth[depthIndex];
-	    		currentFunctionData = functionMemory.get(currentFunction);
+	    		//currentFunctionData = functionMemory.get(currentFunction);
+	    		currentFunctionData = functionList.get(depthIndex);
 	    		//currentFunction = currentFunctionData.parent;
         	}
     	}
@@ -643,6 +650,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         		functionMemory.get(funcName).funcIdentifierTracker, functionMemory.get(funcName).getReturnType(), 
         		null);
         functionData.functionBlockCtx = functionMemory.get(funcName).functionBlockCtx;
+        functionList.add(functionData);
         //functionData = GenerateErrorIfFuncDoesNotExistElseReturnValue(funcName, ctx);
         
 
