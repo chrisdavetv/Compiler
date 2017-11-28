@@ -541,6 +541,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         					currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(2).toString(), ctx);
         	        }
         		}
+        		else {
+                    VisitorErrorReporter.CreateErrorMessage("The identifier : " + ctx.Identifier().getText() + " does not exist.", 
+                            ctx.getStart());        			
+        		}
         	}
         	
         	else if (ctx.Split() != null) {
@@ -552,15 +556,13 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         			String type = currentFunctionData.identifierMemory.get(arrayName).get(1).toString();
         			String originalSize = currentFunctionData.identifierMemory.get(arrayName).get(0).toString();
         			if (type.equals("array,string")) {
+        				GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(arrayName, Integer.toString(stringList.length), "not", ctx);
         				if (originalSize.length() > 0) {
 	        				for (int i = 0; i < Integer.parseInt(originalSize); i++) {
 	        					if (currentFunctionData.identifierExists(arrayName + "[" + i + "]")){        							
 	        						RemoveIdentifierFromMemory(arrayName + "[" + i + "]");
 	        					}
 	        				}	        				
-        				}
-        				else {
-        					GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(arrayName, Integer.toString(stringList.length), "not", ctx);
         				}
         				
         				for (int i = 0; i < stringList.length; i++) {
@@ -1775,9 +1777,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitArrayLengthExpression(myGrammarParser.ArrayLengthExpressionContext ctx) {
     	System.out.println("In visit Array Length ");
+    	try {
 	    	if (currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(1).toString().contains("array")) {	    		
 	    		return (T) currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(0).toString();
 	    	}
+    	} catch (NullPointerException npe) {
+            VisitorErrorReporter.CreateErrorMessage("The identifier : " + ctx.Identifier().getText() + " does not exist.", 
+                    ctx.getStart());    		
+    	}
     	//error handling needed?
         VisitorErrorReporter.CreateErrorMessage("The identifier : " + ctx.Identifier().getText() + " is not an array.", 
             ctx.getStart()); 
