@@ -226,6 +226,13 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionCallExpression(myGrammarParser.FunctionCallExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code arrayLengthExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayLengthExpression(myGrammarParser.ArrayLengthExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code listExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
 	 * @param ctx the parse tree

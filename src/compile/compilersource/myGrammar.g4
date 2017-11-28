@@ -52,6 +52,7 @@ assignment
  | Identifier indexes Assign (OpenParen DataType CloseParen)? expression
  | Scan OpenParen expression? Comma Identifier indexes? CloseParen
  | Identifier Assign DataType indexes
+ | Identifier Assign Split OpenParen expression CloseParen
  ;
 
 
@@ -136,6 +137,7 @@ expression
  | Identifier indexes?                      #identifierExpression
  | String indexes?                          #stringExpression
  | OpenParen expression CloseParen indexes?              #expressionExpression
+ | Identifier Period Length                 #arrayLengthExpression
  ;
 
 list
@@ -160,7 +162,9 @@ Do       : 'do';
 Start    : 'start';
 End      : 'end';
 Null     : 'null';
-
+Split    : 'split';
+Length   : 'length';
+Period   : '.';
 Or       : '||';
 And      : '&&';
 Equals   : '==';

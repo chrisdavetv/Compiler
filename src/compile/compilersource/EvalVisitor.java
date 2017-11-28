@@ -264,6 +264,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             VisitorErrorReporter.CreateErrorMessage(
                     " - syntax error", 
                     ctx.getStart());
+            e.printStackTrace();
         }
         for (int i = 0; i < functionList.size(); i++) {
         	System.out.println(functionList.get(i).identifierMemory);
@@ -448,7 +449,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         try {
         if(ctx.getChild(0) == ctx.Identifier()){
         	
-        	if (ctx.indexes() == null) {
+        	if (ctx.indexes() == null && ctx.Split() == null) {
             String identifierName = ctx.Identifier().getText();
             String type, constant;
             String value = "";
@@ -519,7 +520,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
         	}
         	
-        	else if (ctx.getChild(1) == ctx.Assign()){
+        	else if (ctx.getChild(1) == ctx.Assign() && ctx.getChild(2) == ctx.DataType()){
         		if (currentFunctionData.identifierExists(ctx.Identifier().getText())) {
         			int length = 0;
         			try {
@@ -539,6 +540,40 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         			GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(ctx.Identifier().getText(), Integer.toString(length), 
         					currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(2).toString(), ctx);
         	        }
+        		}
+        	}
+        	
+        	else if (ctx.Split() != null) {
+        		String rawString = visit(ctx.expression()).toString();
+        		if (rawString.contains("\"")) {
+        			String[] stringList = rawString.replace("\"", "").split(" ");
+        			
+        			String arrayName = ctx.Identifier().getText();
+        			String type = currentFunctionData.identifierMemory.get(arrayName).get(1).toString();
+        			String originalSize = currentFunctionData.identifierMemory.get(arrayName).get(0).toString();
+        			if (type.equals("array,string")) {
+        				if (originalSize.length() > 0) {
+	        				for (int i = 0; i < Integer.parseInt(originalSize); i++) {
+	        					if (currentFunctionData.identifierExists(arrayName + "[" + i + "]")){        							
+	        						RemoveIdentifierFromMemory(arrayName + "[" + i + "]");
+	        					}
+	        				}	        				
+        				}
+        				else {
+        					GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(arrayName, Integer.toString(stringList.length), "not", ctx);
+        				}
+        				
+        				for (int i = 0; i < stringList.length; i++) {
+        					GenerateErrorIfIdentifierExistsElseAddToMemory(arrayName + "[" + i + "]", 
+        							'"' + stringList[i] +'"', type, "not", ctx);
+        				} 
+        				
+        			}
+        		}
+        		else {
+                    VisitorErrorReporter.CreateErrorMessage("The function split can only be used to the string data type.", 
+                            ctx.getStart());        			
+        			// not string, throw error
         		}
         	}
         	
@@ -1179,6 +1214,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 ctx.getStart());
         }
         try{
+        	System.out.println("Æ®¼ö : " + visit(ctx.expression(1)).toString());
             upperLimit = Double.parseDouble(visit(ctx.expression(1)).toString());
         }catch(Exception e){
             VisitorErrorReporter.CreateErrorMessage(
@@ -1734,5 +1770,17 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     		}
     	}
     	return false;
+    }
+    
+    @Override
+    public T visitArrayLengthExpression(myGrammarParser.ArrayLengthExpressionContext ctx) {
+    	System.out.println("In visit Array Length ");
+	    	if (currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(1).toString().contains("array")) {	    		
+	    		return (T) currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(0).toString();
+	    	}
+    	//error handling needed?
+        VisitorErrorReporter.CreateErrorMessage("The identifier : " + ctx.Identifier().getText() + " is not an array.", 
+            ctx.getStart()); 
+		return (T)"";	
     }
 }

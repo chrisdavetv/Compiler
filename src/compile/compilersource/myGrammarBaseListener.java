@@ -414,6 +414,18 @@ public class myGrammarBaseListener implements myGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArrayLengthExpression(myGrammarParser.ArrayLengthExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayLengthExpression(myGrammarParser.ArrayLengthExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterListExpression(myGrammarParser.ListExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}

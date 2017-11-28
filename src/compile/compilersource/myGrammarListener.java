@@ -370,6 +370,18 @@ public interface myGrammarListener extends ParseTreeListener {
 	 */
 	void exitFunctionCallExpression(myGrammarParser.FunctionCallExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code arrayLengthExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayLengthExpression(myGrammarParser.ArrayLengthExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code arrayLengthExpression}
+	 * labeled alternative in {@link myGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayLengthExpression(myGrammarParser.ArrayLengthExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code listExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
 	 * @param ctx the parse tree
