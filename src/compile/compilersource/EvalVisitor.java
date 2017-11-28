@@ -468,8 +468,49 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             	value = value.replace(".0", "");
             }*/
             
+         
+            if (ctx.OpenParen() != null) {
+            	String dataType = ctx.DataType().getText();
+            	if (dataType.equals(type)) {
+            		if (dataType.equals("int")) {
+            			try {
+            			int convertedInt = (int) Math.floor(Float.parseFloat(value.replace("\"", "")));
+            			value = Integer.toString(convertedInt);
+            			System.out.println("convertedInt : " + convertedInt);
+            			} catch(NumberFormatException nfe) {
+    	                    VisitorErrorReporter.CreateErrorMessage("Float or String composed of numbers only can be converted to int.", 
+    	                            ctx.getStart());
+            			}
+            		}
+            		else if (dataType.equals("float")) {
+            			try {
+                			double convertedFloat = Float.parseFloat(value.replace("\"", ""));
+                			value = Double.toString(convertedFloat);           				
+            			} catch(NumberFormatException nfe) {
+    	                    VisitorErrorReporter.CreateErrorMessage("Int or String composed of numbers only can be converted to float.", 
+    	                            ctx.getStart());
+            			}            			
+            		}
+            		else if (dataType.equals("string")) {
+            			try {
+            				value = '"' + value + '"';
+            			} catch(NumberFormatException nfe) {
+    	                    VisitorErrorReporter.CreateErrorMessage("Cannot be converted to String.", 
+    	                            ctx.getStart());
+            			}
+            		}
+            		
+            		// cast to boolean not supported.
+            	}
+            	else {
+                    VisitorErrorReporter.CreateErrorMessage("The data type of the assigning identifier and the cast data type should be the same.", 
+                            ctx.getStart());
+            		// cast type mismatch error
+            	}
+            }
+            
             value = typeCheck(type, value, ctx);
-
+            
             if (!(value.equals(""))) {
             	GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, constant, ctx);
             	System.out.println("value of " + identifierName + " now : " + currentFunctionData.identifierMemory.get(identifierName).get(0).toString());
@@ -478,7 +519,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
         	}
         	
-        	else if (ctx.DataType() != null && ctx.indexes() != null){
+        	else if (ctx.getChild(1) == ctx.Assign()){
         		if (currentFunctionData.identifierExists(ctx.Identifier().getText())) {
         			int length = 0;
         			try {
@@ -506,6 +547,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 String value = "";
                 String desiredLoc = visit(ctx.indexes()).toString();
                 String identifierName = ctx.Identifier().getText() + "[" + desiredLoc +  "]";
+                System.out.println("identifierName : " + identifierName);
                 int length = -1;
                 try {
                 	length = Integer.parseInt(currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(0).toString());
@@ -545,6 +587,45 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                             ctx.getStart());
                 }
              
+                if (ctx.OpenParen() != null) {
+                	String dataType = ctx.DataType().getText();
+                	if (dataType.equals(type)) {
+                		if (dataType.equals("int")) {
+                			try {
+                			int convertedInt = (int) Math.floor(Float.parseFloat(value.replace("\"", "")));
+                			value = Integer.toString(convertedInt);
+                			System.out.println("convertedInt : " + convertedInt);
+                			} catch(NumberFormatException nfe) {
+        	                    VisitorErrorReporter.CreateErrorMessage("Float or String composed of numbers only can be converted to int.", 
+        	                            ctx.getStart());
+                			}
+                		}
+                		else if (dataType.equals("float")) {
+                			try {
+                    			double convertedFloat = Float.parseFloat(value.replace("\"", ""));
+                    			value = Double.toString(convertedFloat);           				
+                			} catch(NumberFormatException nfe) {
+        	                    VisitorErrorReporter.CreateErrorMessage("Int or String composed of numbers only can be converted to float.", 
+        	                            ctx.getStart());
+                			}            			
+                		}
+                		else if (dataType.equals("string")) {
+                			try {
+                				value = '"' + value + '"';
+                			} catch(NumberFormatException nfe) {
+        	                    VisitorErrorReporter.CreateErrorMessage("Cannot be converted to String.", 
+        	                            ctx.getStart());
+                			}
+                		}
+                		
+                		// cast to boolean not supported.
+                	}
+                	else {
+                        VisitorErrorReporter.CreateErrorMessage("The data type of the assigning identifier and the cast data type should be the same.", 
+                                ctx.getStart());
+                		// cast type mismatch error
+                	}
+                }
                 
                 value = typeCheck(type, value, ctx);
                 System.out.println("after mismatch check : " + value);
@@ -1187,6 +1268,22 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
         
         return result;
+    }
+    
+    @Override
+    public T visitDoWhileStatement(myGrammarParser.DoWhileStatementContext ctx) {
+    	Boolean whileConditional = false;
+    	System.out.println("in visit do while");
+    	T result = (T)"";
+    	String iterationOutput = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
+    	result = (T) (result + iterationOutput);
+    	whileConditional = Boolean.parseBoolean(visit(ctx.expression()).toString());
+    	while (whileConditional) {
+        	iterationOutput = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
+        	result = (T) (result + iterationOutput);
+        	whileConditional = Boolean.parseBoolean(visit(ctx.expression()).toString());    		
+    	}
+    	return result;
     }
 
     @Override

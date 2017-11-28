@@ -111,6 +111,16 @@ public interface myGrammarListener extends ParseTreeListener {
 	 */
 	void exitNotExpression(@NotNull myGrammarParser.NotExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#returnStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturnStatement(@NotNull myGrammarParser.ReturnStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#returnStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturnStatement(@NotNull myGrammarParser.ReturnStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link myGrammarParser#idList}.
 	 * @param ctx the parse tree
 	 */
@@ -256,6 +266,16 @@ public interface myGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBlock(@NotNull myGrammarParser.BlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#doWhileStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterDoWhileStatement(@NotNull myGrammarParser.DoWhileStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#doWhileStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitDoWhileStatement(@NotNull myGrammarParser.DoWhileStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code listExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.

@@ -118,6 +118,12 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWhileStatement(myGrammarParser.WhileStatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link myGrammarParser#doWhileStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDoWhileStatement(myGrammarParser.DoWhileStatementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link myGrammarParser#idList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

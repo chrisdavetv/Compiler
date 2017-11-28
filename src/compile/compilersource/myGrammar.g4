@@ -44,14 +44,16 @@ statement
  | forStatement
  | whileStatement 
  | expression
+ | doWhileStatement
  ;
 
 assignment
- : Identifier Assign expression
- | Identifier indexes Assign expression
+ : Identifier Assign (OpenParen DataType CloseParen)? expression
+ | Identifier indexes Assign (OpenParen DataType CloseParen)? expression
  | Scan OpenParen expression? Comma Identifier indexes? CloseParen
  | Identifier Assign DataType indexes
  ;
+
 
 identifierDeclaration
 : Def Final? DataType (OpenBracket CloseBracket)? idList
@@ -92,6 +94,10 @@ whileStatement
  : While expression Do block End
  ;
 
+doWhileStatement
+ : Start block While expression 
+ ;
+ 
 idList
  : Identifier (',' Identifier)*
  ;
@@ -151,6 +157,7 @@ For      : 'for';
 While    : 'while';
 To       : 'to';
 Do       : 'do';
+Start    : 'start';
 End      : 'end';
 Null     : 'null';
 

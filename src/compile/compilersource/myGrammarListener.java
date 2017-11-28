@@ -186,6 +186,16 @@ public interface myGrammarListener extends ParseTreeListener {
 	 */
 	void exitWhileStatement(myGrammarParser.WhileStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#doWhileStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterDoWhileStatement(myGrammarParser.DoWhileStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#doWhileStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitDoWhileStatement(myGrammarParser.DoWhileStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link myGrammarParser#idList}.
 	 * @param ctx the parse tree
 	 */
