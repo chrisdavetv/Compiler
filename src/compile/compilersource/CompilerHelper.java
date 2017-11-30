@@ -51,7 +51,7 @@ public class CompilerHelper {
                         if(isStringNullOrWhiteSpace(totalErrorString)){
                             output = "";
                         }else{
-                        	//ui.getOutputConsole().setText("");
+                        	ui.getOutputConsole().setText("");
                             output = totalErrorString;
                         }
                         System.out.println("result: "+ output);

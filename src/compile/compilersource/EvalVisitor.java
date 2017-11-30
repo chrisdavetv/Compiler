@@ -554,7 +554,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
                         ctx.getStart());
             }
-            
+                   
             /*
             if (!(type.equals("float")) && !(type.equals("string")) && value.contains(".0")) {
             	value = value.replace(".0", "");
