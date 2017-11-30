@@ -4,6 +4,8 @@ import compile.compiler.CompilerUI;
 import compile.compilersource.myGrammarParser.ExpressionContext;
 import compile.compilersource.myGrammarParser.ReturnStatementContext;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +24,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	//comparison mismatch (expression?)
 	// for loop datatype issue
 	// double calculation makes slight difference in the resulting value (big number)
-	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È®ï¿½Ï°ï¿½. ï¿½ï¿½ï¿½ï¿½
+	// ¿¬»ê Á¤È®ÇÏ°Ô. À½¼ö
     class FunctionData{
     	public String parent;
     	public String returnValue;
@@ -72,9 +74,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     
     //Map<String, ArrayList<T>> identifierMemory = new HashMap<String, ArrayList<T>>();
     Map<String, FunctionData> functionMemory = new HashMap<String, FunctionData>();
-    ArrayList<String> functionCalledMemoryList = new ArrayList<String>();
     ArrayList<FunctionData> functionList = new ArrayList<FunctionData>();
     ArrayList<String> arrays = new ArrayList<String>();
+    ArrayList<String> functionNames = new ArrayList<String>();
     String currentFunction = "";
     ErrorReporter VisitorErrorReporter;
     CompilerUI ui;
@@ -83,6 +85,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     String[] depth = new String[1000];
     int depthIndex;
     int returnCount = 0;
+    boolean printOn = true;
     FunctionData currentFunctionData;
     
     public EvalVisitor(ErrorReporter errorReporter, CompilerUI ui){
@@ -114,18 +117,19 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 : "";
     }
 
-    Double CalculateValue(Double aggregateValue, ParseTree child, MathOpType type) {
-        return type.equals(MathOpType.ADD) ? aggregateValue += Double.parseDouble(visit(child).toString())
-                : type.equals(MathOpType.SUB) ? aggregateValue -= Double.parseDouble(visit(child).toString())
-                : type.equals(MathOpType.DIV) ? aggregateValue /= Double.parseDouble(visit(child).toString())
-                : type.equals(MathOpType.POW) ? aggregateValue = Math.pow(aggregateValue, Double.parseDouble(visit(child).toString())) 
-                : type.equals(MathOpType.MOD) ? aggregateValue %= Double.parseDouble(visit(child).toString())
-                : type.equals(MathOpType.MULT) ? aggregateValue *= Double.parseDouble(visit(child).toString())
+    BigDecimal CalculateValue(BigDecimal aggregateValue, ParseTree child, MathOpType type) {
+    	BigDecimal num = new BigDecimal(visit(child).toString());
+        return type.equals(MathOpType.ADD) ? aggregateValue.add(num)
+                : type.equals(MathOpType.SUB) ? aggregateValue.subtract(num)
+                : type.equals(MathOpType.DIV) ? aggregateValue.divide(num)
+                : type.equals(MathOpType.POW) ? aggregateValue.pow(num.intValueExact()) 
+                : type.equals(MathOpType.MOD) ? aggregateValue.remainder(num)
+                : type.equals(MathOpType.MULT) ? aggregateValue.multiply(num)
                 : null;
     }
     
     T Calculate(ExpressionContext ctx, MathOpType type) {
-        Double result = 0.0;
+        BigDecimal result = new BigDecimal("0.0");
         String finalResult = "";
         int numberOfChildren = ctx.getChildCount();
         String operatorString = decideOperator(type);
@@ -151,10 +155,12 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 }
                 if (!child.getText().equals(operatorString)) {
                     if (c == 0) {
-                        result = Double.parseDouble(visit(child).toString());
+                        result = new BigDecimal(visit(child).toString());
                         System.out.println("calculate : " + result);
                     } else {
                         result = CalculateValue(result, child, type);///= Double.parseDouble(visit(child).toString());
+                        	
+                        
                     }
                 }
                 else System.out.println("found a " + operatorString + " sign at position" + c);
@@ -177,6 +183,28 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     }
     
     String decideComparison(ExpressionContext ctx, ComparisonOpType type){
+		String s = visit(ctx.getChild(0)).toString();
+		String s2 = visit(ctx.getChild(2)).toString();
+		
+		if (s.contains("\"") && s2.contains("\"")){
+			if (type.equals(ComparisonOpType.EQUAL)) {
+				if (s.equals(s2)) {
+					return "true";
+				}
+				else {
+					return "false";
+				}
+			}
+			else if (type.equals(ComparisonOpType.NOTEQUAL)) {
+				if (!(s.equals(s2))) {
+					return "true";
+				}
+				else {
+					return "false";
+				}
+			}
+		}
+		
         return type.equals(ComparisonOpType.EQUAL) ? 
                 String.valueOf(Double.parseDouble(visit(ctx.getChild(0)).toString()) == 
                     Double.parseDouble(visit(ctx.getChild(2)).toString())) :
@@ -217,6 +245,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         int numberOfChildren = ctx.getChildCount();
         String result = "";
         System.out.println(numberOfChildren + " children in Expression");
+  
         try{
             result = decideComparison(ctx, type);
         }catch(Exception e){
@@ -247,45 +276,6 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         return (T) sb.toString();
     }
 
-    public T visitUncalledFuncs(){
-        T result = (T)"";
-        ArrayList<String> uncalledFuncs = new ArrayList<String>();
-        
-        try{
-            for (String funcCalled : this.functionCalledMemoryList){
-                for(String funcName : this.functionMemory.keySet()){
-                    System.out.println("Comparing functions "+funcCalled+", "+funcName);
-                    if(
-                            !(funcCalled.equals(funcName) 
-                            //&& !funcName.equals(lastCalledFunc) 
-                            //&& !funcCalled.equals(lastCalledFunc)
-                            ) 
-                            && !funcName.equals("main") 
-                            && !funcCalled.equals("main")){
-                        System.out.println("Functions "+funcCalled+", "+funcName+" aren't the same - uncalled");
-                        uncalledFuncs.add(funcName);//why stops here?
-                    }
-                }
-            }
-            
-            for (String uncalled : uncalledFuncs){
-                try{
-                    System.out.println("Calling uncalled function: "+uncalled);
-                    visitFunctionBlock(functionMemory.get(uncalled).functionBlockCtx);
-                }catch(Exception ee){
-                    System.out.println("visitUncalledFuncs loop err: "+ ee.getMessage());
-                }
-                
-            }
-        }catch(NullPointerException e){
-            System.out.println("visitUncalledFuncs err: "+ e.getMessage());
-        }catch(Exception e){
-            System.out.println("General syntax error in visitUncalledFuncs: "+e.getMessage());
-        }
-        
-        return result;
-    }
-    
     @Override
     public T visitParse(myGrammarParser.ParseContext ctx) {
         //in here goes error checking, etc - in antlr3, all the code previously mixed in the grammar goes here
@@ -294,25 +284,16 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         
         try{
             result = (T) visitChildren(ctx);
-            
-            //try to call uncalled functions
-            visitUncalledFuncs();
-            
-        }catch(NullPointerException ne){
-            System.out.println("Syntax error in visitParse: "+ne.getMessage()); 
         }catch(Exception e){
             VisitorErrorReporter.CreateErrorMessage(
                     " - syntax error", 
                     ctx.getStart());
-            System.out.println("General syntax error in visitParse: "+e.getMessage());
+            e.printStackTrace();
         }
         for (int i = 0; i < functionList.size(); i++) {
         	System.out.println(functionList.get(i).identifierMemory);
         	System.out.println("-------------------------------");
         }
-        
-        
-        
         return result;
     }
     
@@ -320,27 +301,16 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitFunctionBlock(myGrammarParser.FunctionBlockContext ctx) {
     	////////////where function starts and ends!
     	System.out.println("In visit FunctionBlock");
-        
     	returnCount = 0;
     	T result = (T) visitChildren(ctx);
-        
+    	
     	if (!(depthIndex <= 0)) {
     		
     	
-    	if (returnCount <= 0 && !(currentFunctionData.getReturnType().equals("void"))  ) {
-            VisitorErrorReporter.CreateErrorMessage(
-                    "The function does not contain a return statement! ", 
+    	if (returnCount <= 0 && !(currentFunctionData.getReturnType().equals("void"))) {
+            VisitorErrorReporter.CreateErrorMessage("The function does not contain a return statement! ", 
                     ctx.getStart());    		
     	}
-        
-        /*if(!(currentFunctionData.getReturnType().equals("void")) 
-                //&& ctx.getChild(ctx.getChildCount() - 1).getText().contains("return") 
-                ) {
-            VisitorErrorReporter.CreateErrorMessage(
-                    "The return value is "+currentFunctionData.functionBlockCtx.getText().contains("if"),
-                    //"The function is missing a return statement! ", 
-                    ctx.getStart()); 
-        }*/
     	
     	}
     	
@@ -401,6 +371,36 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	    		functionList.remove(depthIndex + 1);
 	    		//currentFunction = currentFunctionData.parent;
         	}
+    	}
+    	
+    	if (depthIndex <= 0) { // call unvisited functions here.
+    		for (int i = 0; i < functionNames.size(); i++) {
+    			System.out.println("Remaining Functions : " + functionNames.get(i));
+    		}
+    		for (int i = 0; i < functionNames.size(); i++) {
+    	        
+    			String func = functionNames.get(i);
+    			functionNames.remove(i);
+    			
+    	        FunctionData functionData = new FunctionData(functionMemory.get(func).identifierMemory,
+    	        		functionMemory.get(func).funcIdentifierTracker, functionMemory.get(func).getReturnType(), 
+    	        		null);
+    	        functionData.functionBlockCtx = functionMemory.get(func).functionBlockCtx;
+    	        functionList.add(functionData);
+    	        
+            	depthIndex++;
+            	depth[depthIndex] = func;
+            	currentFunction = func;
+            	currentFunctionData = functionData;
+            	printOn = false;
+            	for (int j = 1; j < currentFunctionData.funcIdentifierTracker.size() + 1; j++) {
+            		String paramName = currentFunctionData.funcIdentifierTracker.get(j);
+            		// set param value here for the unvisited errors!
+            		GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(paramName, "1", "not", ctx);
+            		System.out.println("added value to IDENTIFIER : " + paramName);
+            	}
+    			EvaluateFunctionBlockWithErrorGeneration(currentFunctionData.functionBlockCtx);
+    		}
     	}
     	System.out.println("currentFunction : " + currentFunction);
 		return result;
@@ -566,7 +566,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             	if (dataType.equals(type)) {
             		if (dataType.equals("int")) {
             			try {
-            			int convertedInt = (int) Math.floor(Float.parseFloat(value.replace("\"", "")));
+            			System.out.println("before conv : " + value);
+            			BigDecimal num = new BigDecimal(value.replace("\"", ""));
+            			num = num.setScale(0, RoundingMode.FLOOR);
+            			//int convertedInt = (int) Math.floor(Float.parseFloat(value.replace("\"", "")));
+            			int convertedInt = num.intValueExact();
             			value = Integer.toString(convertedInt);
             			System.out.println("convertedInt : " + convertedInt);
             			} catch(NumberFormatException nfe) {
@@ -966,6 +970,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	depth[depthIndex] = funcName;
         	currentFunction = funcName;
         	currentFunctionData = functionData;
+        	for (int z = 0; z < functionNames.size(); z++) {
+        		if (functionNames.get(z).equals(funcName)) {
+        			functionNames.remove(z);
+        		}
+        	}
             result = EvaluateFunctionBlockWithErrorGeneration(functionData.functionBlockCtx);//what about function identifiers???
             
             System.out.println("IDENTIFIER CALL RESULT : " + result);
@@ -977,19 +986,6 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }catch(NullPointerException ne){
         	System.out.println("Caught in visitIdentifierFunctionCall: "+ne.getMessage());
         }
-        
-        String funcCalledName = ctx.Identifier().getText();
-        if (functionExists(funcCalledName)) {
-            //add all called functions to list to keep track of which funcs weren't called by user
-            //in order to manually call them in the interpreter for error checking
-            /*FunctionData functionCalledData = new FunctionData(functionMemory.get(funcCalledName).identifierMemory,
-        		functionMemory.get(funcCalledName).funcIdentifierTracker, functionMemory.get(funcCalledName).getReturnType(), 
-        		null);
-            functionCalledData.functionBlockCtx = functionMemory.get(funcCalledName).functionBlockCtx;
-            saveFunctionCalledToMemory(ctx.Identifier().getText(), functionCalledData);*/
-            functionCalledMemoryList.add(funcCalledName);
-        }
-        
         return result;
     }
 
@@ -998,6 +994,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         System.out.println("In VisitPrintlnFunctionCall: " + ctx.getText());
         T result = (T)"";
         
+        if (printOn) {
         if(ctx.expression() != null) {
         	
             String printAppender = visitChildren(ctx).toString() + "\n";
@@ -1012,17 +1009,23 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             ui.getOutputConsole().update(ui.getGraphics());
         }
         System.out.println("Writing a new line, result: " + result);
+        }
+        
         return (T)"";
     }
 
     @Override
     public T visitPrintFunctionCall(myGrammarParser.PrintFunctionCallContext ctx) {
         System.out.println("In visitPrintFunctionCall");
+        if (printOn) {
         String printAppender = visitChildren(ctx).toString();
         T result = (T) printAppender;
         ui.getOutputConsole().append(printAppender.replace("\"", ""));
-        ui.getOutputConsole().update(ui.getOutputConsole().getGraphics());
+        ui.getOutputConsole().update(ui.getOutputConsole().getGraphics()); 
         return result;
+        }
+        else 
+        	return (T)"";
     }
     
     T EvaluatelBlockWithErrorGeneration(myGrammarParser.BlockContext ctx){
@@ -1223,14 +1226,6 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     void RemoveFuncFromMemory(String idName){
         functionMemory.remove(idName);
     }
-    /*void saveFunctionCalledToMemory(String funcName, FunctionData value){
-        functionCalledMemory.put(funcName, value);
-    }
-    
-    void RemoveFuncCalledFromMemory(String idName){
-        functionCalledMemory.remove(idName);
-    }*/
-    
     
     String[] ExtractParamsFromFunctionValue(String paramString){
         return paramString.split(functionParamSeparator);
@@ -1258,7 +1253,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         funcData.setReturnType(ctx.DataType().getText());
         if(ctx.paramIdList() != null){
         	// if openbracket is null
-        	// else ï¿½Ø¿ï¿½ï¿½Ì°ï¿½.
+        	// else ¹Ø¿¡ÀÌ°Å.
 
             for(int c = 0;c < ctx.paramIdList().Identifier().size();c++){
             	ArrayList<T> tArray = new ArrayList<T>();
@@ -1272,10 +1267,12 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             	funcData.funcIdentifierTracker.put(c+1, ctx.paramIdList().Identifier(c).getText());
                 funcIdentifiers.put(ctx.paramIdList().Identifier(c).getText(), tArray);
                 System.out.println("PUT : " + ctx.paramIdList().Identifier(c).getText());
+        
             }
             funcData.identifierMemory = funcIdentifiers;
         }
         funcData.functionBlockCtx = ctx.functionBlock();
+        functionNames.add(ctx.Identifier().getText());
         
         
         //iden check
@@ -1324,7 +1321,6 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 ctx.getStart());
         }
         try{
-            System.out.println("Æ®ï¿½ï¿½ : " + visit(ctx.expression(1)).toString());
             upperLimit = Double.parseDouble(visit(ctx.expression(1)).toString());
         }catch(Exception e){
             VisitorErrorReporter.CreateErrorMessage(
@@ -1491,6 +1487,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitModulusExpression(myGrammarParser.ModulusExpressionContext ctx) {
         T result = Calculate(ctx, MathOpType.MOD);
+        System.out.println("Moduuuuuuuulus : " + result.toString());
         return result;
     }
 
