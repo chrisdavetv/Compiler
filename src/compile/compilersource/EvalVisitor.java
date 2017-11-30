@@ -264,7 +264,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             VisitorErrorReporter.CreateErrorMessage(
                     " - syntax error", 
                     ctx.getStart());
-            e.printStackTrace();
+            System.out.println("Syntax error in visitParse: "+e.getMessage());
         }
         for (int i = 0; i < functionList.size(); i++) {
         	System.out.println(functionList.get(i).identifierMemory);
@@ -277,16 +277,27 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitFunctionBlock(myGrammarParser.FunctionBlockContext ctx) {
     	////////////where function starts and ends!
     	System.out.println("In visit FunctionBlock");
+        
     	returnCount = 0;
     	T result = (T) visitChildren(ctx);
-    	
+        
     	if (!(depthIndex <= 0)) {
     		
     	
-    	if (returnCount <= 0 && !(currentFunctionData.getReturnType().equals("void"))) {
-            VisitorErrorReporter.CreateErrorMessage("The function does not contain a return statement! ", 
+    	if (returnCount <= 0 && !(currentFunctionData.getReturnType().equals("void"))  ) {
+            VisitorErrorReporter.CreateErrorMessage(
+                    "The function does not contain a return statement! ", 
                     ctx.getStart());    		
     	}
+        
+        /*if(!(currentFunctionData.getReturnType().equals("void")) 
+                //&& ctx.getChild(ctx.getChildCount() - 1).getText().contains("return") 
+                ) {
+            VisitorErrorReporter.CreateErrorMessage(
+                    "The return value is "+currentFunctionData.functionBlockCtx.getText().contains("if"),
+                    //"The function is missing a return statement! ", 
+                    ctx.getStart()); 
+        }*/
     	
     	}
     	
@@ -898,6 +909,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }catch(NullPointerException ne){
         	System.out.println("Caught in visitIdentifierFunctionCall: "+ne.getMessage());
         }
+        
+        if (functionExists(ctx.Identifier().getText())) {
+            //remove func from mem, in effect only leaving the funcs not called by the user's main code
+            //so we can manually call the uncalled funcs for error checking
+            
+            RemoveFuncFromMemory(ctx.Identifier().getText());
+        }
+        
         return result;
     }
 
@@ -1216,7 +1235,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 ctx.getStart());
         }
         try{
-        	System.out.println("Æ®¼ö : " + visit(ctx.expression(1)).toString());
+        	System.out.println("Æ®ï¿½ï¿½ : " + visit(ctx.expression(1)).toString());
             upperLimit = Double.parseDouble(visit(ctx.expression(1)).toString());
         }catch(Exception e){
             VisitorErrorReporter.CreateErrorMessage(
