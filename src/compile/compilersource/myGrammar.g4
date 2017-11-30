@@ -43,7 +43,6 @@ statement
  | ifStatement 
  | forStatement
  | whileStatement 
- | expression
  | doWhileStatement
  ;
 
@@ -186,7 +185,7 @@ OpenBracket : '[';
 CloseBracket : ']';
 OpenParen   : '(';
 CloseParen   : ')';
-SemiColon   : ';';
+SemiColon   : ';';                                
 Assign   : '=';
 Comma    : ',';
 Colon    : ':';
