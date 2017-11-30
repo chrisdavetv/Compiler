@@ -269,8 +269,13 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             }
             
             for (String uncalled : uncalledFuncs){
-                System.out.println("Calling uncalled function: "+uncalled);
-                visitFunctionBlock(functionMemory.get(uncalled).functionBlockCtx);
+                try{
+                    System.out.println("Calling uncalled function: "+uncalled);
+                    visitFunctionBlock(functionMemory.get(uncalled).functionBlockCtx);
+                }catch(Exception ee){
+                    System.out.println("visitUncalledFuncs loop err: "+ ee.getMessage());
+                }
+                
             }
         }catch(NullPointerException e){
             System.out.println("visitUncalledFuncs err: "+ e.getMessage());
