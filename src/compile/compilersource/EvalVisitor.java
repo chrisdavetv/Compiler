@@ -72,6 +72,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     
     //Map<String, ArrayList<T>> identifierMemory = new HashMap<String, ArrayList<T>>();
     Map<String, FunctionData> functionMemory = new HashMap<String, FunctionData>();
+    ArrayList<String> functionCalledMemoryList = new ArrayList<String>();
     ArrayList<FunctionData> functionList = new ArrayList<FunctionData>();
     ArrayList<String> arrays = new ArrayList<String>();
     String currentFunction = "";
@@ -246,6 +247,40 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         return (T) sb.toString();
     }
 
+    public T visitUncalledFuncs(){
+        T result = (T)"";
+        ArrayList<String> uncalledFuncs = new ArrayList<String>();
+        
+        try{
+            for (String funcCalled : this.functionCalledMemoryList){
+                for(String funcName : this.functionMemory.keySet()){
+                    System.out.println("Comparing functions "+funcCalled+", "+funcName);
+                    if(
+                            !(funcCalled.equals(funcName) 
+                            //&& !funcName.equals(lastCalledFunc) 
+                            //&& !funcCalled.equals(lastCalledFunc)
+                            ) 
+                            && !funcName.equals("main") 
+                            && !funcCalled.equals("main")){
+                        System.out.println("Functions "+funcCalled+", "+funcName+" aren't the same - uncalled");
+                        uncalledFuncs.add(funcName);//why stops here?
+                    }
+                }
+            }
+            
+            for (String uncalled : uncalledFuncs){
+                System.out.println("Calling uncalled function: "+uncalled);
+                visitFunctionBlock(functionMemory.get(uncalled).functionBlockCtx);
+            }
+        }catch(NullPointerException e){
+            System.out.println("visitUncalledFuncs err: "+ e.getMessage());
+        }catch(Exception e){
+            System.out.println("General syntax error in visitUncalledFuncs: "+e.getMessage());
+        }
+        
+        return result;
+    }
+    
     @Override
     public T visitParse(myGrammarParser.ParseContext ctx) {
         //in here goes error checking, etc - in antlr3, all the code previously mixed in the grammar goes here
@@ -254,16 +289,25 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         
         try{
             result = (T) visitChildren(ctx);
+            
+            //try to call uncalled functions
+            visitUncalledFuncs();
+            
+        }catch(NullPointerException ne){
+            System.out.println("Syntax error in visitParse: "+ne.getMessage()); 
         }catch(Exception e){
             VisitorErrorReporter.CreateErrorMessage(
                     " - syntax error", 
                     ctx.getStart());
-            System.out.println("Syntax error in visitParse: "+e.getMessage());
+            System.out.println("General syntax error in visitParse: "+e.getMessage());
         }
         for (int i = 0; i < functionList.size(); i++) {
         	System.out.println(functionList.get(i).identifierMemory);
         	System.out.println("-------------------------------");
         }
+        
+        
+        
         return result;
     }
     
@@ -929,11 +973,16 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	System.out.println("Caught in visitIdentifierFunctionCall: "+ne.getMessage());
         }
         
-        if (functionExists(ctx.Identifier().getText())) {
-            //remove func from mem, in effect only leaving the funcs not called by the user's main code
-            //so we can manually call the uncalled funcs for error checking
-            
-            RemoveFuncFromMemory(ctx.Identifier().getText());
+        String funcCalledName = ctx.Identifier().getText();
+        if (functionExists(funcCalledName)) {
+            //add all called functions to list to keep track of which funcs weren't called by user
+            //in order to manually call them in the interpreter for error checking
+            /*FunctionData functionCalledData = new FunctionData(functionMemory.get(funcCalledName).identifierMemory,
+        		functionMemory.get(funcCalledName).funcIdentifierTracker, functionMemory.get(funcCalledName).getReturnType(), 
+        		null);
+            functionCalledData.functionBlockCtx = functionMemory.get(funcCalledName).functionBlockCtx;
+            saveFunctionCalledToMemory(ctx.Identifier().getText(), functionCalledData);*/
+            functionCalledMemoryList.add(funcCalledName);
         }
         
         return result;
@@ -1169,6 +1218,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     void RemoveFuncFromMemory(String idName){
         functionMemory.remove(idName);
     }
+    /*void saveFunctionCalledToMemory(String funcName, FunctionData value){
+        functionCalledMemory.put(funcName, value);
+    }
+    
+    void RemoveFuncCalledFromMemory(String idName){
+        functionCalledMemory.remove(idName);
+    }*/
+    
     
     String[] ExtractParamsFromFunctionValue(String paramString){
         return paramString.split(functionParamSeparator);

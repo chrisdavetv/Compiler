@@ -210,6 +210,8 @@ public class CompilerUI extends javax.swing.JFrame {
                                         jTextArea1.moveCaretPosition(pos);
                                     }catch(NumberFormatException nfe){
                                         System.out.println("Number format Error: " +  nfe.getMessage());
+                                    }catch(Exception e){
+                                        System.out.println("Caught random exception: "+e.getMessage());
                                     }
                                 }
 
