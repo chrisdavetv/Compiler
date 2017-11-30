@@ -22,14 +22,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	//comparison mismatch (expression?)
 	// for loop datatype issue
 	// double calculation makes slight difference in the resulting value (big number)
-	// type-casting for int-float pair???
-	// visiting semantic test functions before the call (ask)
-	// test case a,b�� ������ ��.
-	// return ���� �ٿ� ���� ������ �ַ�����
-	// fix calcul
-	// return expression? �� ��� function���� ���������� ó��?
-	// if else if �̷� ������ return ���� statement ó��. (antlr?)
-	// typeCheck���� ���� ������ �ٸ� string�� �༭ assignment ��ȿȭ.
+	// ���� ��Ȯ�ϰ�. ����
     class FunctionData{
     	public String parent;
     	public String returnValue;
@@ -80,6 +73,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     //Map<String, ArrayList<T>> identifierMemory = new HashMap<String, ArrayList<T>>();
     Map<String, FunctionData> functionMemory = new HashMap<String, FunctionData>();
     ArrayList<FunctionData> functionList = new ArrayList<FunctionData>();
+    ArrayList<String> arrays = new ArrayList<String>();
     String currentFunction = "";
     ErrorReporter VisitorErrorReporter;
     CompilerUI ui;
@@ -308,7 +302,27 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         		currentFunction = depth[depthIndex];
         		result = (T)"";
         		currentFunctionData.setReturnValue(null);
-        		currentFunctionData = functionMemory.get(currentFunction);
+        		
+        		for (int j = 0; j < arrays.size(); j++) {
+        		if (functionList.get(depthIndex).identifierExists(arrays.get(j))) {
+        		ArrayList<T> arrayInfo = currentFunctionData.identifierMemory.get(arrays.get(j));
+        		functionList.get(depthIndex).identifierMemory.put(arrays.get(j), arrayInfo);
+        		for (int i = 0; i < Integer.parseInt(arrayInfo.get(0).toString()); i++) {
+        			ArrayList<T> tArray = new ArrayList<T>(currentFunctionData.identifierMemory.get(arrays.get(j) + "[" + i + "]"));
+        			//currentFunctionData.identifierMemory.get(arrays + "[" + i + "]").get(0).toString();
+        			//currentFunctionData.identifierMemory.get(arrays + "[" + i + "]").get(1).toString();
+        			//currentFunctionData.identifierMemory.get(arrays + "[" + i + "]").get(2).toString();
+        			functionList.get(depthIndex).identifierMemory.put(arrays.get(j) + "[" + i + "]", tArray);
+        			System.out.println("putted " + arrays.get(j) + "[" + i + "]");
+        		}
+        		}
+        		}
+        		currentFunctionData = functionList.get(depthIndex);
+        		functionList.remove(depthIndex + 1);
+        		
+        		/*for (int i = 0; i < currentFunctionData.identifierMemory.size(); i++) {
+        			
+        		}*/
         		//currentFunction = currentFunctionData.parent;
         	}
         	else {
@@ -317,8 +331,25 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	    		currentFunctionData.setReturnValue(null);
 	    		depthIndex--;
 	    		currentFunction = depth[depthIndex];
+	    		
+        		for (int j = 0; j < arrays.size(); j++) {
+        		if (functionList.get(depthIndex).identifierExists(arrays.get(j))) {
+        		ArrayList<T> arrayInfo = currentFunctionData.identifierMemory.get(arrays.get(j));
+        		functionList.get(depthIndex).identifierMemory.put(arrays.get(j), arrayInfo);
+        		for (int i = 0; i < Integer.parseInt(arrayInfo.get(0).toString()); i++) {
+        			ArrayList<T> tArray = new ArrayList<T>(currentFunctionData.identifierMemory.get(arrays.get(j) + "[" + i + "]"));
+        			//currentFunctionData.identifierMemory.get(arrays + "[" + i + "]").get(0).toString();
+        			//currentFunctionData.identifierMemory.get(arrays + "[" + i + "]").get(1).toString();
+        			//currentFunctionData.identifierMemory.get(arrays + "[" + i + "]").get(2).toString();
+        			functionList.get(depthIndex).identifierMemory.put(arrays.get(j) + "[" + i + "]", tArray);
+        			System.out.println("putted " + arrays.get(j) + "[" + i + "]");
+        		}
+        		}
+        		}
+        		
 	    		//currentFunctionData = functionMemory.get(currentFunction);
 	    		currentFunctionData = functionList.get(depthIndex);
+	    		functionList.remove(depthIndex + 1);
 	    		//currentFunction = currentFunctionData.parent;
         	}
     	}
@@ -706,7 +737,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             try{
                 value = JOptionPane.showInputDialog(visit(ctx.expression()).toString().replace("\"", ""));
                 System.out.println("Value:" + value);
-                if (type.equals("string")) {
+                if (type.equals("string") || type.equals("char")) {
                 	value = '"' + value + '"';
                 }
                 typeCheck(type,value,ctx);
@@ -782,32 +813,6 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         functionList.add(functionData);
         //functionData = GenerateErrorIfFuncDoesNotExistElseReturnValue(funcName, ctx);
         
-
-        /*
-        if (funcName.equals(currentFunction)){
-        	
-        	int i = 0;
-        	while (functionExists(funcName + "(" + i + ")")) {
-        		i += 1;
-        	}
-        	String newFuncName = funcName + "(" + i + ")";
-        	GenerateErrorIfFuncExistsElseAddToMemory(newFuncName, functionData, ctx);
-        	functionMemory.get(newFuncName).identifierMemory.clear();
-        	for (int j = 0; j < functionMemory.get(newFuncName).funcIdentifierTracker.size(); j++) {
-        		ArrayList<T> tArray = new ArrayList<T>();
-        		tArray.add((T)"");
-        		tArray.add((T)"");
-        		tArray.add((T)"");
-        		functionMemory.get(newFuncName).identifierMemory.put(
-        				functionMemory.get(newFuncName).funcIdentifierTracker.get(j+1).toString(), tArray);
-        	}        		
-        	functionMemory.get(newFuncName).setReturnValue(null);
-            functionMemory.get(newFuncName).parent = currentFunction;
-            functionMemory.get(newFuncName).functionBlockCtx = null;
-            funcName = newFuncName;
-            functionData = GenerateErrorIfFuncDoesNotExistElseReturnValue(funcName, ctx);
-        }
-        */
         
         if(functionData != null){
         	if (hasParam){
@@ -861,6 +866,20 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	            				tArray.add((T) functionData.identifierMemory.get(functionData.funcIdentifierTracker.get(k)).get(1).toString());
 	            				tArray.add((T) functionData.identifierMemory.get(functionData.funcIdentifierTracker.get(k)).get(2).toString());
 	            				functionData.identifierMemory.replace(functionData.funcIdentifierTracker.get(k).toString(), tArray);
+	            				
+	            				if (currentFunctionData.identifierMemory.get(memToArray[j]).get(1).toString().contains("array,")) {
+	            					arrays.add(memToArray[j]);
+		            				for (int l = 0; l < Integer.parseInt(currentFunctionData.identifierMemory.get(memToArray[j]).get(0).toString()); l++) {
+		            					
+		            					
+		            					ArrayList<T> tArray2 = new ArrayList<T>();
+			            				tArray2.add((T) currentFunctionData.identifierMemory.get(memToArray[j] + "[" + l + "]").get(0).toString());
+			            				tArray2.add((T) currentFunctionData.identifierMemory.get(memToArray[j] + "[" + l + "]").get(1).toString());
+			            				tArray2.add((T) currentFunctionData.identifierMemory.get(memToArray[j] + "[" + l + "]").get(2).toString());
+			            				functionData.identifierMemory.put(functionData.funcIdentifierTracker.get(k) + "[" + l + "]", tArray2);
+
+		            				} 
+	            				}
 	            				k++;
 	            				found = true;
 	            				break;
@@ -974,6 +993,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 ne.getMessage()+
                 " - Could not resolve function code block", 
                 ctx.getStart());
+            ne.printStackTrace();
         }    	
     	return result;
     }
@@ -1175,10 +1195,17 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         
         funcData.setReturnType(ctx.DataType().getText());
         if(ctx.paramIdList() != null){
+        	// if openbracket is null
+        	// else �ؿ��̰�.
+
             for(int c = 0;c < ctx.paramIdList().Identifier().size();c++){
             	ArrayList<T> tArray = new ArrayList<T>();
             	tArray.add((T)"");
-            	tArray.add((T)ctx.paramIdList().DataType(c).getText());
+            	
+            	if (!(ctx.paramIdList().DataType(c).getText().contains("[]"))) 
+            		tArray.add((T)ctx.paramIdList().DataType(c).getText());
+            	else 
+            		tArray.add((T)("array," + ctx.paramIdList().DataType(c).getText().replace("[]", "")));            	
             	tArray.add((T)"not");
             	funcData.funcIdentifierTracker.put(c+1, ctx.paramIdList().Identifier(c).getText());
                 funcIdentifiers.put(ctx.paramIdList().Identifier(c).getText(), tArray);
@@ -1235,7 +1262,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 ctx.getStart());
         }
         try{
-        	System.out.println("Ʈ�� : " + visit(ctx.expression(1)).toString());
+            System.out.println("Ʈ�� : " + visit(ctx.expression(1)).toString());
             upperLimit = Double.parseDouble(visit(ctx.expression(1)).toString());
         }catch(Exception e){
             VisitorErrorReporter.CreateErrorMessage(
@@ -1267,8 +1294,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 RemoveIdentifierFromMemory(ctx.Identifier().getText());
             }
         }
-        else if(upperLimit < lowerLimit){
-            while(upperLimit < lowerLimit){
+        else if(upperLimit < lowerLimit - 1){
+        	lowerLimit = lowerLimit - 1;
+            while(upperLimit <= lowerLimit){
             	//update
             	if (ctx.DataType().getText().equals("int") || ctx.DataType().getText().equals("short")
             			|| ctx.DataType().getText().equals("long"))
@@ -1610,27 +1638,29 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         List<TerminalNode> identifiers = ctx.idList().Identifier();
    
         {
-	        if ((ctx.DataType().getText().equals("boolean") || ctx.DataType().getText().equals("string") 
-	        	|| ctx.DataType().getText().equals("int") || ctx.DataType().getText().equals("float")
-	        	|| ctx.DataType().getText().equals("long") || ctx.DataType().getText().equals("short")))
+	        if ((ctx.DataType().getText().contains("boolean") || ctx.DataType().getText().contains("string") 
+	        	|| ctx.DataType().getText().contains("int") || ctx.DataType().getText().contains("float")
+	        	|| ctx.DataType().getText().contains("char")))
 	        {
 		        for(int c = 0;c < identifiers.size(); c++){
 		        	if (ctx.Final() == null) {
-		        		if (ctx.OpenBracket() == null) {
+		        		if (!(ctx.DataType().getText().contains("[]"))) {
 		        			GenerateErrorIfIdentifierExistsElseAddToMemory(identifiers.get(c).getText(), "", ctx.DataType().getText(), "not", ctx);
 		        		}
 		        		else {
-		        			GenerateErrorIfIdentifierExistsElseAddToMemory(identifiers.get(c).getText(), "", "array,"+ctx.DataType().getText(), "not", ctx);
+		        			GenerateErrorIfIdentifierExistsElseAddToMemory(identifiers.get(c).getText(), "", "array,"+ctx.DataType().getText().replace("[]", ""), "not", ctx);
+		        			
 		        		}	
 		        		}
 		        			
 		        	
 		        	else {
-		        		if (ctx.OpenBracket() == null) {
+		        		if (!(ctx.DataType().getText().contains("[]"))) {
 		        			GenerateErrorIfIdentifierExistsElseAddToMemory(identifiers.get(c).getText(), "", ctx.DataType().getText(), "final", ctx);
 		        		}
 		        		else {
-		        			GenerateErrorIfIdentifierExistsElseAddToMemory(identifiers.get(c).getText(), "", "array,"+ctx.DataType().getText(), "final", ctx);	
+		        			GenerateErrorIfIdentifierExistsElseAddToMemory(identifiers.get(c).getText(), "", "array,"+ctx.DataType().getText().replace("[]", ""), "final", ctx);	
+		        			
 		        		}
 		        	}
 		        	
@@ -1689,7 +1719,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	}
         }
         
-        
+        /*
         else if (type.equals("long")) {
         	try {
         	value = value.trim();
@@ -1711,11 +1741,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 	passed = false;
         	}
         }
+        */
         
         else if (type.equals("string")) {
         	int stringTest = 0;
-        	System.out.println("entered");
-        	System.out.println("current value is : " + value);
         	if(value.startsWith("\"") && value.endsWith("\"")) {
         		for (int i = 0; i < value.length(); i++) {
         			System.out.println(i);
@@ -1765,6 +1794,21 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                         ctx.getStart());
             	passed = false;
             }
+        }
+        else if (type.equals("char")) {
+        	if (value.contains("\"")) {
+        	String charTest = value.replace("\"", "");
+        	if (charTest.length() > 1) {
+            	VisitorErrorReporter.CreateErrorMessage("the value is not a character.", 
+                        ctx.getStart());
+            	passed = false;
+        	}
+        	}
+        	else {
+            	VisitorErrorReporter.CreateErrorMessage("the value is not a character.", 
+                        ctx.getStart());
+            	passed = false;
+        	}
         }
         
         if (passed)

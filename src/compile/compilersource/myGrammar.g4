@@ -57,7 +57,7 @@ assignment
 
 
 identifierDeclaration
-: Def Final? DataType (OpenBracket CloseBracket)? idList
+: Def Final? DataType idList
 ;
 
 functionCall
@@ -197,9 +197,14 @@ DataType
 | 'string'
 | 'int'
 | 'float'
-| 'long'
-| 'short'
 | 'void'
+| 'char'
+| 'boolean[]'
+| 'string[]'
+| 'int[]'
+| 'float[]'
+| 'void[]'
+| 'char[]'
 ;
 
 Bool
