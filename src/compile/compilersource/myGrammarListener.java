@@ -156,6 +156,46 @@ public interface myGrammarListener extends ParseTreeListener {
 	 */
 	void exitElseStat(myGrammarParser.ElseStatContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#tryStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterTryStatement(myGrammarParser.TryStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#tryStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitTryStatement(myGrammarParser.TryStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#tryStat}.
+	 * @param ctx the parse tree
+	 */
+	void enterTryStat(myGrammarParser.TryStatContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#tryStat}.
+	 * @param ctx the parse tree
+	 */
+	void exitTryStat(myGrammarParser.TryStatContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#catchStat}.
+	 * @param ctx the parse tree
+	 */
+	void enterCatchStat(myGrammarParser.CatchStatContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#catchStat}.
+	 * @param ctx the parse tree
+	 */
+	void exitCatchStat(myGrammarParser.CatchStatContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#finallyStat}.
+	 * @param ctx the parse tree
+	 */
+	void enterFinallyStat(myGrammarParser.FinallyStatContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#finallyStat}.
+	 * @param ctx the parse tree
+	 */
+	void exitFinallyStat(myGrammarParser.FinallyStatContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link myGrammarParser#functionDecl}.
 	 * @param ctx the parse tree
 	 */

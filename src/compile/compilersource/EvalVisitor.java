@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -24,7 +25,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	//comparison mismatch (expression?)
 	// for loop datatype issue
 	// double calculation makes slight difference in the resulting value (big number)
-	// 연산 정확하게. 음수
+	// error jumping, test case 정확하게 바꾸기.
+	// print에 indexoutofbound 확인. (함수 추가?)
+	// 음수 arrayoutofindex.
+	// function 도는 중에 exception 나면?
+	// scan에 numberformatexception?
     class FunctionData{
     	public String parent;
     	public String returnValue;
@@ -72,9 +77,19 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
      }
     
+    class ErrorData{
+    	 public ArrayList<String> errorStorage = new ArrayList<String>();
+    	 public ArrayList<Token> tokenStorage = new ArrayList<Token>();
+    	 public ArrayList<String> errorType = new ArrayList<String>();
+    	 public boolean runnable;
+    	 public myGrammarParser.BlockContext blockCtx;
+    }
+    
+    
     //Map<String, ArrayList<T>> identifierMemory = new HashMap<String, ArrayList<T>>();
     Map<String, FunctionData> functionMemory = new HashMap<String, FunctionData>();
     ArrayList<FunctionData> functionList = new ArrayList<FunctionData>();
+    ArrayList<ErrorData> errorList = new ArrayList<ErrorData>();
     ArrayList<String> arrays = new ArrayList<String>();
     ArrayList<String> functionNames = new ArrayList<String>();
     String currentFunction = "";
@@ -84,9 +99,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     final String functionParamSeparator = ",";
     String[] depth = new String[1000];
     int depthIndex;
+    int errorBlockIndex;
     int returnCount = 0;
     boolean printOn = true;
     FunctionData currentFunctionData;
+    ErrorData currentErrorData;
     
     public EvalVisitor(ErrorReporter errorReporter, CompilerUI ui){
         super();
@@ -94,10 +111,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         this.ui = ui;
         currentFunction = "main";
         currentFunctionData = new FunctionData();
+        currentErrorData = new ErrorData();
+        currentErrorData.runnable = true;
         functionMemory.put("main", currentFunctionData);
         depthIndex = 0;
+        errorBlockIndex = 0;
         depth[0] = "main";
         functionList.add(currentFunctionData);
+        errorList.add(currentErrorData);
     }
     
     enum MathOpType {
@@ -118,14 +139,30 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     }
 
     BigDecimal CalculateValue(BigDecimal aggregateValue, ParseTree child, MathOpType type) {
+    	
     	BigDecimal num = new BigDecimal(visit(child).toString());
-        return type.equals(MathOpType.ADD) ? aggregateValue.add(num)
-                : type.equals(MathOpType.SUB) ? aggregateValue.subtract(num)
-                : type.equals(MathOpType.DIV) ? aggregateValue.divide(num)
-                : type.equals(MathOpType.POW) ? aggregateValue.pow(num.intValueExact()) 
-                : type.equals(MathOpType.MOD) ? aggregateValue.remainder(num)
-                : type.equals(MathOpType.MULT) ? aggregateValue.multiply(num)
-                : null;
+    	try {
+        if (type.equals(MathOpType.ADD))
+        	return aggregateValue.add(num);
+        else if (type.equals(MathOpType.SUB))
+        	return aggregateValue.subtract(num);
+        else if (type.equals(MathOpType.DIV)) 
+        	if (child.getText().contains(".") || aggregateValue.toString().contains("."))
+        		return aggregateValue.divide(num, 2, RoundingMode.HALF_UP);
+        	else
+        		return aggregateValue.divide(num, RoundingMode.HALF_DOWN);
+        else if (type.equals(MathOpType.POW))
+        	return aggregateValue.pow(num.intValueExact()); 
+        else if (type.equals(MathOpType.MOD))
+        	return aggregateValue.remainder(num);
+        else if (type.equals(MathOpType.MULT))
+        	return aggregateValue.multiply(num);
+        else
+        	return null;
+    	} catch (ArithmeticException e) {
+    		e.printStackTrace();
+    		return null;
+    	}
     }
     
     T Calculate(ExpressionContext ctx, MathOpType type) {
@@ -141,16 +178,21 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 if (!(child.getText().contains("\"")) && child.getText().matches("[a-zA-Z_][a-zA-Z_0-9]*") &&
                 		!(child.getText().equals("true") || child.getText().equals("false"))) {
                 	if (currentFunctionData.identifierMemory.get(child.getText()) == null) {
-                        VisitorErrorReporter.CreateErrorMessage("the identifier : "
+                		currentErrorData.errorStorage.add("the identifier : "
+                        		+ child.getText() + " used in the expression does not exist!");
+                		currentErrorData.tokenStorage.add(ctx.getStart());
+                        /* VisitorErrorReporter.CreateErrorMessage("the identifier : "
                         		+ child.getText() + " used in the expression does not exist!", 
-                                ctx.getStart());
+                                ctx.getStart()); */
                         break;
                 	}
                 }
                 
                 if (child.getText().equals("true") || child.getText().equals("false")) {
-                    VisitorErrorReporter.CreateErrorMessage("boolean datatype exists in the equation.", 
-                            ctx.getStart());
+                    /*VisitorErrorReporter.CreateErrorMessage("boolean datatype exists in the equation.", 
+                            ctx.getStart());*/
+            		currentErrorData.errorStorage.add("boolean datatype exists in the equation.");
+            		currentErrorData.tokenStorage.add(ctx.getStart());
                     break;
                 }
                 if (!child.getText().equals(operatorString)) {
@@ -158,26 +200,37 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                         result = new BigDecimal(visit(child).toString());
                         System.out.println("calculate : " + result);
                     } else {
+                    	BigDecimal catcher = CalculateValue(result, child, type);
+                    	if (catcher != null) {
                         result = CalculateValue(result, child, type);///= Double.parseDouble(visit(child).toString());
-                        	
+                    	} else {
+                    		currentErrorData.errorStorage.add("ArithmeticException occurred.");
+                    		currentErrorData.tokenStorage.add(ctx.getStart());
+                    		currentErrorData.runnable = false;
+                    		return (T)"";
+                    	}
                         
                     }
                 }
                 else System.out.println("found a " + operatorString + " sign at position" + c);
             }
             finalResult = result.toString();
-            if (finalResult.endsWith(".0"))
-            	finalResult = finalResult.substring(0, finalResult.length() - 2);
+            /*if (finalResult.endsWith(".0"))
+            	finalResult = finalResult.substring(0, finalResult.length() - 2);*/
             System.out.println("Expression returning: " + finalResult);
             
             
         } catch (NullPointerException ne) {
-            VisitorErrorReporter.CreateErrorMessage("operator can only be applied to type Number", 
-                    ctx.getStart());
+            /*VisitorErrorReporter.CreateErrorMessage("operator can only be applied to type Number", 
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add("operator can only be applied to type Number");
+    		currentErrorData.tokenStorage.add(ctx.getStart());        	
             return (T)"";
         } catch (NumberFormatException nfe) {
-            VisitorErrorReporter.CreateErrorMessage("Invalid equation. Please check again.", 
-                    ctx.getStart());        	
+            /*VisitorErrorReporter.CreateErrorMessage("Invalid equation. Please check again.", 
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add("Invalid equation. Please check again.");
+    		currentErrorData.tokenStorage.add(ctx.getStart());   
         }
         return (T) finalResult;
     }
@@ -250,9 +303,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             result = decideComparison(ctx, type);
         }catch(Exception e){
             System.out.println("error in visitGtEqExpression of type: "+e.getMessage());
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                     " - please check expressions on both sides of your comparison operators", 
-                    ctx.getStart());
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add("- please check expressions on both sides of your comparison operators");
+    		currentErrorData.tokenStorage.add(ctx.getStart());   
             result = "";
         }
         return (T)result;
@@ -285,33 +340,49 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         try{
             result = (T) visitChildren(ctx);
         }catch(Exception e){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                     " - syntax error", 
                     ctx.getStart());
-            e.printStackTrace();
+            e.printStackTrace();*/
+        	e.printStackTrace();
+    		currentErrorData.errorStorage.add(" - syntax error");
+    		currentErrorData.tokenStorage.add(ctx.getStart());   
         }
+        
+        
         for (int i = 0; i < functionList.size(); i++) {
         	System.out.println(functionList.get(i).identifierMemory);
         	System.out.println("-------------------------------");
         }
+        
+    	for (int i = 0; i < errorList.get(errorBlockIndex).errorStorage.size(); i++) {
+    		//System.out.println("errors : " + errorList.get(errorBlockIndex).errorStorage.get(i));
+    		VisitorErrorReporter.CreateErrorMessage(errorList.get(errorBlockIndex).errorStorage.get(i),
+    				errorList.get(errorBlockIndex).tokenStorage.get(i));
+    	}
         return result;
     }
     
     @Override
     public T visitFunctionBlock(myGrammarParser.FunctionBlockContext ctx) {
+    	T result = (T) "";
+    	
     	////////////where function starts and ends!
     	System.out.println("In visit FunctionBlock");
     	returnCount = 0;
-    	T result = (T) visitChildren(ctx);
-    	
+    	result = (T) visitChildren(ctx);
+    	if (currentErrorData.runnable) {
     	if (!(depthIndex <= 0)) {
     		
     	
     	if (returnCount <= 0 && !(currentFunctionData.getReturnType().equals("void"))) {
-            VisitorErrorReporter.CreateErrorMessage("The function does not contain a return statement! ", 
-                    ctx.getStart());    		
+            /*VisitorErrorReporter.CreateErrorMessage("The function does not contain a return statement! ", 
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add("The function does not contain a return statement! ");
+    		currentErrorData.tokenStorage.add(ctx.getStart());   
     	}
     	
+    	}
     	}
     	
     	if (!(depthIndex <= 0))
@@ -345,7 +416,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         		//currentFunction = currentFunctionData.parent;
         	}
         	else {
-	    		result = (T)currentFunctionData.getReturnValue();
+        		if (currentErrorData.runnable)
+        			result = (T)currentFunctionData.getReturnValue();
+        		else
+        			result = (T)"";
 	    		System.out.println("Function " + currentFunction + " returned : " + currentFunctionData.getReturnValue());
 	    		currentFunctionData.setReturnValue(null);
 	    		depthIndex--;
@@ -403,15 +477,17 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     		}
     	}
     	System.out.println("currentFunction : " + currentFunction);
+    	System.out.println(currentErrorData.runnable);
 		return result;
     }
+    
 
     @Override
     public T visitBlock(myGrammarParser.BlockContext ctx) {
     	System.out.println("enter visitBlock : ");
-    	
-    	
-        T result = (T) visitChildren(ctx);
+    	T result = (T) "";
+
+        result = (T) visitChildren(ctx);
         
         
         System.out.println("visitBlock result: " + result);
@@ -437,30 +513,39 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         		//System.out.println("currentFunction : " + currentFunction);
         	}
         }*/
-        
+    	
         return result;
     }
     
     @Override
     public T visitReturnStatement(myGrammarParser.ReturnStatementContext ctx) {
+    	
+    	if (currentErrorData.runnable) {
     	T result = (T) visitChildren(ctx);
     	returnCount += 1;
     	System.out.println("return stmt : " + result.toString());
+    	if (currentErrorData.runnable) {
     	result = (T)typeCheck(currentFunctionData.getReturnType(), result.toString(), ctx);
     	
     	if (depthIndex > 0 ) {
     	if (returnCount >= 1 && currentFunctionData.getReturnType().equals("void")) {
-            VisitorErrorReporter.CreateErrorMessage("Return data type of the function is void, but has a return statement. ", 
-                    ctx.getStart());      		
+            /*VisitorErrorReporter.CreateErrorMessage("Return data type of the function is void, but has a return statement. ", 
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add("Return data type of the function is void, but has a return statement. ");
+    		currentErrorData.tokenStorage.add(ctx.getStart());
     	}
     	}
     	
         if (currentFunctionData.getReturnValue() == null)
         	currentFunctionData.setReturnValue((String) result);
+    	}
+    	}
     	return (T)"";    	
     }
     @Override
     public T visitStatement(myGrammarParser.StatementContext ctx) {
+    	T result = (T)"";
+    	if (currentErrorData.runnable) {
         /*Boolean continueVisit = false;
         System.out.println("in visitStatement");
         if(ctx.assignment() != null || ctx.identifierDeclaration() != null || ctx.functionCall() != null){
@@ -476,16 +561,20 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         
         T result = continueVisit? (T) visitChildren(ctx) : (T)"";*/
     	System.out.println("visitStatement");
-        T result = (T) visitChildren(ctx);
+        result = (T) visitChildren(ctx);
+    	}
         return result;
     }
     
     void GenerateErrorIfIdentifierExistsElseAddToMemory(String identifierName, String value, String type, String constant, ParserRuleContext ctx){
     
         if(currentFunctionData.identifierMemory.get(identifierName) != null){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                 "identifier "+identifierName+" already exists", 
-                ctx.getStart());
+                ctx.getStart());*/
+    		currentErrorData.errorStorage.add("identifier "+identifierName+" already exists");
+    		currentErrorData.tokenStorage.add(ctx.getStart());
+            
         }else{
         	ArrayList<T> tArray = new ArrayList<T>();
         	tArray.add((T)value);
@@ -499,8 +588,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     void GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(String idName, String value, String constant, ParserRuleContext ctx){
     	System.out.println("idName : " + idName);
         if(currentFunctionData.identifierMemory.get(idName) == null){
-            VisitorErrorReporter.CreateErrorMessage("identifier does not exist: "+idName, 
-                    ctx.getStart());
+            /*VisitorErrorReporter.CreateErrorMessage("identifier does not exist: "+idName, 
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add("identifier does not exist: " + idName);
+    		currentErrorData.tokenStorage.add(ctx.getStart());
         }else{
         	ArrayList<T> tArray = new ArrayList<T>();
         	tArray.add((T)value);
@@ -509,8 +600,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         		tArray.add((T)"used");
         	}
         	else if (constant.equals("used")) {
-                VisitorErrorReporter.CreateErrorMessage("the constant identifier : "+idName + " cannot be assigned again", 
-                        ctx.getStart());
+                /*VisitorErrorReporter.CreateErrorMessage("the constant identifier : "+idName + " cannot be assigned again", 
+                        ctx.getStart());*/
+        		currentErrorData.errorStorage.add("the constant identifier : " +idName + " cannot be assigned again");
+        		currentErrorData.tokenStorage.add(ctx.getStart());
                 tArray.add((T)"used");
         	}
         	else {
@@ -520,9 +613,30 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
     }
     T GenerateErrorIfIdentifierDoesNotExistElseReturnValue(String idName, ParserRuleContext ctx){
+    	boolean a = false;
         if(currentFunctionData.identifierMemory.get(idName) == null){
-            VisitorErrorReporter.CreateErrorMessage("identifier does not exist: "+idName, 
-                    ctx.getStart());
+        	if (idName.contains("[") && idName.contains("]")) {
+        		String s, s2;
+        		int cut = idName.indexOf("[");
+        		int cut2 = idName.indexOf("]");
+        		s = idName.substring(0, cut);
+        		s2 = idName.substring(cut+1, cut2);
+        		int val = Integer.parseInt(currentFunctionData.identifierMemory.get(s).get(0).toString());
+        		if (Integer.parseInt(s2) > (val - 1)) {
+            		currentErrorData.errorStorage.add("ArrayIndexOutOfBounds Error: "+idName);
+            		currentErrorData.tokenStorage.add(ctx.getStart());
+            		currentErrorData.runnable = false;
+
+            		return (T)"";
+        		}
+        		a = true;
+        	}
+            /* VisitorErrorReporter.CreateErrorMessage("identifier does not exist: "+idName, 
+                    ctx.getStart()); */
+        	if (!a) {
+    		currentErrorData.errorStorage.add("identifier does not exist: "+idName);
+    		currentErrorData.tokenStorage.add(ctx.getStart());
+        	}
             return (T)"";
         }else{
             return currentFunctionData.identifierMemory.get(idName).get(0);
@@ -536,7 +650,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitAssignment(myGrammarParser.AssignmentContext ctx) {
         System.out.println("In visitAssignment");
-        
+        if (currentErrorData.runnable) {
         try {
         if(ctx.getChild(0) == ctx.Identifier()){
         	
@@ -544,15 +658,21 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             String identifierName = ctx.Identifier().getText();
             String type, constant;
             String value = "";
-            
             type = currentFunctionData.identifierMemory.get(identifierName).get(1).toString();
             constant = currentFunctionData.identifierMemory.get(identifierName).get(2).toString();
             
             try{
                 value = visit(ctx.expression()).toString();
             }catch(NullPointerException ne){
-                VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
-                        ctx.getStart());
+            	return (T)"";
+                /*VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
+                        ctx.getStart());*/
+        		/*currentErrorData.errorStorage.add("Something wrong with the assignment statement");
+        		currentErrorData.tokenStorage.add(ctx.getStart());*/
+            }
+            
+            if (!currentErrorData.runnable) {
+            	return (T)"";
             }
                    
             /*
@@ -574,8 +694,12 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             			value = Integer.toString(convertedInt);
             			System.out.println("convertedInt : " + convertedInt);
             			} catch(NumberFormatException nfe) {
-    	                    VisitorErrorReporter.CreateErrorMessage("Float or String composed of numbers only can be converted to int.", 
-    	                            ctx.getStart());
+    	                    /*VisitorErrorReporter.CreateErrorMessage("Float or String composed of numbers only can be converted to int.", 
+    	                            ctx.getStart());*/
+                    		currentErrorData.errorStorage.add("NumberFormatException : Float or String composed of numbers only can be converted to int.");
+                    		currentErrorData.tokenStorage.add(ctx.getStart());
+                    		currentErrorData.runnable = false;
+                    		return (T)"";
             			}
             		}
             		else if (dataType.equals("float")) {
@@ -583,24 +707,32 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 			double convertedFloat = Float.parseFloat(value.replace("\"", ""));
                 			value = Double.toString(convertedFloat);           				
             			} catch(NumberFormatException nfe) {
-    	                    VisitorErrorReporter.CreateErrorMessage("Int or String composed of numbers only can be converted to float.", 
-    	                            ctx.getStart());
+    	                    /*VisitorErrorReporter.CreateErrorMessage("Int or String composed of numbers only can be converted to float.", 
+    	                            ctx.getStart());*/
+                    		currentErrorData.errorStorage.add("NumberFormatException : Int or String composed of numbers only can be converted to float.");
+                    		currentErrorData.tokenStorage.add(ctx.getStart());
+                    		currentErrorData.runnable = false;
+                    		return (T)"";
             			}            			
             		}
             		else if (dataType.equals("string")) {
             			try {
             				value = '"' + value + '"';
             			} catch(NumberFormatException nfe) {
-    	                    VisitorErrorReporter.CreateErrorMessage("Cannot be converted to String.", 
-    	                            ctx.getStart());
+    	                    /*VisitorErrorReporter.CreateErrorMessage("Cannot be converted to String.", 
+    	                            ctx.getStart());*/
+                    		currentErrorData.errorStorage.add("Cannot be converted to String.");
+                    		currentErrorData.tokenStorage.add(ctx.getStart());
             			}
             		}
             		
             		// cast to boolean not supported.
             	}
             	else {
-                    VisitorErrorReporter.CreateErrorMessage("The data type of the assigning identifier and the cast data type should be the same.", 
-                            ctx.getStart());
+                    /*VisitorErrorReporter.CreateErrorMessage("The data type of the assigning identifier and the cast data type should be the same.", 
+                            ctx.getStart());*/
+            		currentErrorData.errorStorage.add("The data type of the assigning identifier and the cast data type should be the same.");
+            		currentErrorData.tokenStorage.add(ctx.getStart());
             		// cast type mismatch error
             	}
             }
@@ -621,8 +753,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         			try {
         				length = Integer.parseInt(visit(ctx.indexes()).toString());
         			} catch (NumberFormatException nfe) {
-                        VisitorErrorReporter.CreateErrorMessage("Type Mismatch : only integer or integer variable are possible for the array size.", 
-                                ctx.getStart());          				
+                        /*VisitorErrorReporter.CreateErrorMessage("Type Mismatch : only integer or integer variable are possible for the array size.", 
+                                ctx.getStart());*/
+                		currentErrorData.errorStorage.add("Type Mismatch : only integer or integer variable are possible for the array size.");
+                		currentErrorData.tokenStorage.add(ctx.getStart());
         			}
         	        String type = ctx.DataType().getText();
         	        String originalType = currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(1).toString();
@@ -637,8 +771,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	        }
         		}
         		else {
-                    VisitorErrorReporter.CreateErrorMessage("The identifier : " + ctx.Identifier().getText() + " does not exist.", 
-                            ctx.getStart());        			
+                    /* VisitorErrorReporter.CreateErrorMessage("The identifier : " + ctx.Identifier().getText() + " does not exist.", 
+                            ctx.getStart()); */
+            		currentErrorData.errorStorage.add("The identifier : " + ctx.Identifier().getText() + " does not exist.");
+            		currentErrorData.tokenStorage.add(ctx.getStart());
         		}
         	}
         	
@@ -668,8 +804,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         			}
         		}
         		else {
-                    VisitorErrorReporter.CreateErrorMessage("The function split can only be used to the string data type.", 
-                            ctx.getStart());        			
+                    /* VisitorErrorReporter.CreateErrorMessage("The function split can only be used to the string data type.", 
+                            ctx.getStart()); */       
+            		currentErrorData.errorStorage.add("The function split can only be used to the string data type.");
+            		currentErrorData.tokenStorage.add(ctx.getStart());
         			// not string, throw error
         		}
         	}
@@ -680,28 +818,45 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 String desiredLoc = visit(ctx.indexes()).toString();
                 String identifierName = ctx.Identifier().getText() + "[" + desiredLoc +  "]";
                 System.out.println("identifierName : " + identifierName);
+                boolean boundCheck = false;
                 int length = -1;
+                //for (int i = 0; i < 1; i++) {
                 try {
                 	length = Integer.parseInt(currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(0).toString());
                 } catch (NullPointerException ne) {
-                    VisitorErrorReporter.CreateErrorMessage("The array variable is not declared.", 
-                            ctx.getStart());                	
+                    /*VisitorErrorReporter.CreateErrorMessage("The array variable is not declared.", 
+                            ctx.getStart());*/
+            		currentErrorData.errorStorage.add("The array variable is not declared.");
+            		currentErrorData.tokenStorage.add(ctx.getStart());
+            		
                 } catch (NumberFormatException ne) {
-                    VisitorErrorReporter.CreateErrorMessage("The array variable is not initalized.", 
-                            ctx.getStart());                	
+                    /*VisitorErrorReporter.CreateErrorMessage("The array variable is not initalized.", 
+                            ctx.getStart());*/
+            		currentErrorData.errorStorage.add("The array variable is not initalized.");
+            		currentErrorData.tokenStorage.add(ctx.getStart());
+            		
                 }
                 
                 System.out.println("Array bound : " + length);
                 try {
                 if (length > -1) {
 	                if (Integer.parseInt(desiredLoc) >= length) {
-	                    VisitorErrorReporter.CreateErrorMessage("Array index out of bound!", 
-	                            ctx.getStart());
+	                    /*VisitorErrorReporter.CreateErrorMessage("ArrayIndexOutOfBounds : Array index out of bound!", 
+	                            ctx.getStart());*/
+	            		currentErrorData.errorStorage.add("ArrayIndexOutOfBounds : Array index out of bound!");
+	            		currentErrorData.tokenStorage.add(ctx.getStart());
+	            		currentErrorData.runnable = false;
+	            		return (T)"";
+	            		//return null;
+	            		//boundCheck = true;
 	                }
                 }
                 } catch (NumberFormatException nfe) {
-                    VisitorErrorReporter.CreateErrorMessage("Only integer or integer variable is allowed for the array index.", 
-                            ctx.getStart());                 	
+                    /* VisitorErrorReporter.CreateErrorMessage("Only integer or integer variable is allowed for the array index.", 
+                            ctx.getStart()); */
+            		   currentErrorData.errorStorage.add("Only integer or integer variable is allowed for the array index.");
+            		   currentErrorData.tokenStorage.add(ctx.getStart());
+            		   
                 }
                 try {
                 type = currentFunctionData.identifierMemory.get(identifierName).get(1).toString();
@@ -715,8 +870,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 try{
                     value = visit(ctx.expression()).toString();
                 }catch(NullPointerException ne){
-                    VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
-                            ctx.getStart());
+                    /* VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
+                            ctx.getStart()); */
+         		   /*currentErrorData.errorStorage.add("Something wrong with the assignment statement");
+         		   currentErrorData.tokenStorage.add(ctx.getStart());*/
+         		   
                 }
              
                 if (ctx.OpenParen() != null) {
@@ -728,8 +886,13 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 			value = Integer.toString(convertedInt);
                 			System.out.println("convertedInt : " + convertedInt);
                 			} catch(NumberFormatException nfe) {
-        	                    VisitorErrorReporter.CreateErrorMessage("Float or String composed of numbers only can be converted to int.", 
-        	                            ctx.getStart());
+        	                    /*VisitorErrorReporter.CreateErrorMessage("Float or String composed of numbers only can be converted to int.", 
+        	                            ctx.getStart());*/
+                      		   currentErrorData.errorStorage.add("NumberFormatException : Float or String composed of numbers only can be converted to int.");
+                     		   currentErrorData.tokenStorage.add(ctx.getStart());
+	                    	   currentErrorData.runnable = false;
+	                    	   return (T)"";      
+                     		   
                 			}
                 		}
                 		else if (dataType.equals("float")) {
@@ -737,35 +900,46 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                     			double convertedFloat = Float.parseFloat(value.replace("\"", ""));
                     			value = Double.toString(convertedFloat);           				
                 			} catch(NumberFormatException nfe) {
-        	                    VisitorErrorReporter.CreateErrorMessage("Int or String composed of numbers only can be converted to float.", 
-        	                            ctx.getStart());
+        	                    /*VisitorErrorReporter.CreateErrorMessage("Int or String composed of numbers only can be converted to float.", 
+        	                            ctx.getStart());*/
+                       		   currentErrorData.errorStorage.add("NumberFormatException : Int or String composed of numbers only can be converted to float.");
+                      		   currentErrorData.tokenStorage.add(ctx.getStart());
+	                    	   currentErrorData.runnable = false;
+	                    	   return (T)"";           		   
                 			}            			
                 		}
                 		else if (dataType.equals("string")) {
                 			try {
                 				value = '"' + value + '"';
                 			} catch(NumberFormatException nfe) {
-        	                    VisitorErrorReporter.CreateErrorMessage("Cannot be converted to String.", 
-        	                            ctx.getStart());
+        	                    /*VisitorErrorReporter.CreateErrorMessage("Cannot be converted to String.", 
+        	                            ctx.getStart());*/
+                        		currentErrorData.errorStorage.add("Cannot be converted to String.");
+                          		currentErrorData.tokenStorage.add(ctx.getStart());
+                          		
                 			}
                 		}
                 		
                 		// cast to boolean not supported.
                 	}
                 	else {
-                        VisitorErrorReporter.CreateErrorMessage("The data type of the assigning identifier and the cast data type should be the same.", 
-                                ctx.getStart());
+                        /* VisitorErrorReporter.CreateErrorMessage("The data type of the assigning identifier and the cast data type should be the same.", 
+                                ctx.getStart()); */
+                		currentErrorData.errorStorage.add("The data type of the assigning identifier and the cast data type should be the same.");
+                  		currentErrorData.tokenStorage.add(ctx.getStart());
+                  		
                 		// cast type mismatch error
                 	}
                 }
-                
+                if (!boundCheck) {
                 value = typeCheck(type, value, ctx);
                 System.out.println("after mismatch check : " + value);
                
                 if (!value.equals("")) 
                 	GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, constant, ctx);
-                
-            }
+                }
+                }
+            //}
         	
         }
         
@@ -776,7 +950,23 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             	identifierName = ctx.Identifier().getText();
             }
             else {
-            	identifierName = ctx.Identifier().getText() + "[" + visit(ctx.indexes()).toString() + "]";
+            	int index = Integer.parseInt(visit(ctx.indexes()).toString());
+            	identifierName = ctx.Identifier().getText() + "[" + index + "]";
+            	if (currentFunctionData.identifierExists(ctx.Identifier().getText())) {
+            		int size = Integer.parseInt(currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(0).toString());
+                	if (index > size - 1) {
+                		currentErrorData.errorStorage.add("ArrayIndexOutOfBounds Error : " + identifierName);
+                  		currentErrorData.tokenStorage.add(ctx.getStart());
+                  		currentErrorData.runnable = false;
+                  		return (T)"";
+                	}
+                	
+            	}
+            	else {
+            		currentErrorData.errorStorage.add("the identifier does not exist.");
+              		currentErrorData.tokenStorage.add(ctx.getStart());
+              		return (T)"";
+            	}
             }
             String value = "";
             String type = "", constant = "";
@@ -784,8 +974,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             type = currentFunctionData.identifierMemory.get(identifierName).get(1).toString();
             constant = currentFunctionData.identifierMemory.get(identifierName).get(2).toString();
             } catch(NullPointerException ne) {
-                VisitorErrorReporter.CreateErrorMessage("the identifier does not exist.", 
-                        ctx.getStart());            	
+                /*VisitorErrorReporter.CreateErrorMessage("the identifier does not exist.", 
+                        ctx.getStart());*/
+        		currentErrorData.errorStorage.add("the identifier does not exist.");
+          		currentErrorData.tokenStorage.add(ctx.getStart());
             }
             try{
                 value = JOptionPane.showInputDialog(visit(ctx.expression()).toString().replace("\"", ""));
@@ -796,22 +988,29 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 typeCheck(type,value,ctx);
                 
             }catch(NullPointerException ne){
-                VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
-                        ctx.getStart());
+                /*VisitorErrorReporter.CreateErrorMessage("Something wrong with the assignment statement", 
+                        ctx.getStart());*/
+        		/*currentErrorData.errorStorage.add("Something wrong with the assignment statement");
+          		currentErrorData.tokenStorage.add(ctx.getStart());*/
             }
             GenerateErrorIfIdentifierDoesNotExistElseAddToMemory(identifierName, value, constant, ctx);    
         }
         } catch(NullPointerException ne){
             System.out.println("visitAssignment Error: "+ne.getMessage());
+    		currentErrorData.errorStorage.add("The variable does not exist!");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }
         
+    }
         return (T)"";
     }
 
     public FunctionData GenerateErrorIfFuncDoesNotExistElseReturnValue(String idName, ParserRuleContext ctx){
         if(!functionExists(idName)){
-            VisitorErrorReporter.CreateErrorMessage("function does not exist: "+idName, 
-                    ctx.getStart());
+            /*VisitorErrorReporter.CreateErrorMessage("function does not exist: "+idName, 
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add("function does not exist: "+idName);
+      		currentErrorData.tokenStorage.add(ctx.getStart());
             return null;
         }else{
             return functionMemory.get(idName);
@@ -822,10 +1021,13 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitIdentifierFunctionCall(myGrammarParser.IdentifierFunctionCallContext ctx) {
         System.out.println("In visitIdentifierFunctionCall");
         T result = (T)"";
-        
+        if (currentErrorData.runnable) {
+        	
         if (!functionExists(ctx.Identifier().getText())) {
-            VisitorErrorReporter.CreateErrorMessage("the function does not exist: " + ctx.Identifier(), 
-                    ctx.getStart());
+            /*VisitorErrorReporter.CreateErrorMessage("the function does not exist: " + ctx.Identifier(), 
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add("the function does not exist: " + ctx.Identifier());
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }
 	try{
         String funcName = ctx.Identifier().getText();
@@ -885,17 +1087,21 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	            	for (int i = 0; i < postParam.length; i++){
 	            		boolean found = false;
             			if (postParam.length > functionData.funcIdentifierTracker.size()) {
-            	            VisitorErrorReporter.CreateErrorMessage(
+            	            /*VisitorErrorReporter.CreateErrorMessage(
             	                    "Parameter exceeds the number of arguments the function needs", 
-            	                    ctx.getStart());
+            	                    ctx.getStart());*/
+            	    		currentErrorData.errorStorage.add("Parameter exceeds the number of arguments the function needs");
+            	      		currentErrorData.tokenStorage.add(ctx.getStart());
             	            hasError = true;
             	            k = postParam.length + 1;
             	            break;
             			}
             			else if (postParam.length < functionData.funcIdentifierTracker.size()) {
-            	            VisitorErrorReporter.CreateErrorMessage(
+            	            /*VisitorErrorReporter.CreateErrorMessage(
             	                    "Parameter does not suffice the number of arguments the function needs", 
-            	                    ctx.getStart());
+            	                    ctx.getStart());*/
+            	    		currentErrorData.errorStorage.add("Parameter does not suffice the number of arguments the function needs");
+            	      		currentErrorData.tokenStorage.add(ctx.getStart());
             	            k = postParam.length + 1;
             	            hasError = true;
             	            break;
@@ -942,7 +1148,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         				if (!found){
         					System.out.println("function param dataType : " + functionData.identifierMemory.get(functionData.funcIdentifierTracker.get(k)).get(1));
         					String s;
-        					
+        					// 여기
+        					if (postParam[i].trim().equals("")) {
+        						System.out.println("real?");
+        						return (T)"";
+        					}
         					s = typeCheck(functionData.identifierMemory.get(functionData.funcIdentifierTracker.get(k)).get(1).toString(), postParam[i], ctx);
         					System.out.println("s : " + s);
         					ArrayList<T> tArray = new ArrayList<T>();
@@ -958,9 +1168,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             } 
         	else {
         		if (functionData.funcIdentifierTracker.size() > 0) {
-    	            VisitorErrorReporter.CreateErrorMessage(
+    	            /*VisitorErrorReporter.CreateErrorMessage(
     	                    "the function requires 1 ore more parameter value", 
-    	                    ctx.getStart());
+    	                    ctx.getStart());*/
+    	    		currentErrorData.errorStorage.add("the function requires 1 ore more parameter value");
+    	      		currentErrorData.tokenStorage.add(ctx.getStart());
     	            hasError = true;
         		}
         	}
@@ -986,6 +1198,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }catch(NullPointerException ne){
         	System.out.println("Caught in visitIdentifierFunctionCall: "+ne.getMessage());
         }
+    }
         return result;
     }
 
@@ -993,7 +1206,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitPrintlnFunctionCall(myGrammarParser.PrintlnFunctionCallContext ctx) {
         System.out.println("In VisitPrintlnFunctionCall: " + ctx.getText());
         T result = (T)"";
-        
+        if (currentErrorData.runnable) {
         if (printOn) {
         if(ctx.expression() != null) {
         	
@@ -1010,19 +1223,23 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
         System.out.println("Writing a new line, result: " + result);
         }
-        
+    	}
         return (T)"";
     }
 
     @Override
     public T visitPrintFunctionCall(myGrammarParser.PrintFunctionCallContext ctx) {
         System.out.println("In visitPrintFunctionCall");
+        if (currentErrorData.runnable) {
         if (printOn) {
         String printAppender = visitChildren(ctx).toString();
         T result = (T) printAppender;
         ui.getOutputConsole().append(printAppender.replace("\"", ""));
         ui.getOutputConsole().update(ui.getOutputConsole().getGraphics()); 
         return result;
+        }
+        else 
+        	return (T)"";
         }
         else 
         	return (T)"";
@@ -1033,10 +1250,13 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         try{
             result = (T)visitBlock(ctx).toString();
         }catch(NullPointerException ne){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                 ne.getMessage()+
                 " - Could not resolve conditional code block", 
-                ctx.getStart());
+                ctx.getStart());*/
+    		/*currentErrorData.errorStorage.add(ne.getMessage()+
+                    " - Could not resolve conditional code block");
+      		currentErrorData.tokenStorage.add(ctx.getStart());*/
         }
         return result;
     }
@@ -1046,11 +1266,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         try{
             result = (T)visitFunctionBlock(ctx).toString();
         }catch(NullPointerException ne){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                 ne.getMessage()+
                 " - Could not resolve function code block", 
-                ctx.getStart());
-            ne.printStackTrace();
+                ctx.getStart());*/
+    		currentErrorData.errorStorage.add(ne.getMessage()+
+                    " - Could not resolve function code block");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
+            //ne.printStackTrace();
         }    	
     	return result;
     }
@@ -1060,6 +1283,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         System.out.println("In visitIfStatement");
         System.out.println(ctx.getChildCount()+" children in if statement");
         T result = (T)"";
+        if (currentErrorData.runnable) {
         boolean checker = true; // 
         boolean changed = false;
         int checkerCount = ctx.getChildCount() - 3;
@@ -1091,9 +1315,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
         
         if (!checker && changed) {
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                     "The function may not return value when if condition (or else if) is not satisfied.", 
-                    ctx.getStart());        	
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add("The function may not return value when if condition (or else if) is not satisfied.");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }
         
         try{
@@ -1123,18 +1349,26 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
                 }
             }
         }catch(NullPointerException ne){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                     ne.getMessage()+
                     " - Could not resolve condition inside if statement", 
-                    ctx.getStart());
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add(ne.getMessage()+
+                    " - Could not resolve condition inside if statement");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }
         catch(Exception e){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                     e.getMessage()+
                     " - Could not resolve code block inside if statement", 
-                    ctx.getStart());
+                    ctx.getStart());*/
+            
+    		currentErrorData.errorStorage.add(e.getMessage()+
+                    " - Could not resolve code block inside if statement");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }
         
+    }
         return result;
     }
 
@@ -1142,6 +1376,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitIfStat(myGrammarParser.IfStatContext ctx) {
         System.out.println("In visitIfStat");
         T result = (T)"";
+        if (currentErrorData.runnable) {
         int numberOfChildren = ctx.getChildCount();
         System.out.println(numberOfChildren+" children in visitIfStat");
         
@@ -1152,19 +1387,26 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         try{
             condition = Boolean.parseBoolean(visit(conditionChild).toString());
         }catch(Exception e){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                     e.getMessage()+
                     " - Could not resolve if statement condition", 
-                    ctx.getStart());
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add(e.getMessage()+
+                    " - Could not resolve if statement condition");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }
        
         return (T)String.valueOf(condition);
+        }
+        else 
+        	return (T)"";
     }
     
     @Override
     public T visitElseIfStat(myGrammarParser.ElseIfStatContext ctx) {
         System.out.println("In visitElseIfStat");
         T result = (T)"";
+        if (currentErrorData.runnable) {
         int numberOfChildren = ctx.getChildCount();
         System.out.println(numberOfChildren+" children in visitIfStat");
         
@@ -1175,10 +1417,13 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         try{
             condition = Boolean.parseBoolean(visit(conditionChild).toString());
         }catch(Exception e){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                     e.getMessage()+
                     " - Could not resolve else if condition", 
-                    ctx.getStart());
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add(e.getMessage()+
+                    " - Could not resolve else if condition");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }
         
         /*if(condition){//implement error recovery?
@@ -1194,6 +1439,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         
         return result;*/
         return (T)String.valueOf(condition);
+        } 
+        else 
+        	return (T)"";
     }
 
     @Override
@@ -1201,18 +1449,136 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         T result = (T)"";
         int numberOfChildren = ctx.getChildCount();
         System.out.println(numberOfChildren+" children in visitIfStat");
-        
+        if (currentErrorData.runnable) {
         ParseTree blockChild = ctx.block();
         try{
             result = (T)visit(blockChild).toString();
         }catch(NullPointerException ne){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                 ne.getMessage()+
                 " - Could not resolve if statement body code block", 
-                ctx.getStart());
+                ctx.getStart());*/
+    		currentErrorData.errorStorage.add(ne.getMessage()+
+                    " - Could not resolve if statement body code block");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }
-        
+        }
         return result;
+    }
+    
+    @Override
+    public T visitTryStatement(myGrammarParser.TryStatementContext ctx) {
+    	if (currentErrorData.runnable) {
+    	ErrorData errorData = new ErrorData();
+
+    	for (int i = 0; i < ctx.catchStat().size(); i++) {
+    		errorData.errorType.add(ctx.catchStat(i).Exception().getText());
+    	}
+    	
+    	errorData.runnable = true;
+    	errorData.blockCtx = ctx.tryStat().block();
+    	errorBlockIndex += 1;
+    	errorList.add(errorData);
+    	currentErrorData = errorData;
+    	
+    	
+    	EvaluatelBlockWithErrorGeneration(errorData.blockCtx);
+    	currentErrorData.runnable = true;
+        	for (int i = 0; i < ctx.catchStat().size(); i++) {
+        		boolean enter = false; 
+        		if (ctx.catchStat(i).Exception().getText().equals("ArrayIndexOutOfBounds")) {
+        			
+        			for (int j = currentErrorData.errorStorage.size() - 1; j >= 0 ; j--) {
+	            		if (currentErrorData.errorStorage.get(j).contains("ArrayIndexOutOfBounds")){
+	            			currentErrorData.errorStorage.remove(j);
+	            			currentErrorData.tokenStorage.remove(j);
+	            			enter = true;
+	            		}	
+        			}
+        			if (enter) {
+        			ParseTree catchStatVisitor = ctx.catchStat(i);
+        			visit(catchStatVisitor);
+        			}
+        		}
+
+        		if (ctx.catchStat(i).Exception().getText().equals("NumberFormatException")) {
+        			
+        			for (int j = currentErrorData.errorStorage.size() - 1; j >= 0 ; j--) {
+	            		if (currentErrorData.errorStorage.get(j).contains("NumberFormatException")){
+	            			currentErrorData.errorStorage.remove(j);
+	            			currentErrorData.tokenStorage.remove(j);
+	            			enter = true;
+	            		}	
+        			}
+        			if (enter) {
+        			ParseTree catchStatVisitor = ctx.catchStat(i);
+        			visit(catchStatVisitor);
+        			}
+        		}
+        		
+        		if (ctx.catchStat(i).Exception().getText().equals("ArithmeticException")) {
+        			
+        			for (int j = currentErrorData.errorStorage.size() - 1; j >= 0 ; j--) {
+	            		if (currentErrorData.errorStorage.get(j).contains("ArithmeticException")){
+	            			currentErrorData.errorStorage.remove(j);
+	            			currentErrorData.tokenStorage.remove(j);
+	            			enter = true;
+	            		}	
+        			}
+        			if (enter) {
+        			ParseTree catchStatVisitor = ctx.catchStat(i);
+        			visit(catchStatVisitor);
+        			}
+        		}
+        		
+        		
+        	}
+        	
+        	if (ctx.finallyStat() != null) {
+			ParseTree finallyStatVisitor = ctx.finallyStat();
+			visit(finallyStatVisitor);    
+        	}
+        
+        if (errorBlockIndex - 1 <= 0) {
+    	for (int i = 0; i < currentErrorData.errorStorage.size(); i++) {
+    		System.out.println("where : " + i);
+    		System.out.println("errors " + "[" + i + "] : " + currentErrorData.errorStorage.get(i));
+    		VisitorErrorReporter.CreateErrorMessage(currentErrorData.errorStorage.get(i),
+    				currentErrorData.tokenStorage.get(i));
+    	}
+        }
+        else {
+        	System.out.println(currentErrorData.errorStorage.size());
+        	for (int i = 0; i < currentErrorData.errorStorage.size(); i++) {
+        		errorList.get(errorBlockIndex - 1).errorStorage.add(currentErrorData.errorStorage.get(i));
+        	    errorList.get(errorBlockIndex - 1).tokenStorage.add(currentErrorData.tokenStorage.get(i));  
+        	}   
+        }
+    	
+    	errorList.remove(errorBlockIndex);
+    	errorBlockIndex -= 1;
+    	currentErrorData = errorList.get(errorBlockIndex);
+    	System.out.println(currentErrorData.runnable);
+    	}
+		return (T)"";
+    	
+    }
+    
+    @Override
+    public T visitTryStat(myGrammarParser.TryStatContext ctx) {
+    	return (T)"";
+    }
+    
+    @Override
+    public T visitCatchStat(myGrammarParser.CatchStatContext ctx) {
+    	EvaluatelBlockWithErrorGeneration(ctx.block());
+    	return (T)"";
+    }
+    
+    @Override
+    public T visitFinallyStat(myGrammarParser.FinallyStatContext ctx) {
+    	EvaluatelBlockWithErrorGeneration(ctx.block());
+    	return (T)"";
     }
 
     Boolean functionExists(String funcName){
@@ -1234,9 +1600,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public void GenerateErrorIfFuncExistsElseAddToMemory(String identifierName, FunctionData value, 
             ParserRuleContext ctx){
         if(functionMemory.get(identifierName) != null){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                 "function "+identifierName+" already exists", 
-                ctx.getStart());
+                ctx.getStart());*/
+    		currentErrorData.errorStorage.add("function "+identifierName+" already exists");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }else{
             functionMemory.put(identifierName, value);
         }
@@ -1244,6 +1612,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     
     @Override
     public T visitFunctionDecl(myGrammarParser.FunctionDeclContext ctx) {//prints twice
+    	if (currentErrorData.runnable) {
         System.out.println("In visitFunctionDecl");
 
         String funcName = ctx.Identifier().getText();
@@ -1300,13 +1669,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         System.out.println("Created Function Name : " + funcName);
         
         //return (T)visitChildren(ctx);
+    	}
         return (T)"";
     }
 
     @Override
     public T visitForStatement(myGrammarParser.ForStatementContext ctx) {
         System.out.println("In visitForStatement");
-        
+        if (currentErrorData.runnable) {
 	try{    
         T result = (T)"";
         String temp = "";
@@ -1315,18 +1685,24 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         try{
             lowerLimit = Double.parseDouble(visit(ctx.expression(0)).toString());
         }catch(Exception e){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                 e.getMessage()+
                 " - for loop lower limit must be an object of type Number", 
-                ctx.getStart());
+                ctx.getStart());*/
+    		currentErrorData.errorStorage.add(e.getMessage()+
+                    " - for loop lower limit must be an object of type Number");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }
         try{
             upperLimit = Double.parseDouble(visit(ctx.expression(1)).toString());
         }catch(Exception e){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                 e.getMessage()+
                 " - for loop upper limit must be an object of type Number", 
-                ctx.getStart());
+                ctx.getStart());*/
+    		currentErrorData.errorStorage.add(e.getMessage()+
+                    " - for loop upper limit must be an object of type Number");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
         }
         
         if(lowerLimit < upperLimit){
@@ -1379,9 +1755,12 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         return result;
 	}catch(Exception e){
 		e.printStackTrace();
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                "Identifier does not exist: " + ctx.Identifier(), 
-                ctx.getStart());
+                ctx.getStart());*/
+		currentErrorData.errorStorage.add("Identifier does not exist: " + ctx.Identifier());
+  		currentErrorData.tokenStorage.add(ctx.getStart());
+        }
         }
         return (T)"";	
     }
@@ -1392,15 +1771,19 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
       
         
         T result = (T)"";
+        if (currentErrorData.runnable) {
         Boolean whileConditional = false;
         try{
             whileConditional = Boolean.parseBoolean(visit(ctx.expression()).toString());
         }catch(Exception e){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                 e.getMessage()+
                 " - Could not resolve while statement condition. It must return an object of type Bool", 
                 ctx.getStart()
-            );
+            );*/
+    		currentErrorData.errorStorage.add(e.getMessage()+
+                    " - Could not resolve while statement condition. It must return an object of type Bool");
+      		currentErrorData.tokenStorage.add(ctx.getStart());        	
         }
         while(whileConditional){
           String iterationOutput = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
@@ -1409,15 +1792,16 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
           whileConditional = Boolean.parseBoolean(visit(ctx.expression()).toString());
           //outputArea.setText(outputArea.getText() + iterationOutput);
         }
-        
+        }
         return result;
     }
     
     @Override
     public T visitDoWhileStatement(myGrammarParser.DoWhileStatementContext ctx) {
+    	T result = (T)"";
+    	if (currentErrorData.runnable) {
     	Boolean whileConditional = false;
     	System.out.println("in visit do while");
-    	T result = (T)"";
     	String iterationOutput = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
     	result = (T) (result + iterationOutput);
     	whileConditional = Boolean.parseBoolean(visit(ctx.expression()).toString());
@@ -1425,6 +1809,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	iterationOutput = EvaluatelBlockWithErrorGeneration(ctx.block()).toString();
         	result = (T) (result + iterationOutput);
         	whileConditional = Boolean.parseBoolean(visit(ctx.expression()).toString());    		
+    	}
     	}
     	return result;
     }
@@ -1476,9 +1861,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         System.out.println("current Function : " + currentFunction);
         String result = GenerateErrorIfIdentifierDoesNotExistElseReturnValue(idName, ctx).toString();
         if(CompilerHelper.isStringNullOrWhiteSpace(result)){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                 "identifier "+idName+" has no value yet", 
-                ctx.getStart());
+                ctx.getStart());*/
+    		currentErrorData.errorStorage.add("NullPointerException : identifier "+idName+" has no value yet");
+      		currentErrorData.tokenStorage.add(ctx.getStart()); 
         }
         System.out.println("result was : " + result);
         return (T)result;
@@ -1487,7 +1874,6 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitModulusExpression(myGrammarParser.ModulusExpressionContext ctx) {
         T result = Calculate(ctx, MathOpType.MOD);
-        System.out.println("Moduuuuuuuulus : " + result.toString());
         return result;
     }
 
@@ -1499,8 +1885,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         try{
             result = String.valueOf(!Boolean.parseBoolean(visit(origBoolChild).toString()));
         }catch(Exception e){
-            VisitorErrorReporter.CreateErrorMessage(e.getMessage(), 
-                    ctx.getStart());
+            /*VisitorErrorReporter.CreateErrorMessage(e.getMessage(), 
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add(e.getMessage());
+      		currentErrorData.tokenStorage.add(ctx.getStart()); 
         }
         return (T)result;
     }
@@ -1508,7 +1896,6 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitMultiplyExpression(myGrammarParser.MultiplyExpressionContext ctx) {
         T result = Calculate(ctx, MathOpType.MULT);
-        System.out.println("Multi Returning! : " + result.toString());
         return result;
     }
 
@@ -1636,29 +2023,38 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         try{
             condition = Boolean.parseBoolean(visit(conditionChild).toString());
         }catch(Exception e){
-            VisitorErrorReporter.CreateErrorMessage(
+            /*VisitorErrorReporter.CreateErrorMessage(
                     e.getMessage()+
                     " - Could not resolve ternary expression condition, continuing with false branch expression", 
-                    ctx.getStart());
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add(e.getMessage()+
+                    " - Could not resolve ternary expression condition, continuing with false branch expression");
+      		currentErrorData.tokenStorage.add(ctx.getStart()); 
         }
         
         if(condition){//implement error recovery?
             try{
                 result = (T)visit(trueConditionChild).toString();
             }catch(NullPointerException ne){
-                VisitorErrorReporter.CreateErrorMessage(
+                /*VisitorErrorReporter.CreateErrorMessage(
                     ne.getMessage()+
                     " - Could not resolve ternary expression true condition branch", 
-                    ctx.getStart());
+                    ctx.getStart());*/
+        		currentErrorData.errorStorage.add(ne.getMessage()+
+                        " - Could not resolve ternary expression true condition branch");
+          		currentErrorData.tokenStorage.add(ctx.getStart()); 
             }
         }else{
             try{
                 result = (T)visit(falseConditionChild).toString();
             }catch(NullPointerException ne){
-                VisitorErrorReporter.CreateErrorMessage(
+                /*VisitorErrorReporter.CreateErrorMessage(
                     ne.getMessage()+
                     " - Could not resolve ternary expression false condition branch", 
-                    ctx.getStart());
+                    ctx.getStart());*/
+        		currentErrorData.errorStorage.add(ne.getMessage()+
+                        " - Could not resolve ternary expression false condition branch");
+          		currentErrorData.tokenStorage.add(ctx.getStart()); 
             }
         }
         
@@ -1683,12 +2079,14 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         String idName = ctx.Identifier().getText() + "[" + visit(ctx.indexes()).toString() + "]";    
         System.out.println("idName : " + idName);
         String result = GenerateErrorIfIdentifierDoesNotExistElseReturnValue(idName, ctx).toString();
-        if(CompilerHelper.isStringNullOrWhiteSpace(result)){
+        /*if(CompilerHelper.isStringNullOrWhiteSpace(result)){
             VisitorErrorReporter.CreateErrorMessage(
                 "identifier "+idName+" has no value yet", 
                 ctx.getStart());
-        }
-        
+    		currentErrorData.errorStorage.add("identifier "+idName+" has no value yet");
+      		currentErrorData.tokenStorage.add(ctx.getStart()); 
+        }*/
+        //
         return (T)result;	
     }
     
@@ -1726,9 +2124,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 		        }
 	        }
 	        else {
-	            VisitorErrorReporter.CreateErrorMessage(
+	            /*VisitorErrorReporter.CreateErrorMessage(
 	                    "identifier cannot have " + ctx.DataType().getText() + " datatype!", 
-	                    ctx.getStart());       
+	                    ctx.getStart());*/
+	    		currentErrorData.errorStorage.add("identifier cannot have " + ctx.DataType().getText() + " datatype!");
+	      		currentErrorData.tokenStorage.add(ctx.getStart()); 
 	        }
         } 
         /*
@@ -1771,8 +2171,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	value = value.trim();
         	int integerTest = Integer.parseInt(value);
         	}	catch(NumberFormatException nfe) {
-                	VisitorErrorReporter.CreateErrorMessage("the value is not an integer.", 
-                    ctx.getStart());
+                	/*VisitorErrorReporter.CreateErrorMessage("the value is not an integer.", 
+                    ctx.getStart());*/
+	    		currentErrorData.errorStorage.add("the value is not an integer.");
+	      		currentErrorData.tokenStorage.add(ctx.getStart()); 
                 	passed = false;
                 	
         	}
@@ -1815,14 +2217,18 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         			}
         		 }
 	        	 if (stringTest >= 3) {
-	             	VisitorErrorReporter.CreateErrorMessage("the value is not a string.", 
-	                        ctx.getStart());   
+	             	/*VisitorErrorReporter.CreateErrorMessage("the value is not a string.", 
+	                        ctx.getStart());*/
+	 	    		currentErrorData.errorStorage.add("the value is not a string.");
+		      		currentErrorData.tokenStorage.add(ctx.getStart()); 
 	             	passed = false;
 	        	 }
         	}
         	else {
-            	VisitorErrorReporter.CreateErrorMessage("the value is not a string.", 
-                        ctx.getStart());        
+            	/*VisitorErrorReporter.CreateErrorMessage("the value is not a string.", 
+                        ctx.getStart());*/
+        		currentErrorData.errorStorage.add("the value is not a string.");
+	      		currentErrorData.tokenStorage.add(ctx.getStart());
             	passed = false;
         	}        	        	
         }
@@ -1832,8 +2238,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         		System.out.println("bool test passed");
         	}
         	else {
-            	VisitorErrorReporter.CreateErrorMessage("the value is not a boolean.", 
-                        ctx.getStart());  
+            	/*VisitorErrorReporter.CreateErrorMessage("the value is not a boolean.", 
+                        ctx.getStart());*/
+        		currentErrorData.errorStorage.add("the value is not a boolean");
+	      		currentErrorData.tokenStorage.add(ctx.getStart());
             	passed = false;
         	}
         }
@@ -1849,8 +2257,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         			floatTest = Float.parseFloat("deny");
         		}*/
         	} catch(NumberFormatException nfe) {
-            	VisitorErrorReporter.CreateErrorMessage("the value is not a float.", 
-                        ctx.getStart());
+            	/*VisitorErrorReporter.CreateErrorMessage("the value is not a float.", 
+                        ctx.getStart());*/
+        		currentErrorData.errorStorage.add("the value is not a float.");
+	      		currentErrorData.tokenStorage.add(ctx.getStart());
             	passed = false;
             }
         }
@@ -1858,14 +2268,18 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	if (value.contains("\"")) {
         	String charTest = value.replace("\"", "");
         	if (charTest.length() > 1) {
-            	VisitorErrorReporter.CreateErrorMessage("the value is not a character.", 
-                        ctx.getStart());
+            	/*VisitorErrorReporter.CreateErrorMessage("the value is not a character.", 
+                        ctx.getStart());*/
+        		currentErrorData.errorStorage.add("the value is not a character.");
+	      		currentErrorData.tokenStorage.add(ctx.getStart());
             	passed = false;
         	}
         	}
         	else {
-            	VisitorErrorReporter.CreateErrorMessage("the value is not a character.", 
-                        ctx.getStart());
+            	/*VisitorErrorReporter.CreateErrorMessage("the value is not a character.", 
+                        ctx.getStart());*/
+        		currentErrorData.errorStorage.add("the value is not a character.");
+	      		currentErrorData.tokenStorage.add(ctx.getStart());
             	passed = false;
         	}
         }
@@ -1889,8 +2303,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     		try {
     		float a = Float.parseFloat("deny");
     		} catch (NumberFormatException nfe) {
-            	VisitorErrorReporter.CreateErrorMessage("Type Mismatch, please check the data types of variable(s) again.", 
-                        ctx.getStart());    			
+            	/*VisitorErrorReporter.CreateErrorMessage("Type Mismatch, please check the data types of variable(s) again.", 
+                        ctx.getStart());*/
+        		currentErrorData.errorStorage.add("Type Mismatch, please check the data types of variable(s) again.");
+	      		currentErrorData.tokenStorage.add(ctx.getStart());
     		}
     	}
     	return false;
@@ -1904,12 +2320,16 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	    		return (T) currentFunctionData.identifierMemory.get(ctx.Identifier().getText()).get(0).toString();
 	    	}
     	} catch (NullPointerException npe) {
-            VisitorErrorReporter.CreateErrorMessage("The identifier : " + ctx.Identifier().getText() + " does not exist.", 
-                    ctx.getStart());    		
+            /*VisitorErrorReporter.CreateErrorMessage("The identifier : " + ctx.Identifier().getText() + " does not exist.", 
+                    ctx.getStart());*/
+    		currentErrorData.errorStorage.add("The identifier : " + ctx.Identifier().getText() + " does not exist.");
+      		currentErrorData.tokenStorage.add(ctx.getStart());
     	}
     	//error handling needed?
-        VisitorErrorReporter.CreateErrorMessage("The identifier : " + ctx.Identifier().getText() + " is not an array.", 
-            ctx.getStart()); 
+        /*VisitorErrorReporter.CreateErrorMessage("The identifier : " + ctx.Identifier().getText() + " is not an array.", 
+            ctx.getStart());*/
+		currentErrorData.errorStorage.add("The identifier : " + ctx.Identifier().getText() + " is not an array.");
+  		currentErrorData.tokenStorage.add(ctx.getStart());
 		return (T)"";	
     }
 }

@@ -11,10 +11,14 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import compile.compilersource.myGrammarParser.ArrayExpressionContext;
 import compile.compilersource.myGrammarParser.ArrayLengthExpressionContext;
+import compile.compilersource.myGrammarParser.CatchStatContext;
 import compile.compilersource.myGrammarParser.DoWhileStatementContext;
+import compile.compilersource.myGrammarParser.FinallyStatContext;
 import compile.compilersource.myGrammarParser.FunctionBlockContext;
 import compile.compilersource.myGrammarParser.ParamIdListContext;
 import compile.compilersource.myGrammarParser.ReturnStatementContext;
+import compile.compilersource.myGrammarParser.TryStatContext;
+import compile.compilersource.myGrammarParser.TryStatementContext;
 
 /**
  *
@@ -541,6 +545,54 @@ public class GrammarListener implements myGrammarListener{
 
 	@Override
 	public void exitArrayLengthExpression(ArrayLengthExpressionContext ctx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void enterTryStatement(TryStatementContext ctx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void exitTryStatement(TryStatementContext ctx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void enterTryStat(TryStatContext ctx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void exitTryStat(TryStatContext ctx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void enterCatchStat(CatchStatContext ctx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void exitCatchStat(CatchStatContext ctx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void enterFinallyStat(FinallyStatContext ctx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void exitFinallyStat(FinallyStatContext ctx) {
 		// TODO Auto-generated method stub
 		
 	}

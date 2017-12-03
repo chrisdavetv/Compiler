@@ -43,6 +43,18 @@ public class myGrammarBaseListener implements myGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTryStat(@NotNull myGrammarParser.TryStatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTryStat(@NotNull myGrammarParser.TryStatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterNumberExpression(@NotNull myGrammarParser.NumberExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -350,6 +362,42 @@ public class myGrammarBaseListener implements myGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunctionDecl(@NotNull myGrammarParser.FunctionDeclContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTryStatement(@NotNull myGrammarParser.TryStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTryStatement(@NotNull myGrammarParser.TryStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFinallyStat(@NotNull myGrammarParser.FinallyStatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFinallyStat(@NotNull myGrammarParser.FinallyStatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCatchStat(@NotNull myGrammarParser.CatchStatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCatchStat(@NotNull myGrammarParser.CatchStatContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

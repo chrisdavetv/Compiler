@@ -33,6 +33,16 @@ public interface myGrammarListener extends ParseTreeListener {
 	 */
 	void exitGtExpression(@NotNull myGrammarParser.GtExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#tryStat}.
+	 * @param ctx the parse tree
+	 */
+	void enterTryStat(@NotNull myGrammarParser.TryStatContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#tryStat}.
+	 * @param ctx the parse tree
+	 */
+	void exitTryStat(@NotNull myGrammarParser.TryStatContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code numberExpression}
 	 * labeled alternative in {@link myGrammarParser#expression}.
 	 * @param ctx the parse tree
@@ -332,6 +342,36 @@ public interface myGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunctionDecl(@NotNull myGrammarParser.FunctionDeclContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#tryStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterTryStatement(@NotNull myGrammarParser.TryStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#tryStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitTryStatement(@NotNull myGrammarParser.TryStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#finallyStat}.
+	 * @param ctx the parse tree
+	 */
+	void enterFinallyStat(@NotNull myGrammarParser.FinallyStatContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#finallyStat}.
+	 * @param ctx the parse tree
+	 */
+	void exitFinallyStat(@NotNull myGrammarParser.FinallyStatContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link myGrammarParser#catchStat}.
+	 * @param ctx the parse tree
+	 */
+	void enterCatchStat(@NotNull myGrammarParser.CatchStatContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link myGrammarParser#catchStat}.
+	 * @param ctx the parse tree
+	 */
+	void exitCatchStat(@NotNull myGrammarParser.CatchStatContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link myGrammarParser#elseStat}.
 	 * @param ctx the parse tree

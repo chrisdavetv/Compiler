@@ -100,6 +100,30 @@ public interface myGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitElseStat(myGrammarParser.ElseStatContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link myGrammarParser#tryStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTryStatement(myGrammarParser.TryStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link myGrammarParser#tryStat}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTryStat(myGrammarParser.TryStatContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link myGrammarParser#catchStat}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCatchStat(myGrammarParser.CatchStatContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link myGrammarParser#finallyStat}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFinallyStat(myGrammarParser.FinallyStatContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link myGrammarParser#functionDecl}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

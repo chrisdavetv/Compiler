@@ -28,6 +28,7 @@ parse
 functionBlock
  : block
  ;
+ 
 block
  : (statement | functionDecl)* returnStatement?
  ;
@@ -44,6 +45,7 @@ statement
  | forStatement
  | whileStatement 
  | doWhileStatement
+ | tryStatement
  ;
 
 assignment
@@ -79,6 +81,21 @@ elseIfStat
 
 elseStat
  : Else Do block
+ ;
+ 
+tryStatement 
+ : tryStat catchStat+ finallyStat? End 
+ ;
+tryStat
+ : Try Do block 
+ ;
+ 
+catchStat
+ : Catch OpenParen Exception CloseParen Do block
+ ;
+ 
+finallyStat
+ : Finally Do block
  ;
 
 functionDecl
@@ -163,6 +180,8 @@ End      : 'end';
 Null     : 'null';
 Split    : 'split';
 Length   : 'length';
+Try      : 'try';
+Catch    : 'catch';
 Period   : '.';
 Or       : '||';
 And      : '&&';
@@ -190,6 +209,7 @@ Assign   : '=';
 Comma    : ',';
 Colon    : ':';
 Final    : 'final';
+Finally  : 'finally';
 
 DataType 
 : 'boolean'
@@ -204,6 +224,12 @@ DataType
 | 'float[]'
 | 'void[]'
 | 'char[]'
+;
+
+Exception
+: 'ArrayIndexOutOfBounds'
+| 'NumberFormatException'
+| 'ArithmeticException'
 ;
 
 Bool

@@ -22,6 +22,7 @@ import compile.compiler.CompilerUI;
  */
 public class ErrorReporter {
     ArrayList<String> errorList = new ArrayList<String>();
+    myGrammarParser.BlockContext blockCtx;
     CompilerUI ui;
     
     public ErrorReporter(CompilerUI ui){
