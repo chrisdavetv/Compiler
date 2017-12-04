@@ -54,7 +54,6 @@ public class CompilerUI extends javax.swing.JFrame {
     
     public CompilerUI() {
         initComponents();
-        this.jMenuItem11.setEnabled(false);
         instance = this;
     }
     
@@ -62,9 +61,6 @@ public class CompilerUI extends javax.swing.JFrame {
         return instance;
     }
 
-    public void disableContinueBreakpointButton(){
-        jMenuItem11.setEnabled(false);
-    }
     
     public javax.swing.JTextArea getEditor(){
         return this.jTextArea1;
@@ -107,7 +103,6 @@ public class CompilerUI extends javax.swing.JFrame {
         jMenu6 = new javax.swing.JMenu();
         jMenuItem9 = new javax.swing.JMenuItem();
         jMenuItem10 = new javax.swing.JMenuItem();
-        jMenuItem11 = new javax.swing.JMenuItem();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -360,14 +355,6 @@ public class CompilerUI extends javax.swing.JFrame {
                     });
                     jMenu6.add(jMenuItem10);
 
-                    jMenuItem11.setText("Continue");
-                    jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            jMenuItem11ActionPerformed(evt);
-                        }
-                    });
-                    jMenu6.add(jMenuItem11);
-
                     jMenuBar1.add(jMenu6);
 
                     setJMenuBar(jMenuBar1);
@@ -547,7 +534,6 @@ public class CompilerUI extends javax.swing.JFrame {
         jTextArea1.getHighlighter().removeAllHighlights();
         jTextArea2.append(CompilerHelper.compile(jTextArea1.getText(), CompilerUI.this, watchList, breaklineList));
         
-        this.jMenuItem11.setEnabled(true);
     }//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
     
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
@@ -675,11 +661,6 @@ public class CompilerUI extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jMenuItem10ActionPerformed
-
-    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-        // TODO add your handling code here:
-        Breakpoint.startExecute();
-    }//GEN-LAST:event_jMenuItem11ActionPerformed
     void SaveAs(){
         JFileChooser fc = new JFileChooser();
         FileFilter filter = new FileNameExtensionFilter("Text file", new String[] {"txt"});
@@ -869,7 +850,6 @@ public class CompilerUI extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
-    private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;

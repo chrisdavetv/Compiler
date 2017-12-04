@@ -369,7 +369,6 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     				errorList.get(errorBlockIndex).tokenStorage.get(i));
     	}
         
-        this.ui.disableContinueBreakpointButton();
         
         return result;
     }
@@ -612,10 +611,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             panel.add(lbl);
             int selectedOption = JOptionPane.showOptionDialog(parent, panel, "Breakpoint", JOptionPane.NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options , options[0]);
 
-            if(selectedOption == 0)
+            /*if(selectedOption == 0)
             {
                 
-            }
+            }*/
     }
     
     void GenerateErrorIfIdentifierExistsElseAddToMemory(String identifierName, String value, String type, String constant, ParserRuleContext ctx){
