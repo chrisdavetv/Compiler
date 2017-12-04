@@ -2,7 +2,7 @@ package compile.compilersource;
 
 import compile.compiler.CompilerUI;
 import compile.compilersource.myGrammarParser.ExpressionContext;
-import compile.compilersource.myGrammarParser.ReturnStatementContext;
+import java.awt.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import javax.swing.JTextArea;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -106,8 +108,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     FunctionData currentFunctionData;
     ErrorData currentErrorData;
     ArrayList<String> watchList = new ArrayList<String>();
+    ArrayList<Integer> breaklineList = new ArrayList<Integer>();
     
-    public EvalVisitor(ErrorReporter errorReporter, CompilerUI ui, ArrayList watchList){
+    public EvalVisitor(ErrorReporter errorReporter, CompilerUI ui, ArrayList watchList, ArrayList breaklineList){
         super();
         VisitorErrorReporter = errorReporter;
         this.ui = ui;
@@ -122,6 +125,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         functionList.add(currentFunctionData);
         errorList.add(currentErrorData);
         this.watchList.addAll(watchList);
+        this.breaklineList.addAll(breaklineList);
     }
     
     enum MathOpType {
@@ -341,6 +345,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         System.out.println("visitParse result: " + result);
         
         try{
+            //Breakpoint.checkBreakpoint(ctx, breaklineList);
             result = (T) visitChildren(ctx);
         }catch(Exception e){
             /*VisitorErrorReporter.CreateErrorMessage(
@@ -363,6 +368,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     		VisitorErrorReporter.CreateErrorMessage(errorList.get(errorBlockIndex).errorStorage.get(i),
     				errorList.get(errorBlockIndex).tokenStorage.get(i));
     	}
+        
+        this.ui.disableContinueBreakpointButton();
+        
         return result;
     }
     
@@ -548,6 +556,28 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitStatement(myGrammarParser.StatementContext ctx) {
     	T result = (T)"";
+        //Breakpoint.checkBreakpoint(ctx, breaklineList);
+        
+        /*String line = ctx.getStart().getLine() + "";
+        System.out.println("breakline time: "+breaklineList.size());
+        for(int i = 0; i < breaklineList.size(); i++){ 
+            System.out.println("checking a breakline at line: "+breaklineList.get(i).toString());
+            if(line.equals(breaklineList.get(i).toString())){
+                System.out.println("found a breakline at line: "+breaklineList.get(i).toString());
+                System.out.println("executing: "+Breakpoint.executing());
+                while(Breakpoint.executing()){
+                    try {
+                        System.out.println("About to sleep");
+                        Thread.sleep(100);
+                        System.out.println("Woke up");
+                    } catch (InterruptedException ex) {
+                        System.out.println("Breakpoint sleep interrupted: "+ex.getMessage());
+                    }
+                    
+                }
+            }   
+         }*/
+        
     	if (currentErrorData.runnable) {
         /*Boolean continueVisit = false;
         System.out.println("in visitStatement");
@@ -564,9 +594,28 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         
         T result = continueVisit? (T) visitChildren(ctx) : (T)"";*/
     	System.out.println("visitStatement");
+        
+        int breakpointLineNum = Breakpoint.checkBreakpoint(ctx, breaklineList);
+        if(breakpointLineNum != -1){// if this statement line number matches a breakpoint line number, show watcher variables and continue option
+            showWatcherDialogue(this.ui, breakpointLineNum);
+        }
+        
         result = (T) visitChildren(ctx);
     	}
         return result;
+    }
+    
+    private void showWatcherDialogue(Component parent, int line){
+        String[] options = {"Continue"};
+            JPanel panel = new JPanel();
+            JLabel lbl = new JLabel("The following variables have these values at line "+line+": ");
+            panel.add(lbl);
+            int selectedOption = JOptionPane.showOptionDialog(parent, panel, "Breakpoint", JOptionPane.NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options , options[0]);
+
+            if(selectedOption == 0)
+            {
+                
+            }
     }
     
     void GenerateErrorIfIdentifierExistsElseAddToMemory(String identifierName, String value, String type, String constant, ParserRuleContext ctx){
@@ -1006,12 +1055,16 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
         
     }
-     for(int i = 0; i < watchList.size(); i++){   
-        if(ctx.Identifier().toString().equals(watchList.get(i))){
-            ui.getOutputConsole().append(ctx.Identifier().toString() + ":" + value + "\n");
-        }   
-     }
-        return (T)"";
+        
+    for(int i = 0; i < watchList.size(); i++){   
+       if(ctx.Identifier().toString().equals(watchList.get(i))){
+           ui.getOutputConsole().append(ctx.Identifier().toString() + ":" + value + "\n");
+       }   
+    }
+     
+    
+        
+    return (T)"";
     }
 
     public FunctionData GenerateErrorIfFuncDoesNotExistElseReturnValue(String idName, ParserRuleContext ctx){

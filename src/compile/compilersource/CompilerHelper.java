@@ -25,7 +25,7 @@ public class CompilerHelper {
     private final static String TAG = "CompilerHelper";
     private static CompilerHelper sharedInstance = null;
     
-    public static String compile(String expression, CompilerUI ui, ArrayList<String> watchList) {
+    public static String compile(String expression, CompilerUI ui, ArrayList<String> watchList, ArrayList<Integer> breaklineList) {
         String output = "";
 		try {
                         //TODO: assign classname here
@@ -40,7 +40,7 @@ public class CompilerHelper {
                         parser.setErrorHandler(errorStrat);
                         
                         ErrorReporter errorReporter = new ErrorReporter(ui);
-                        EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter, ui, watchList);   
+                        EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter, ui, watchList, breaklineList);   
                         String totalErrorString = "";
                         
                         String results = eval.visitParse(parser.parse());

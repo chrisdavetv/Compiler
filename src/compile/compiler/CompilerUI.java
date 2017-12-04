@@ -5,6 +5,7 @@
  */
 package compile.compiler;
 
+import compile.compilersource.Breakpoint;
 import compile.compilersource.CompilerHelper;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -49,8 +50,11 @@ public class CompilerUI extends javax.swing.JFrame {
     File currentFile;
     public static CompilerUI instance;
     public ArrayList<String> watchList = new ArrayList<String>();
+    public ArrayList<Integer> breaklineList = new ArrayList<Integer>();
+    
     public CompilerUI() {
         initComponents();
+        this.jMenuItem11.setEnabled(false);
         instance = this;
     }
     
@@ -58,6 +62,10 @@ public class CompilerUI extends javax.swing.JFrame {
         return instance;
     }
 
+    public void disableContinueBreakpointButton(){
+        jMenuItem11.setEnabled(false);
+    }
+    
     public javax.swing.JTextArea getEditor(){
         return this.jTextArea1;
     }
@@ -96,6 +104,10 @@ public class CompilerUI extends javax.swing.JFrame {
         jMenu5 = new javax.swing.JMenu();
         jMenuItem6 = new javax.swing.JMenuItem();
         jMenuItem7 = new javax.swing.JMenuItem();
+        jMenu6 = new javax.swing.JMenu();
+        jMenuItem9 = new javax.swing.JMenuItem();
+        jMenuItem10 = new javax.swing.JMenuItem();
+        jMenuItem11 = new javax.swing.JMenuItem();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -330,6 +342,34 @@ public class CompilerUI extends javax.swing.JFrame {
 
                     jMenuBar1.add(jMenu5);
 
+                    jMenu6.setText("Breakpoint");
+
+                    jMenuItem9.setText("Add");
+                    jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            jMenuItem9ActionPerformed(evt);
+                        }
+                    });
+                    jMenu6.add(jMenuItem9);
+
+                    jMenuItem10.setText("Remove");
+                    jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            jMenuItem10ActionPerformed(evt);
+                        }
+                    });
+                    jMenu6.add(jMenuItem10);
+
+                    jMenuItem11.setText("Continue");
+                    jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            jMenuItem11ActionPerformed(evt);
+                        }
+                    });
+                    jMenu6.add(jMenuItem11);
+
+                    jMenuBar1.add(jMenu6);
+
                     setJMenuBar(jMenuBar1);
 
                     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -505,8 +545,9 @@ public class CompilerUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     	jTextArea2.setText("");
         jTextArea1.getHighlighter().removeAllHighlights();
-        jTextArea2.append(CompilerHelper.compile(jTextArea1.getText(), CompilerUI.this, watchList));
+        jTextArea2.append(CompilerHelper.compile(jTextArea1.getText(), CompilerUI.this, watchList, breaklineList));
         
+        this.jMenuItem11.setEnabled(true);
     }//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
     
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
@@ -591,6 +632,54 @@ public class CompilerUI extends javax.swing.JFrame {
         }
         }
     }//GEN-LAST:event_jMenuItem7ActionPerformed
+
+    private String getInput(String message, String desc){
+        return (String)JOptionPane.showInputDialog(this, message , desc, INFORMATION_MESSAGE);
+    }
+    
+    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
+        // TODO add your handling code here:
+        String breaklineStr;
+        breaklineStr = (String)JOptionPane.showInputDialog(this, "Which line should we place the breakline at:" , "Enter breakline", INFORMATION_MESSAGE);
+        int breakline = -1;
+        
+        try{
+            breakline = Integer.parseInt(breaklineStr);
+            this.breaklineList.add(breakline);
+        }catch(NumberFormatException ne){
+            JOptionPane.showMessageDialog(this, "Please input a valid number >= 0");
+        }
+        
+    }//GEN-LAST:event_jMenuItem9ActionPerformed
+
+    private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
+        // TODO add your handling code here:
+        if(breaklineList.isEmpty()){
+            JOptionPane.showMessageDialog(null, "No breaklines to remove");
+            
+        }
+        else{
+            Object[] options = breaklineList.toArray();
+
+            int choice = JOptionPane.showOptionDialog(null, 
+                                   "Which breakline should be removed?", 
+                                   "Choose a breakline",
+                                   JOptionPane.DEFAULT_OPTION,
+                                   JOptionPane.INFORMATION_MESSAGE,
+                                   null, 
+                                    options,
+                                   ""); 
+
+            if(choice == JOptionPane.YES_OPTION){                         
+                breaklineList.remove(choice);
+            }
+        }
+    }//GEN-LAST:event_jMenuItem10ActionPerformed
+
+    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
+        // TODO add your handling code here:
+        Breakpoint.startExecute();
+    }//GEN-LAST:event_jMenuItem11ActionPerformed
     void SaveAs(){
         JFileChooser fc = new JFileChooser();
         FileFilter filter = new FileNameExtensionFilter("Text file", new String[] {"txt"});
@@ -776,8 +865,11 @@ public class CompilerUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
+    private javax.swing.JMenu jMenu6;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem10;
+    private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
@@ -785,6 +877,7 @@ public class CompilerUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
+    private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane1;
