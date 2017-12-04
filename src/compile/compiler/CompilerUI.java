@@ -557,11 +557,39 @@ public class CompilerUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
-        watchList.add(JOptionPane.showInputDialog("Enter variable to watch:"));
+        String variable;
+        variable = (String)JOptionPane.showInputDialog(this, "Enter variable to watch:" , "Enter Variable", INFORMATION_MESSAGE);
+        if(watchList.contains(variable)){
+            JOptionPane.showMessageDialog(null, "Variable is already in WatchList");
+        }
+        else{
+        if((variable !=null) && (variable.length() > 0)){    
+        watchList.add(variable);
+        }
+        }
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
-
+        if(watchList.isEmpty()){
+            JOptionPane.showMessageDialog(null, "No variables in WatchList");
+            
+        }
+        else{
+        Object[] options = watchList.toArray();
+        
+        int choice = JOptionPane.showOptionDialog(null, 
+                               "Which variable will be removed?", 
+                               "Choose a variable",
+                               JOptionPane.DEFAULT_OPTION,
+                               JOptionPane.INFORMATION_MESSAGE,
+                               null, 
+                                options,
+                               ""); 
+                               
+       if(choice == JOptionPane.YES_OPTION){                         
+            watchList.remove(choice);
+        }
+        }
     }//GEN-LAST:event_jMenuItem7ActionPerformed
     void SaveAs(){
         JFileChooser fc = new JFileChooser();
