@@ -25,11 +25,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	//comparison mismatch (expression?)
 	// for loop datatype issue
 	// double calculation makes slight difference in the resulting value (big number)
-	// error jumping, test case Á¤È®ÇÏ°Ô ¹Ù²Ù±â.
-	// print¿¡ indexoutofbound È®ÀÎ. (ÇÔ¼ö Ãß°¡?)
-	// À½¼ö arrayoutofindex.
-	// function µµ´Â Áß¿¡ exception ³ª¸é?
-	// scan¿¡ numberformatexception?
+	// error jumping, test case ï¿½ï¿½È®ï¿½Ï°ï¿½ ï¿½Ù²Ù±ï¿½.
+	// printï¿½ï¿½ indexoutofbound È®ï¿½ï¿½. (ï¿½Ô¼ï¿½ ï¿½ß°ï¿½?)
+	// ï¿½ï¿½ï¿½ï¿½ arrayoutofindex.
+	// function ï¿½ï¿½ï¿½ï¿½ ï¿½ß¿ï¿½ exception ï¿½ï¿½ï¿½ï¿½?
+	// scanï¿½ï¿½ numberformatexception?
     class FunctionData{
     	public String parent;
     	public String returnValue;
@@ -41,6 +41,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         
         private String returnType; 
         private String name;
+        
         public FunctionData(Map<String, ArrayList<T>> identifierMemory, Map<Integer, String> funcIdentifierTracker,
         		String returnType, String returnValue) {
         	this.funcIdentifierTracker.putAll(funcIdentifierTracker);
@@ -91,7 +92,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     ArrayList<FunctionData> functionList = new ArrayList<FunctionData>();
     ArrayList<ErrorData> errorList = new ArrayList<ErrorData>();
     ArrayList<String> arrays = new ArrayList<String>();
-    ArrayList<String> functionNames = new ArrayList<String>();
+    ArrayList<String> functionNames = new ArrayList<String>();  
     String currentFunction = "";
     ErrorReporter VisitorErrorReporter;
     CompilerUI ui;
@@ -104,8 +105,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     boolean printOn = true;
     FunctionData currentFunctionData;
     ErrorData currentErrorData;
+    ArrayList<String> watchList = new ArrayList<String>();
     
-    public EvalVisitor(ErrorReporter errorReporter, CompilerUI ui){
+    public EvalVisitor(ErrorReporter errorReporter, CompilerUI ui, ArrayList watchList){
         super();
         VisitorErrorReporter = errorReporter;
         this.ui = ui;
@@ -119,6 +121,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         depth[0] = "main";
         functionList.add(currentFunctionData);
         errorList.add(currentErrorData);
+        this.watchList.addAll(watchList);
     }
     
     enum MathOpType {
@@ -649,6 +652,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 
     @Override
     public T visitAssignment(myGrammarParser.AssignmentContext ctx) {
+        String value = "";
         System.out.println("In visitAssignment");
         if (currentErrorData.runnable) {
         try {
@@ -657,7 +661,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	if (ctx.indexes() == null && ctx.Split() == null) {
             String identifierName = ctx.Identifier().getText();
             String type, constant;
-            String value = "";
+            value = "";
             type = currentFunctionData.identifierMemory.get(identifierName).get(1).toString();
             constant = currentFunctionData.identifierMemory.get(identifierName).get(2).toString();
             
@@ -814,7 +818,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	
             else{
                 String type = "" , constant = "";
-                String value = "";
+                value = "";
                 String desiredLoc = visit(ctx.indexes()).toString();
                 String identifierName = ctx.Identifier().getText() + "[" + desiredLoc +  "]";
                 System.out.println("identifierName : " + identifierName);
@@ -968,7 +972,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
               		return (T)"";
             	}
             }
-            String value = "";
+            value = "";
             String type = "", constant = "";
             try {
             type = currentFunctionData.identifierMemory.get(identifierName).get(1).toString();
@@ -1002,6 +1006,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
         
     }
+     for(int i = 0; i < watchList.size(); i++){   
+        if(ctx.Identifier().toString().equals(watchList.get(i))){
+            ui.getOutputConsole().append(ctx.Identifier().toString() + ":" + value + "\n");
+        }   
+     }
         return (T)"";
     }
 
@@ -1148,7 +1157,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         				if (!found){
         					System.out.println("function param dataType : " + functionData.identifierMemory.get(functionData.funcIdentifierTracker.get(k)).get(1));
         					String s;
-        					// ¿©±â
+        					// ï¿½ï¿½ï¿½ï¿½
         					if (postParam[i].trim().equals("")) {
         						System.out.println("real?");
         						return (T)"";
@@ -1622,7 +1631,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         funcData.setReturnType(ctx.DataType().getText());
         if(ctx.paramIdList() != null){
         	// if openbracket is null
-        	// else ¹Ø¿¡ÀÌ°Å.
+        	// else ï¿½Ø¿ï¿½ï¿½Ì°ï¿½.
 
             for(int c = 0;c < ctx.paramIdList().Identifier().size();c++){
             	ArrayList<T> tArray = new ArrayList<T>();

@@ -18,6 +18,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
@@ -36,7 +37,6 @@ import javax.swing.text.Document;
 import javax.swing.text.Position;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
-
 /**
  *
  * @author chris
@@ -48,7 +48,7 @@ public class CompilerUI extends javax.swing.JFrame {
      */
     File currentFile;
     public static CompilerUI instance;
-    
+    public ArrayList<String> watchList = new ArrayList<String>();
     public CompilerUI() {
         initComponents();
         instance = this;
@@ -93,6 +93,9 @@ public class CompilerUI extends javax.swing.JFrame {
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
         jMenu4 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jMenu5 = new javax.swing.JMenu();
+        jMenuItem6 = new javax.swing.JMenuItem();
+        jMenuItem7 = new javax.swing.JMenuItem();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -194,23 +197,19 @@ public class CompilerUI extends javax.swing.JFrame {
                                         String lineStr = matcher.group(0);
                                         System.out.println(lineStr);
                                         lineStr = lineStr.split(" ")[1];
-                                        System.out.println("Error line number is:'" + lineStr+"'");
+                                        System.out.println("Error line number is: " + lineStr);
+                                        int pos = Integer.parseInt(lineStr) * jTextArea1.getColumns();
 
-                                        int pos = Integer.parseInt(lineStr);
                                         //go to error line number in editor
                                         // Get the rectangle of the where the text would be visible...
-
-                                        // Rectangle viewRect = jTextArea1.modelToView(pos);
-                                        //viewRect.setBounds(viewRect.x, jMenuBar1.getHeight()+jTabbedPane1.getHeight() + jTextArea1.getHeight(), viewRect.width, viewRect.height);
+                                        Rectangle viewRect = jTextArea1.modelToView(pos);
                                         // Scroll to make the rectangle visible
-                                        //jTextArea1.scrollRectToVisible(GetBoundsForErrorJumping(pos));
+                                        jTextArea1.scrollRectToVisible(viewRect);
                                         // Highlight the text
-                                        jTextArea1.setCaretPosition(jTextArea1.getLineStartOffset(pos - 1));
-                                        jTextArea1.moveCaretPosition(jTextArea1.getLineStartOffset(pos - 1));
-                                    }catch(NumberFormatException nfe){
-                                        System.out.println("Number format Error: " +  nfe.getMessage());
-                                    }catch(Exception e){
-                                        System.out.println("Caught random exception: "+e.getMessage());
+                                        jTextArea1.setCaretPosition(pos);
+                                        jTextArea1.moveCaretPosition(pos);
+                                    }catch(Exception ne){
+                                        System.out.println("Error: " +  ne.getMessage());
                                     }
                                 }
 
@@ -307,6 +306,29 @@ public class CompilerUI extends javax.swing.JFrame {
                     jMenu4.add(jMenuItem2);
 
                     jMenuBar1.add(jMenu4);
+
+                    jMenu5.setText("Watch");
+                    jMenu5.setName("Watch"); // NOI18N
+
+                    jMenuItem6.setText("Add Variable");
+                    jMenuItem6.setName("AddVariable"); // NOI18N
+                    jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            jMenuItem6ActionPerformed(evt);
+                        }
+                    });
+                    jMenu5.add(jMenuItem6);
+
+                    jMenuItem7.setText("Remove Variable");
+                    jMenuItem7.setName("RemoveVariable"); // NOI18N
+                    jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            jMenuItem7ActionPerformed(evt);
+                        }
+                    });
+                    jMenu5.add(jMenuItem7);
+
+                    jMenuBar1.add(jMenu5);
 
                     setJMenuBar(jMenuBar1);
 
@@ -483,7 +505,7 @@ public class CompilerUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     	jTextArea2.setText("");
         jTextArea1.getHighlighter().removeAllHighlights();
-        jTextArea2.append(CompilerHelper.compile(jTextArea1.getText(), CompilerUI.this));
+        jTextArea2.append(CompilerHelper.compile(jTextArea1.getText(), CompilerUI.this, watchList));
         
     }//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
     
@@ -521,7 +543,7 @@ public class CompilerUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-        // TODO add your handling code here:
+        
         SaveAs();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
@@ -533,6 +555,14 @@ public class CompilerUI extends javax.swing.JFrame {
             this.SearchEditorForTextThenScrollIfFound(s);
         }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+        watchList.add(JOptionPane.showInputDialog("Enter variable to watch:"));
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
     void SaveAs(){
         JFileChooser fc = new JFileChooser();
         FileFilter filter = new FileNameExtensionFilter("Text file", new String[] {"txt"});
@@ -717,12 +747,15 @@ public class CompilerUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
+    private javax.swing.JMenu jMenu5;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem6;
+    private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;

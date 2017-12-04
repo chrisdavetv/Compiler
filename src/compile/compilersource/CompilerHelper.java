@@ -6,6 +6,7 @@
 package compile.compilersource;
 
 import compile.compiler.CompilerUI;
+import java.util.ArrayList;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -24,7 +25,7 @@ public class CompilerHelper {
     private final static String TAG = "CompilerHelper";
     private static CompilerHelper sharedInstance = null;
     
-    public static String compile(String expression, CompilerUI ui) {
+    public static String compile(String expression, CompilerUI ui, ArrayList<String> watchList) {
         String output = "";
 		try {
                         //TODO: assign classname here
@@ -39,7 +40,7 @@ public class CompilerHelper {
                         parser.setErrorHandler(errorStrat);
                         
                         ErrorReporter errorReporter = new ErrorReporter(ui);
-                        EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter, ui);   
+                        EvalVisitor<String> eval = new EvalVisitor<String>(errorReporter, ui, watchList);   
                         String totalErrorString = "";
                         
                         String results = eval.visitParse(parser.parse());
