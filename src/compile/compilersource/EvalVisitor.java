@@ -23,16 +23,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
-//mismatched input errors still dont get caught
-	// to do :
-	//comparison mismatch (expression?)
-	// for loop datatype issue
-	// double calculation makes slight difference in the resulting value (big number)
-	// error jumping, test case ��Ȯ�ϰ� �ٲٱ�.
-	// print�� indexoutofbound Ȯ��. (�Լ� �߰�?)
-	// ���� arrayoutofindex.
-	// function ���� �߿� exception ����?
-	// scan�� numberformatexception?
+
     class FunctionData{
     	public String parent;
     	public String returnValue;
@@ -134,6 +125,10 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         for(int i = 0; i < watchList.size(); i++)
             this.watchListValue.add("");
         this.breaklineList.addAll(breaklineList);
+        
+        for (int i = 0; i < breaklineList.size(); i++) {
+        	System.out.println("breakLine List [" + i + "] = " + breaklineList.get(i));
+        }
     }
     
     enum MathOpType {
@@ -503,6 +498,27 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitBlock(myGrammarParser.BlockContext ctx) {
     	System.out.println("enter visitBlock : ");
+    	
+        //int breakpointLineNum = Breakpoint.checkBreakpoint(ctx, breaklineList);
+        //ui.getOutputConsole().append(ctx.getStart().getLine() + " : " + breakpointLineNum + "\n");
+        /*
+	    for (int i = 0; i < breaklineList.size(); i++) {
+	    	if (breakpointLineNum != -1 && breaklineList.get(i) == breakpointLineNum) {
+	    		watchListVisited.set(i, true);
+	    		break;
+	    	}
+	    }
+	    
+	    for (int i = 0; i < breaklineList.size(); i++) {
+	    	if (watchListVisited.get(i) == false && ctx.getStart().getLine() > breaklineList.get(i)) {
+	    		breakpointLineNum = breaklineList.get(i);
+	    		watchListVisited.set(i, true);
+	    	}
+	    }
+        if(breakpointLineNum != -1){// if this statement line number matches a breakpoint line number, show watcher variables and continue option
+            showWatcherDialogue(this.ui, breakpointLineNum);
+        }
+        */
     	T result = (T) "";
     	
     	ArrayList<String> blockIdentifier = new ArrayList<String>();
@@ -527,7 +543,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         blockIndex--;
         
         System.out.println("visitBlock result: " + result);
-    	
+        
         return result;
     }
     
@@ -559,50 +575,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitStatement(myGrammarParser.StatementContext ctx) {
     	T result = (T)"";
-        //Breakpoint.checkBreakpoint(ctx, breaklineList);
-        
-        /*String line = ctx.getStart().getLine() + "";
-        System.out.println("breakline time: "+breaklineList.size());
-        for(int i = 0; i < breaklineList.size(); i++){ 
-            System.out.println("checking a breakline at line: "+breaklineList.get(i).toString());
-            if(line.equals(breaklineList.get(i).toString())){
-                System.out.println("found a breakline at line: "+breaklineList.get(i).toString());
-                System.out.println("executing: "+Breakpoint.executing());
-                while(Breakpoint.executing()){
-                    try {
-                        System.out.println("About to sleep");
-                        Thread.sleep(100);
-                        System.out.println("Woke up");
-                    } catch (InterruptedException ex) {
-                        System.out.println("Breakpoint sleep interrupted: "+ex.getMessage());
-                    }
-                    
-                }
-            }   
-         }*/
-        
-    	if (currentErrorData.runnable) {
-        /*Boolean continueVisit = false;
-        System.out.println("in visitStatement");
-        if(ctx.assignment() != null || ctx.identifierDeclaration() != null || ctx.functionCall() != null){
-            System.out.println("statement contains either assignment, identifierDeclaration or functionCall");
-            System.out.println("has semi colon: "+ctx.SemiColon().getText());
-            if(!ctx.SemiColon().getText().equals(";")){
-                System.out.println("Missing semi colon");
-                VisitorErrorReporter.CreateErrorMessage(
-                    " - Missing ';' at the end of the statement", 
-                    ctx.getStart());
-            }else continueVisit = true;
-        }
-        
-        T result = continueVisit? (T) visitChildren(ctx) : (T)"";*/
+
     	System.out.println("visitStatement");
-        
-        int breakpointLineNum = Breakpoint.checkBreakpoint(ctx, breaklineList);
-        if(breakpointLineNum != -1){// if this statement line number matches a breakpoint line number, show watcher variables and continue option
-            showWatcherDialogue(this.ui, breakpointLineNum);
-        }
-        
+    	updateValue();
+        watchLine(ctx.getStart().getLine());
+    	if (currentErrorData.runnable) {        
         result = (T) visitChildren(ctx);
     	}
         return result;
@@ -614,19 +591,35 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             
             }
             else{  
-            int selectedOption = JOptionPane.YES_OPTION;
+            //String[] options = new String[watchList.size()];
             Object[] options = watchList.toArray(); 
+            
+            Object obj;
+            do {
+            obj = JOptionPane.showInputDialog(null, "The following variables have these values at line "+line+": ",
+            		"Breakpoint", JOptionPane.QUESTION_MESSAGE, null, options , options[0]);
+            
+            if (obj != null) {
+            	int selectedOption = 0;
+            	for (int i = 0; i < watchList.size(); i++) {
+            		if (obj.toString().equals(watchList.get(i))) {
+            			selectedOption = i;
+            			break;
+            		}
+            	}
+            	JOptionPane.showMessageDialog(null, watchList.get(selectedOption) + " = "+ watchListValue.get(selectedOption));
+            }
+            } while (obj != null); 
+            /*while(obj.toString().equals(options)){
+            //JPanel panel = new JPanel();
+            //JLabel lbl = new JLabel("The following variables have these values at line "+line+": ");
+            //panel.add(lbl);
 
-            while(selectedOption == JOptionPane.YES_OPTION){
-            JPanel panel = new JPanel();
-            JLabel lbl = new JLabel("The following variables have these values at line "+line+": ");
-            panel.add(lbl);
-            selectedOption = JOptionPane.showOptionDialog(parent, panel, "Breakpoint", JOptionPane.NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options , options[0]);
 
             if(selectedOption == JOptionPane.YES_OPTION)
             JOptionPane.showMessageDialog(null, watchList.get(selectedOption) + " = "+ watchListValue.get(selectedOption));
             
-            }
+            }*/
             }
     }
     
@@ -1074,13 +1067,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
         
     }
-        
-    for(int i = 0; i < watchList.size(); i++){   
-       if(ctx.Identifier().toString().equals(watchList.get(i))){
-           ui.getOutputConsole().append(ctx.Identifier().toString() + ":" + value + "\n");
-           watchListValue.set(i, value);
-       }   
-    }
+    
+    
      
     
         
@@ -1451,6 +1439,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         }
         
     }
+   
+        
         return result;
     }
 
@@ -1529,6 +1519,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     @Override
     public T visitElseStat(myGrammarParser.ElseStatContext ctx) {
         T result = (T)"";
+        ui.getOutputConsole().append("Else : " + ctx.getStart().getLine() + "\n");
         int numberOfChildren = ctx.getChildCount();
         System.out.println(numberOfChildren+" children in visitIfStat");
         if (currentErrorData.runnable) {
@@ -2452,5 +2443,39 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 		currentErrorData.errorStorage.add("The identifier : " + ctx.Identifier().getText() + " is not an array.");
   		currentErrorData.tokenStorage.add(ctx.getStart());
 		return (T)"";	
+    }
+    
+    public void watchLine(int line) {
+	 System.out.println("Line Number : " + line);
+     int breakpointLineNum = Breakpoint.checkBreakpoint(line, breaklineList);
+     int result = -1;
+
+	    for (int i = 0; i < breaklineList.size(); i++) {
+	    	if (breakpointLineNum != -1 && breakpointLineNum == breaklineList.get(i)) {
+	    		result = breakpointLineNum;
+	    		break;
+	    	}
+	    }
+	    
+	    /*for (int i = 0; i < breaklineList.size(); i++) {
+	    	if (watchListVisited.get(i) == false && line > breaklineList.get(i)) {
+	    		breakpointLineNum = breaklineList.get(i);
+	    		watchListVisited.set(i, true);
+	    		result = breakpointLineNum;
+	    		break;
+	    	}
+	    }*/
+     if(result != -1){// if this statement line number matches a breakpoint line number, show watcher variables and continue option
+         showWatcherDialogue(this.ui, result);
+     }
+    }
+    
+    public void updateValue() {
+	    for (int i = 0; i < watchList.size(); i++){   
+		       if(currentFunctionData.identifierExists(watchList.get(i))){
+		           ui.getOutputConsole().append(watchList.get(i) + ":" + currentFunctionData.identifierMemory.get(watchList.get(i)).get(0).toString() + "\n");
+		           watchListValue.set(i, currentFunctionData.identifierMemory.get(watchList.get(i)).get(0).toString());		          
+		       }   
+		    }
     }
 }

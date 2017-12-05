@@ -7,6 +7,9 @@ package compile.compilersource;
 
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+
+import org.antlr.v4.runtime.ParserRuleContext;
+
 import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 
 /**
@@ -20,8 +23,8 @@ public class Breakpoint// implements Runnable
     private myGrammarParser.StatementContext ctx;
     private ArrayList<Integer> breaklineList;
     
-    public static int checkBreakpoint(myGrammarParser.StatementContext ctx, ArrayList<Integer> breaklineList){
-        String line = ctx.getStart().getLine() + "";
+    public static int checkBreakpoint(int lineo, ArrayList<Integer> breaklineList){
+        String line = lineo + "";
         System.out.println("breakline time: "+breaklineList.size());
         for(int i = 0; i < breaklineList.size(); i++){ 
             int breakPointLineNum = breaklineList.get(i);
