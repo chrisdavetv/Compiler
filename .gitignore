@@ -26,7 +26,5 @@ src/compile/compilersource/test.java
 build
 src/compile/compilersource/new 1.txt
 *.form
-*.jar
 semantic_interpeter_testcase/semantic_test_1.txt
 src/compile/.DS_Store
-*.java
