@@ -108,6 +108,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     FunctionData currentFunctionData;
     ErrorData currentErrorData;
     ArrayList<String> watchList = new ArrayList<String>();
+    ArrayList<String> watchListValue = new ArrayList<String>();
     ArrayList<Integer> breaklineList = new ArrayList<Integer>();
     
     public EvalVisitor(ErrorReporter errorReporter, CompilerUI ui, ArrayList watchList, ArrayList breaklineList){
@@ -125,6 +126,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         functionList.add(currentFunctionData);
         errorList.add(currentErrorData);
         this.watchList.addAll(watchList);
+        for(int i = 0; i < watchList.size(); i++)
+            this.watchListValue.add("");
         this.breaklineList.addAll(breaklineList);
     }
     
@@ -605,16 +608,25 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     }
     
     private void showWatcherDialogue(Component parent, int line){
-        String[] options = {"Continue"};
+            if(watchList.isEmpty()){
+            JOptionPane.showMessageDialog(null, "No variables in WatchList");
+            
+            }
+            else{  
+            int selectedOption = JOptionPane.YES_OPTION;
+            Object[] options = watchList.toArray(); 
+
+            while(selectedOption == JOptionPane.YES_OPTION){
             JPanel panel = new JPanel();
             JLabel lbl = new JLabel("The following variables have these values at line "+line+": ");
             panel.add(lbl);
-            int selectedOption = JOptionPane.showOptionDialog(parent, panel, "Breakpoint", JOptionPane.NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options , options[0]);
+            selectedOption = JOptionPane.showOptionDialog(parent, panel, "Breakpoint", JOptionPane.NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options , options[0]);
 
-            /*if(selectedOption == 0)
-            {
-                
-            }*/
+            if(selectedOption == JOptionPane.YES_OPTION)
+            JOptionPane.showMessageDialog(null, watchList.get(selectedOption) + " = "+ watchListValue.get(selectedOption));
+            
+            }
+            }
     }
     
     void GenerateErrorIfIdentifierExistsElseAddToMemory(String identifierName, String value, String type, String constant, ParserRuleContext ctx){
@@ -1058,6 +1070,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     for(int i = 0; i < watchList.size(); i++){   
        if(ctx.Identifier().toString().equals(watchList.get(i))){
            ui.getOutputConsole().append(ctx.Identifier().toString() + ":" + value + "\n");
+           watchListValue.set(i, value);
        }   
     }
      
