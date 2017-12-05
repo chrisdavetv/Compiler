@@ -686,7 +686,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         		s = idName.substring(0, cut);
         		s2 = idName.substring(cut+1, cut2);
         		int val = Integer.parseInt(currentFunctionData.identifierMemory.get(s).get(0).toString());
-        		if (Integer.parseInt(s2) > (val - 1)) {
+        		if (Integer.parseInt(s2) > (val - 1) || Integer.parseInt(s2) < 0) {
             		currentErrorData.errorStorage.add("ArrayIndexOutOfBounds Error: "+idName);
             		currentErrorData.tokenStorage.add(ctx.getStart());
             		currentErrorData.runnable = false;
@@ -914,6 +914,12 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
 	            		return (T)"";
 	            		//return null;
 	            		//boundCheck = true;
+	                }
+	                else if (Integer.parseInt(desiredLoc) < 0) {
+	            		currentErrorData.errorStorage.add("ArrayIndexOutOfBounds : Array index out of bound!");
+	            		currentErrorData.tokenStorage.add(ctx.getStart());
+	            		currentErrorData.runnable = false;
+	            		return (T)"";
 	                }
                 }
                 } catch (NumberFormatException nfe) {
