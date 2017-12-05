@@ -6,6 +6,7 @@ import java.awt.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +111,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     ArrayList<String> watchList = new ArrayList<String>();
     ArrayList<String> watchListValue = new ArrayList<String>();
     ArrayList<Integer> breaklineList = new ArrayList<Integer>();
-    
+    ArrayList<ArrayList<String>> blockIdentifiers = new ArrayList<ArrayList<String>>();
+    String catchErrorMessage, catchVarName;
+    int blockIndex;    
     public EvalVisitor(ErrorReporter errorReporter, CompilerUI ui, ArrayList watchList, ArrayList breaklineList){
         super();
         VisitorErrorReporter = errorReporter;
@@ -122,9 +125,11 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         functionMemory.put("main", currentFunctionData);
         depthIndex = 0;
         errorBlockIndex = 0;
+        blockIndex = -1;
         depth[0] = "main";
         functionList.add(currentFunctionData);
         errorList.add(currentErrorData);
+        catchVarName = "";
         this.watchList.addAll(watchList);
         for(int i = 0; i < watchList.size(); i++)
             this.watchListValue.add("");
@@ -160,7 +165,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	if (child.getText().contains(".") || aggregateValue.toString().contains("."))
         		return aggregateValue.divide(num, 2, RoundingMode.HALF_UP);
         	else
-        		return aggregateValue.divide(num, RoundingMode.HALF_DOWN);
+        		return aggregateValue.divide(num, RoundingMode.FLOOR);
         else if (type.equals(MathOpType.POW))
         	return aggregateValue.pow(num.intValueExact()); 
         else if (type.equals(MathOpType.MOD))
@@ -170,7 +175,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         else
         	return null;
     	} catch (ArithmeticException e) {
-    		e.printStackTrace();
+    		//e.printStackTrace();
     		return null;
     	}
     }
@@ -239,8 +244,8 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         } catch (NumberFormatException nfe) {
             /*VisitorErrorReporter.CreateErrorMessage("Invalid equation. Please check again.", 
                     ctx.getStart());*/
-    		currentErrorData.errorStorage.add("Invalid equation. Please check again.");
-    		currentErrorData.tokenStorage.add(ctx.getStart());   
+    		//currentErrorData.errorStorage.add("Invalid equation. Please check again.");
+    		//currentErrorData.tokenStorage.add(ctx.getStart());   
         }
         return (T) finalResult;
     }
@@ -499,33 +504,28 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitBlock(myGrammarParser.BlockContext ctx) {
     	System.out.println("enter visitBlock : ");
     	T result = (T) "";
-
+    	
+    	ArrayList<String> blockIdentifier = new ArrayList<String>();
+    	blockIdentifiers.add(blockIdentifier);
+    	blockIndex++;
+    	
+    	if (catchVarName.length() > 0) {
+    		GenerateErrorIfIdentifierExistsElseAddToMemory(catchVarName, catchErrorMessage, "string", "not", ctx);
+    	}
         result = (T) visitChildren(ctx);
         
         
-        System.out.println("visitBlock result: " + result);
-        /*
-        System.out.println(ctx.getChildCount());
+        for (int i = 0; i < currentFunctionData.identifierMemory.size(); i++) {
+        	for (int j = 0; j < blockIdentifiers.get(blockIndex).size(); j++) {
+        	if (currentFunctionData.identifierExists(blockIdentifiers.get(blockIndex).get(j))){
+        		RemoveIdentifierFromMemory(blockIdentifiers.get(blockIndex).get(j));
+        	}
+        	}
+        }
+        blockIdentifiers.remove(blockIndex);
+        blockIndex--;
         
-        for (int i = 0; i < ctx.getChildCount(); i++) {
-        	System.out.println("Block Child : " + ctx.getChild(i).getText());
-        	if (i + 1 < ctx.getChildCount()) {
-        		System.out.println("Block Child 2 : " + ctx.getChild(i+1).getText());
-        	}
-        	if (ctx.getChild(i).getText().equals("return")) {
-        		if (currentFunctionData.getReturnValue() == null) {
-        		String returnVal = visit(ctx.getChild(i+1)).toString(); 
-        		System.out.println("returnVal : " + returnVal);
-        		String checker = typeCheck(currentFunctionData.getReturnType(), returnVal, ctx);
-        		currentFunctionData.setReturnValue(checker);
-        		}
-        		else {
-        			System.out.println("Already has return Value which is : " + currentFunctionData.getReturnValue());
-        		}
-        		//currentFunction = currentFunctionData.parent;
-        		//System.out.println("currentFunction : " + currentFunction);
-        	}
-        }*/
+        System.out.println("visitBlock result: " + result);
     	
         return result;
     }
@@ -644,6 +644,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         	tArray.add((T)type);
         	tArray.add((T)constant);
             currentFunctionData.identifierMemory.put(identifierName, tArray);
+            blockIdentifiers.get(blockIndex).add(identifierName);
         }
     	
     }
@@ -1544,7 +1545,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     public T visitTryStatement(myGrammarParser.TryStatementContext ctx) {
     	if (currentErrorData.runnable) {
     	ErrorData errorData = new ErrorData();
-
+    	Boolean key = false;
     	for (int i = 0; i < ctx.catchStat().size(); i++) {
     		errorData.errorType.add(ctx.catchStat(i).Exception().getText());
     	}
@@ -1557,16 +1558,27 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     	
     	
     	EvaluatelBlockWithErrorGeneration(errorData.blockCtx);
+    	if (currentErrorData.runnable == false) {
+    		key = true;
+    	}
     	currentErrorData.runnable = true;
         	for (int i = 0; i < ctx.catchStat().size(); i++) {
         		boolean enter = false; 
+        		catchVarName = "";
         		if (ctx.catchStat(i).Exception().getText().equals("ArrayIndexOutOfBounds")) {
         			
         			for (int j = currentErrorData.errorStorage.size() - 1; j >= 0 ; j--) {
 	            		if (currentErrorData.errorStorage.get(j).contains("ArrayIndexOutOfBounds")){
+	            	        catchErrorMessage = MessageFormat.format(
+	                                "Exception! line {0}, char {2}: {1}",
+	                                currentErrorData.tokenStorage.get(j).getLine(),
+	                                currentErrorData.errorStorage.get(j),
+	                                currentErrorData.tokenStorage.get(j).getCharPositionInLine());
+	            	        catchVarName = ctx.catchStat(i).Identifier().getText();
 	            			currentErrorData.errorStorage.remove(j);
 	            			currentErrorData.tokenStorage.remove(j);
 	            			enter = true;
+	            			key = false;
 	            		}	
         			}
         			if (enter) {
@@ -1579,9 +1591,17 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         			
         			for (int j = currentErrorData.errorStorage.size() - 1; j >= 0 ; j--) {
 	            		if (currentErrorData.errorStorage.get(j).contains("NumberFormatException")){
+	            	        catchErrorMessage = MessageFormat.format(
+	                                "Exception! line {0}, char {2}: {1}",
+	                                currentErrorData.tokenStorage.get(j).getLine(),
+	                                currentErrorData.errorStorage.get(j),
+	                                currentErrorData.tokenStorage.get(j).getCharPositionInLine());
+	            	        catchVarName = ctx.catchStat(i).Identifier().getText();
 	            			currentErrorData.errorStorage.remove(j);
 	            			currentErrorData.tokenStorage.remove(j);
+	            			
 	            			enter = true;
+	            			key = false;
 	            		}	
         			}
         			if (enter) {
@@ -1594,15 +1614,23 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
         			
         			for (int j = currentErrorData.errorStorage.size() - 1; j >= 0 ; j--) {
 	            		if (currentErrorData.errorStorage.get(j).contains("ArithmeticException")){
+	            	        catchErrorMessage = MessageFormat.format(
+	                                "Exception! line {0}, char {2}: {1}",
+	                                currentErrorData.tokenStorage.get(j).getLine(),
+	                                currentErrorData.errorStorage.get(j),
+	                                currentErrorData.tokenStorage.get(j).getCharPositionInLine());
+	            	        catchVarName = ctx.catchStat(i).Identifier().getText();
 	            			currentErrorData.errorStorage.remove(j);
 	            			currentErrorData.tokenStorage.remove(j);
 	            			enter = true;
+	            			key = false;
 	            		}	
         			}
         			if (enter) {
         			ParseTree catchStatVisitor = ctx.catchStat(i);
         			visit(catchStatVisitor);
         			}
+        			catchVarName = "";
         		}
         		
         		
@@ -1617,6 +1645,12 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     	for (int i = 0; i < currentErrorData.errorStorage.size(); i++) {
     		System.out.println("where : " + i);
     		System.out.println("errors " + "[" + i + "] : " + currentErrorData.errorStorage.get(i));
+    		if (currentErrorData.errorStorage.get(i).contains("ArrayIndexOut") ||
+        			currentErrorData.errorStorage.get(i).contains("NumberFormat") ||
+        			currentErrorData.errorStorage.get(i).contains("ArithmeticException"))
+    		{
+    			errorList.get(errorBlockIndex - 1).runnable = false;
+    		}
     		VisitorErrorReporter.CreateErrorMessage(currentErrorData.errorStorage.get(i),
     				currentErrorData.tokenStorage.get(i));
     	}
@@ -1632,6 +1666,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     	errorList.remove(errorBlockIndex);
     	errorBlockIndex -= 1;
     	currentErrorData = errorList.get(errorBlockIndex);
+    	if (key == true && errorBlockIndex > 0)
+    		currentErrorData.runnable = false;
+    	
     	System.out.println(currentErrorData.runnable);
     	}
 		return (T)"";
@@ -1864,6 +1901,9 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
           returnCount = 0;
           result = (T) (result + iterationOutput);
           whileConditional = Boolean.parseBoolean(visit(ctx.expression()).toString());
+          if (!currentErrorData.runnable) {
+        	  break;
+          }
           //outputArea.setText(outputArea.getText() + iterationOutput);
         }
         }
@@ -1938,7 +1978,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
             /*VisitorErrorReporter.CreateErrorMessage(
                 "identifier "+idName+" has no value yet", 
                 ctx.getStart());*/
-    		currentErrorData.errorStorage.add("NullPointerException : identifier "+idName+" has no value yet");
+    		currentErrorData.errorStorage.add("Identifier "+idName+" has no value yet");
       		currentErrorData.tokenStorage.add(ctx.getStart()); 
         }
         System.out.println("result was : " + result);

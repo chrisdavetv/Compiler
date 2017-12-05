@@ -91,7 +91,7 @@ tryStat
  ;
  
 catchStat
- : Catch OpenParen Exception CloseParen Do block
+ : Catch OpenParen Exception Identifier CloseParen Do block
  ;
  
 finallyStat
