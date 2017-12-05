@@ -511,6 +511,7 @@ public class EvalVisitor<T> extends myGrammarBaseVisitor<T> {
     	
     	if (catchVarName.length() > 0) {
     		GenerateErrorIfIdentifierExistsElseAddToMemory(catchVarName, catchErrorMessage, "string", "not", ctx);
+    		catchVarName = "";
     	}
         result = (T) visitChildren(ctx);
         
